@@ -1,5 +1,7 @@
 # SpecForge
 
+[![Tests](https://github.com/ferrarimarlon/specforge/actions/workflows/tests.yml/badge.svg)](https://github.com/ferrarimarlon/specforge/actions/workflows/tests.yml)
+
 **Turn a human request into a machine-executable contract — before the first line of code is written.**
 
 SpecForge compiles natural-language requirements into a structured artifact bundle that gives a coding agent a stable, auditable contract to work from. The bundle is a **runtime-ready execution harness for Claude**: concrete files that drive implementation and verification alongside the agent.
