@@ -13,6 +13,12 @@ SpecForge gives that request a stronger form before implementation begins.
 
 It also supports a `spec-driven development` workflow. In practice, that workflow often struggles at the hardest point: defining the full set of requirements, constraints, evidence, and guardrails needed before execution starts. SpecForge helps turn that fuzzy upfront phase into a concrete operational spec that can actually drive implementation.
 
+## Demo
+
+Interactive CLI: compile a requirement, then choose an output folder. The status panel shows provider, workspace, pipeline (`task -> spec -> lint -> package`), and slash commands.
+
+![Spec Forge v0.1.0 interactive CLI](docs/cli-demo.png)
+
 ## What Problem It Solves
 
 Coding agents operate inside a context harness, not inside a vacuum. The current user request is only one layer among many:
