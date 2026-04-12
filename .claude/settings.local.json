@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xxd /Users/marlonferrari/Desktop/specforge-output.toon)",
+      "Bash(pip install:*)",
+      "Bash(python:*)",
+      "Bash(python3:*)",
+      "Bash(pip3 install:*)",
+      "Bash(python3.11 -m pip install -q email-validator)",
+      "Bash(python3.11 -c ':*)",
+      "Bash(python3.11 -m pytest login_app/tests/test_auth.py -v)",
+      "Bash(python3.11 -m pytest --version)",
+      "Bash(python3.11:*)"
+    ]
+  }
+}

@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "specforge"
+version = "0.1.0"
+description = "Turn prompts into concrete specs and Claude-ready skill bundles for downstream coding agents."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["PyYAML>=6.0", "pydantic>=2.8"]
+
+[project.scripts]
+specforge = "opsspec.cli:main"
+opsspec = "opsspec.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

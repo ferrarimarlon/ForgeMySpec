@@ -1,0 +1,15 @@
+version: '0.1'
+purpose: Manual eval seeds to detect scope drift in Claude implementations
+source_prompt: build a small parser cli
+checks:
+  must_not_introduce:
+  - GUI
+  - web
+  - heavy dependencies
+  must_include:
+  - parser
+  - CLI
+  - input
+  - output
+  - error handling
+cases: []

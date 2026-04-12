@@ -1,0 +1,70 @@
+version: '0.1'
+title: Build a Small Parser CLI
+objective: Develop a command-line interface application that parses input according
+  to specified rules.
+context:
+  system: A CLI environment where users input text to be parsed by the application.
+  assumptions:
+  - The parser will handle simple structured text inputs.
+  - The CLI will run on a standard terminal supporting basic input/output.
+  - No specific parsing language or grammar was provided, so a generic parser will
+    be implemented.
+constraints:
+- The CLI must accept input from standard input or command-line arguments.
+- The parser should handle errors gracefully and provide meaningful messages.
+- The implementation should be lightweight and not depend on heavy external libraries.
+success_criteria:
+- The CLI accepts input and outputs the parsed result correctly.
+- The parser identifies and reports syntax errors in the input.
+- The CLI runs without crashes or unhandled exceptions.
+- The parser processes inputs within reasonable time for small inputs.
+hypotheses:
+- id: h1
+  description: A simple parser can be implemented to handle basic structured text
+    inputs in a CLI.
+  confidence: 0.9
+required_evidence:
+- Demonstration of the CLI parsing sample inputs correctly.
+- Error messages displayed for invalid inputs.
+- Code review confirming lightweight dependencies.
+actions:
+- id: a1
+  description: Design the parser grammar and CLI interface.
+  type: design
+  requires_confirmation: false
+  supports:
+  - h1
+- id: a2
+  description: Implement the parser and CLI application.
+  type: implement
+  requires_confirmation: false
+  supports:
+  - h1
+- id: a3
+  description: Validate the parser with various input cases including valid and invalid
+    inputs.
+  type: validate
+  requires_confirmation: false
+  supports:
+  - h1
+decision_rules:
+- If the parser fails to handle basic inputs, redesign the grammar.
+- If the CLI crashes on invalid input, add error handling.
+- If dependencies are heavy, refactor to reduce them.
+execution_mode: advisory
+metadata:
+  profile: cli_parser_developer
+  scope_contract:
+    must_include:
+    - parser
+    - CLI
+    - input
+    - output
+    - error handling
+    must_not_include:
+    - GUI
+    - web
+    - heavy dependencies
+  source_prompt: build a small parser cli
+  generator: llm-openai
+  model: null
