@@ -30,7 +30,7 @@ The `specforge-default` agent (`plugins/specforge/agents/specforge-default.md`, 
 │   ├── agents/specforge-default.md
 │   └── skills/{specforge,specforge-implement}/
 ├── .claude/
-│   ├── settings.json                  ← default agent
+│   ├── settings.json                  ← `defaultAgent`: specforge-default
 │   ├── agents/specforge-default.md    ← symlink → plugins/specforge/agents/…
 │   └── skills/                        ← symlinks → plugins/specforge/skills/…
 ├── examples/                          ← example SpecForge bundles

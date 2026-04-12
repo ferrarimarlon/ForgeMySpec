@@ -59,14 +59,14 @@ These files give the agent a stable anchor it can revisit throughout a long sess
 
 ---
 
-## Two Ways To Use It
+## Ways To Use It
 
 | Flavor | What It Does |
 |---|---|
 | **Python CLI** (`specforge`) | Runs locally with your API key. Interactive or direct-prompt mode. Writes the artifact bundle to your chosen output directory (default: `specforge-bundle`). |
-| **Claude Code skills** | Project skills under `.claude/skills/` (symlinks into `plugins/specforge/skills/`) teach Claude the same pipeline inside the session. No terminal required. MCP-connected tools can supply repo, docs, and ticket context during spec authoring. |
+| **Claude Code** | **Skills:** `.claude/skills/` (symlinks into `plugins/specforge/skills/`) expose `/specforge` and `/specforge-implement`. **Default agent:** `.claude/settings.json` sets `defaultAgent` to **`specforge-default`**, whose definition lives in `plugins/specforge/agents/specforge-default.md` (symlinked under `.claude/agents/`). That agent preloads those skills and routes spec-first work—no marketplace plugin required. |
 
-**Bundled skills:**
+**Slash commands (skills):**
 
 - **`/specforge`** — Compile a requirement into `spec.yaml` and the full artifact bundle. Gathers MCP context first.
 - **`/specforge-implement`** — Execute implementation when a bundle already exists. No re-compilation.
