@@ -1,10 +1,10 @@
 {
   "defaultAgent": "specforge-default",
   "enabledPlugins": {
-    "specforge@specforge-marketplace": true
+    "specforge@specforge": true
   },
   "extraKnownMarketplaces": {
-    "specforge-marketplace": {
+    "specforge": {
       "source": {
         "source": "directory",
         "path": "."
