@@ -1,0 +1,86 @@
+{
+  "build": {
+    "id": "build",
+    "name": "Build",
+    "priority": 8,
+    "depends_on": [],
+    "status": "done"
+  },
+  "test": {
+    "id": "test",
+    "name": "Test",
+    "priority": 7,
+    "depends_on": [
+      "build"
+    ],
+    "status": "done"
+  },
+  "deploy": {
+    "id": "deploy",
+    "name": "Deploy",
+    "priority": 9,
+    "depends_on": [
+      "test"
+    ],
+    "status": "failed"
+  },
+  "notify": {
+    "id": "notify",
+    "name": "Notify",
+    "priority": 5,
+    "depends_on": [
+      "deploy"
+    ],
+    "status": "cancelled"
+  },
+  "lint": {
+    "id": "lint",
+    "name": "Lint",
+    "priority": 6,
+    "depends_on": [],
+    "status": "pending"
+  },
+  "a": {
+    "id": "a",
+    "name": "A",
+    "priority": 5,
+    "depends_on": [],
+    "status": "pending"
+  },
+  "b": {
+    "id": "b",
+    "name": "B",
+    "priority": 5,
+    "depends_on": [
+      "a"
+    ],
+    "status": "pending"
+  },
+  "c": {
+    "id": "c",
+    "name": "C",
+    "priority": 5,
+    "depends_on": [
+      "b"
+    ],
+    "status": "pending"
+  },
+  "x": {
+    "id": "x",
+    "name": "X",
+    "priority": 5,
+    "depends_on": [
+      "c"
+    ],
+    "status": "pending"
+  },
+  "looper": {
+    "id": "looper",
+    "name": "Looper",
+    "priority": 5,
+    "depends_on": [
+      "c"
+    ],
+    "status": "pending"
+  }
+}

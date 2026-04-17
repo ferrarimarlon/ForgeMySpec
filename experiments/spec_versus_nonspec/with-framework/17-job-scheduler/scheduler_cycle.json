@@ -1,0 +1,36 @@
+{
+  "p": {
+    "id": "p",
+    "name": "P",
+    "priority": 1,
+    "depends_on": [],
+    "status": "pending"
+  },
+  "q": {
+    "id": "q",
+    "name": "Q",
+    "priority": 1,
+    "depends_on": [
+      "p"
+    ],
+    "status": "pending"
+  },
+  "r": {
+    "id": "r",
+    "name": "R",
+    "priority": 1,
+    "depends_on": [
+      "q"
+    ],
+    "status": "pending"
+  },
+  "s2": {
+    "id": "s2",
+    "name": "close",
+    "priority": 1,
+    "depends_on": [
+      "r"
+    ],
+    "status": "pending"
+  }
+}

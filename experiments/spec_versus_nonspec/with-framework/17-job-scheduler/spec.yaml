@@ -1,0 +1,192 @@
+version: "0.1"
+title: "Priority Job Scheduler with Dependency Graph"
+objective: >
+  A single-file Python CLI (scheduler.py) that manages jobs with dependency
+  relationships, detects cycles, computes execution order via topological sort
+  with priority tiebreak, propagates failures recursively, and persists state
+  to a JSON file.
+execution_mode: step_by_step
+
+context:
+  system: >
+    Python 3.9+, macOS/Linux. No external dependencies — stdlib only (json,
+    argparse, pathlib, sys, collections). State file: scheduler.json in cwd.
+  assumptions:
+    - scheduler.json may not exist on first run; create on first add.
+    - ready status is never stored; it is recomputed on every load from scratch.
+    - All status transitions are explicit; no implicit state changes.
+    - run-next is a simulation; it does not execute actual subprocesses.
+
+constraints:
+  - Job id: alphanumeric + underscore only, 1-32 chars, unique across all jobs.
+  - Priority: integer 1-10 inclusive; higher value = higher urgency.
+  - depends_on: list of existing job ids; must not include the job's own id; must not create a cycle.
+  - Cycle detection via DFS: traverse depends_on graph from the new job; if the new job is reachable from any of its own dependencies, reject.
+  - A job is ready when status=pending AND every job in depends_on has status=done.
+  - ready is recomputed on every load; it is never persisted as a stored status.
+  - Fail propagation is recursive and complete: when a job is set to failed, ALL transitive downstream jobs (jobs that depend on it directly or through other jobs) are set to cancelled.
+  - run-next transitions the chosen job directly from ready to done (no intermediate pause in running state visible to user).
+  - Status enum is exactly: pending, ready, running, done, failed, cancelled. No other values are valid.
+  - No eval(), no subprocess, no external libraries.
+
+success_criteria:
+  - add stores a new job and correctly rejects: duplicate id, self-dependency, unknown dep id, cycle.
+  - After any add or run-next, ready status is recomputed correctly for all pending jobs.
+  - run-next picks the highest-priority ready job; prints its id before marking done.
+  - fail <id> sets target to failed and recursively sets all transitive dependents to cancelled.
+  - status prints a table with columns id, name, priority, status, depends_on.
+  - report prints counts per status (only statuses with count > 0).
+  - Topological sort + priority tiebreak: among jobs at the same dependency depth, higher priority runs first.
+  - Cycle in the dependency graph is detected and rejected with a clear error message.
+
+hypotheses:
+  - id: h1
+    description: DFS-based cycle detection is sufficient for DAG validation on add.
+    confidence: 0.97
+  - id: h2
+    description: Recomputing ready on every load avoids stale-status bugs from persistent ready flags.
+    confidence: 0.99
+  - id: h3
+    description: BFS/DFS from a failed job covers all transitive downstream jobs for cancellation.
+    confidence: 0.98
+  - id: h4
+    description: Topological sort (Kahn's algorithm) + priority sort within each level gives correct execution order for run-next.
+    confidence: 0.95
+  - id: h5
+    description: A flat JSON dict keyed by job id is sufficient persistence; no DB needed.
+    confidence: 0.99
+
+required_evidence:
+  - add build --priority 8 succeeds; add test --depends-on build --priority 7 succeeds.
+  - add cycle --depends-on cycle is rejected (self-dep).
+  - Adding an edge that closes a cycle (A→B→A) is rejected.
+  - run-next after adding build and lint (priority 6, no deps) runs build first (higher priority).
+  - After build is done, test becomes ready; run-next runs test.
+  - fail deploy sets deploy=failed; notify (depends on deploy) becomes cancelled.
+  - status table displays all fields correctly.
+  - report shows correct counts after a mixed-state scenario.
+
+actions:
+  - id: a1
+    description: >
+      Define data model: each job is a dict with keys id, name, priority,
+      depends_on (list), status. Write load_jobs() and save_jobs() that
+      read/write scheduler.json. load_jobs() must call recompute_ready() after loading.
+    type: implement
+    requires_confirmation: false
+    supports: [h2, h5]
+
+  - id: a2
+    description: >
+      Implement recompute_ready(jobs): iterate all jobs; for each job with
+      status=pending, check if all depends_on ids have status=done; if so,
+      set status=ready. Jobs with any non-done dependency remain pending.
+      This function mutates the dict in place and is called after every load and every state change.
+    type: implement
+    requires_confirmation: false
+    supports: [h2]
+
+  - id: a3
+    description: >
+      Implement has_cycle(jobs, new_id, new_deps): DFS starting from each job in
+      new_deps; if new_id is encountered during traversal, a cycle exists. Return True
+      to reject. This must handle indirect cycles (A->B->C->A).
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+
+  - id: a4
+    description: >
+      Implement cmd_add: validate id regex [a-zA-Z0-9_]{1,32}, priority range 1-10,
+      no duplicate id, no self-dep in depends_on, all depends_on ids exist, no cycle.
+      On success, add job with status=pending, save, recompute_ready, save again.
+    type: implement
+    requires_confirmation: false
+    supports: [h1, h2, h5]
+
+  - id: a5
+    description: >
+      Implement cmd_run_next: collect all jobs with status=ready, sort by priority
+      descending, pick first. Set status=running, then immediately done. Call
+      recompute_ready after done. Save. Print "Running: <id>". If none ready, print
+      "No jobs ready" and exit 0.
+    type: implement
+    requires_confirmation: false
+    supports: [h2, h4]
+
+  - id: a6
+    description: >
+      Implement propagate_failure(jobs, failed_id): BFS/DFS over all jobs; collect
+      every job whose depends_on (directly or transitively) includes failed_id or
+      any already-collected cancelled id. Set all collected to cancelled. Return count.
+    type: implement
+    requires_confirmation: false
+    supports: [h3]
+
+  - id: a7
+    description: >
+      Implement cmd_fail: load jobs, verify id exists and is not already done/cancelled,
+      set status=failed, call propagate_failure, call recompute_ready, save. Print
+      "Failed: <id>. Cancelled <n> downstream jobs."
+    type: implement
+    requires_confirmation: false
+    supports: [h3]
+
+  - id: a8
+    description: >
+      Implement cmd_status: print a table with headers id, name, priority, status,
+      depends_on. Align columns. Sort rows by priority descending.
+    type: implement
+    requires_confirmation: false
+    supports: [h5]
+
+  - id: a9
+    description: >
+      Implement cmd_report: count jobs per status. Print only statuses with count > 0.
+      Include total.
+    type: implement
+    requires_confirmation: false
+    supports: [h5]
+
+  - id: a10
+    description: >
+      Wire argparse: subcommands add (--id, --name, --priority, --depends-on nargs=*),
+      run-next, fail <id>, status, report. Default scheduler.json path configurable
+      via --file. Run validation sequence from required_evidence.
+    type: validate
+    requires_confirmation: false
+    supports: [h1, h2, h3, h4, h5]
+
+decision_rules:
+  - "Cycle check must run BEFORE writing to scheduler.json — never persist a cyclic graph."
+  - "recompute_ready must run after every state change (add, run-next, fail) before save."
+  - "ready is never written to scheduler.json — always recomputed on load."
+  - "propagate_failure must use BFS/DFS to find ALL transitive dependents, not just direct children."
+  - "If a job is already failed/cancelled/done, fail command should print an error and exit 1."
+  - "Priority tiebreak in run-next: higher number wins. If equal, any order is acceptable."
+
+metadata:
+  source_prompt: >
+    Build scheduler.py — a CLI job dependency scheduler with 10 requirements:
+    1. Jobs: id (alphanumeric+underscore 1-32 chars unique), name, priority (1-10), depends_on list.
+    2. On add: reject duplicate id, self-dep, unknown dep id.
+    3. Cycle detection via DFS: reject cyclic adds.
+    4. Topological sort + priority tiebreak (descending) for execution order.
+    5. ready = pending AND all depends_on done. Recompute on every load.
+    6. Fail propagation: recursive cancellation of all transitive downstream jobs.
+    7. Status enum: pending, ready, running, done, failed, cancelled.
+    8. run-next: highest-priority ready job → running → done (simulated).
+    9. Persistence: scheduler.json. Recompute ready on load.
+    10. Commands: add, run-next, fail <id>, status, report.
+  scope_contract:
+    must_include:
+      - DFS cycle detection on add
+      - recompute_ready on every load and state change
+      - Recursive transitive fail propagation via BFS/DFS
+      - Topological sort with priority tiebreak in run-next
+      - ready status never persisted
+    must_not_include:
+      - External dependencies
+      - Subprocess execution of actual jobs
+      - Database (SQLite or otherwise)
+      - eval() or shell=True

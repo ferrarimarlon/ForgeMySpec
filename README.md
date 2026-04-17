@@ -1,6 +1,6 @@
 # ForgeMySpec
 
-![ForgeMySpec comparative results](experiments/forgemyspec_chart.png)
+![ForgeMySpec v0.1.0 interactive CLI](docs/cli-demo.png)
 
 [![Tests](https://github.com/ferrarimarlon/forgemyspec/actions/workflows/tests.yml/badge.svg)](https://github.com/ferrarimarlon/forgemyspec/actions/workflows/tests.yml)
 
@@ -8,7 +8,11 @@
 
 ForgeMySpec compiles natural-language requirements into a structured artifact bundle that gives a coding agent a stable, auditable contract to work from. The bundle is a **runtime-ready execution harness for Claude**: concrete files that drive implementation and verification alongside the agent.
 
-![ForgeMySpec v0.1.0 interactive CLI](docs/cli-demo.png)
+## Why Use This?
+
+![ForgeMySpec comparative results](experiments/forgemyspec_chart.png)
+
+![Average Score by Category](experiments/average_score_by_category.png)
 
 ---
 

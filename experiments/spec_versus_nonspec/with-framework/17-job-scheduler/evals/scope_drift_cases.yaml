@@ -1,0 +1,25 @@
+version: '0.1'
+purpose: Manual eval seeds to detect scope drift in Claude implementations
+source_prompt: "Build scheduler.py \u2014 a CLI job dependency scheduler with 10 requirements:\
+  \ 1. Jobs: id (alphanumeric+underscore 1-32 chars unique), name, priority (1-10),\
+  \ depends_on list. 2. On add: reject duplicate id, self-dep, unknown dep id. 3.\
+  \ Cycle detection via DFS: reject cyclic adds. 4. Topological sort + priority tiebreak\
+  \ (descending) for execution order. 5. ready = pending AND all depends_on done.\
+  \ Recompute on every load. 6. Fail propagation: recursive cancellation of all transitive\
+  \ downstream jobs. 7. Status enum: pending, ready, running, done, failed, cancelled.\
+  \ 8. run-next: highest-priority ready job \u2192 running \u2192 done (simulated).\
+  \ 9. Persistence: scheduler.json. Recompute ready on load. 10. Commands: add, run-next,\
+  \ fail <id>, status, report.\n"
+checks:
+  must_not_introduce:
+  - External dependencies
+  - Subprocess execution of actual jobs
+  - Database (SQLite or otherwise)
+  - eval() or shell=True
+  must_include:
+  - DFS cycle detection on add
+  - recompute_ready on every load and state change
+  - Recursive transitive fail propagation via BFS/DFS
+  - Topological sort with priority tiebreak in run-next
+  - ready status never persisted
+cases: []

@@ -1,0 +1,16 @@
+{
+  "a": {
+    "id": "a",
+    "name": "A",
+    "priority": 5,
+    "depends_on": [],
+    "status": "ready"
+  },
+  "b": {
+    "id": "b",
+    "name": "B",
+    "priority": 8,
+    "depends_on": [],
+    "status": "done"
+  }
+}

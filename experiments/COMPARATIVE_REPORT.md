@@ -762,3 +762,148 @@ Projetos segurança (P16):                WF +14%, 0 vs 3 desvios de conformidad
 
 **Recomendação final revisada:**  
 O threshold de benefício do ForgeMySpec permanece em ~3 regras de negócio com interação entre si. Em projetos com **requisitos de segurança** (criptografia, controle de acesso, auditoria), o benefício é estrutural — o spec captura invariantes que o implementador pode conhecer mas não documentaria explicitamente, prevenindo desvios de conformidade que passam em testes funcionais mas falham em revisão de segurança.
+
+---
+
+## RODADA 4 — Projeto 17: Priority Job Scheduler with Dependency Graph
+
+**Data:** 2026-04-17  
+**Projeto:** Job Scheduler CLI — grafo de dependências com detecção de ciclos, sort topológico + prioridade, propagação recursiva de falhas  
+**Método:** Mesmo conjunto de 10 requisitos para ambas as abordagens  
+**Complexidade:** Alta (10 requisitos, algoritmos de grafo: DFS ciclo, BFS propagação, Kahn topológico)  
+**Nota metodológica:** Versão WF gerada por Claude diretamente (sem chamada LLM externa) + lint/packaging via `src/forgemyspec`. Lint score: 100/100.
+
+---
+
+## R4.1. Projeto Avaliado
+
+| # | Projeto | Complexidade | Requisitos |
+|---|---------|--------------|------------|
+| 17 | Priority Job Scheduler | Alta | 10 (grafo de deps, ciclos, propagação de falha) |
+
+**10 requisitos cobertos:**
+1. Jobs: id (alphanumeric+underscore, 1-32 chars, único), name, priority (1-10), depends_on (lista)
+2. Validação no add: rejeitar id duplicado, auto-dependência, dep desconhecida
+3. Cycle detection via DFS: rejeitar qualquer add que criaria ciclo
+4. Topological sort + priority tiebreak (decrescente) para execução
+5. Job "ready" = pending AND todos depends_on com status=done; recomputar no load
+6. Fail propagation: recursivo, todos os dependentes transitivos → cancelled
+7. Status enum: pending, ready, running, done, failed, cancelled
+8. run-next: highest-priority ready job → running → done (simulado)
+9. Persistência: scheduler.json; ready nunca persiste — recomputar no load
+10. Commands: add, run-next, fail <id>, status, report
+
+---
+
+## R4.2. Problemas Encontrados
+
+### P17 — COM Framework (WF)
+
+| ID | Fase | Problema | Severidade | Causa Raiz |
+|----|------|----------|------------|------------|
+| — | Implementação | Nenhum bug encontrado | — | Spec documentou explicitamente: "ready nunca persiste", "recompute_ready após todo state change", "propagate_failure via BFS cobre transitivos", decision_rule "Cycle check antes de escrever no JSON". Todos implementados corretamente. |
+
+**Validação:** Todos os cenários do required_evidence passaram: add/reject, self-dep, run-next por prioridade, fail + cancelamento transitivo, status, report.  
+**Resultado P17-WF: 0 bugs, 0 desvios estruturais**
+
+---
+
+### P17 — SEM Framework (NF)
+
+| ID | Fase | Problema | Severidade | Causa Raiz |
+|----|------|----------|------------|------------|
+| P17-NF-01 | Implementação | `save_jobs` persiste `status="ready"` no scheduler.json. O spec estabelece como invariante que "ready nunca é armazenado — sempre recomputado no load". Não causa crash pois `recompute_ready` processa jobs "ready" no load, mas o arquivo em disco tem estado tecnicamente inválido. | BAIXA | Sem spec explicitando a constraint "never persist ready", o implementador salvou o estado in-memory diretamente, incluindo "ready". |
+| P17-NF-02 | Implementação | `report` exibe todos os 6 status incluindo contagens zero (`pending: 0`, `running: 0`, `cancelled: 0`) — verboso. O spec definiu "only statuses with count > 0". Não é crash, mas viola a spec de output. | BAIXA | Sem spec definindo o formato exato do report, inicializar o dict com todos os status e iterar todos pareceu mais consistente. |
+| P17-NF-03 | Implementação | `cmd_fail` não chama `recompute_ready` após propagação de falha. Safe em prática (nenhum job fica ready em decorrência de uma falha), mas devia do fluxo do spec. | BAIXA | Sem spec definindo o fluxo explícito "fail → propagate → recompute_ready → save", a etapa de recompute foi omitida. |
+
+**Resultado P17-NF: 0 bugs funcionais, 3 desvios de conformidade (2 de output, 1 de fluxo)**
+
+**Observação positiva:** A versão NF implementou `status` usando topological sort (Kahn's algorithm) para ordenação — UX mais informativa que a versão WF (que ordenou apenas por prioridade). A versão NF também exibiu mensagens de confirmação mais detalhadas (`"Added job 'build' (status=ready)"`, `"Cancelled downstream jobs: notify"`). Padrão consistente com rodadas anteriores: SEM framework produz UX mais refinada em detalhes não especificados.
+
+---
+
+## R4.3. Comparação Estrutural — P17
+
+| Aspecto | COM Framework | SEM Framework |
+|---------|---------------|---------------|
+| ready persiste no JSON | Não (converte para pending antes de salvar) | Sim (persiste ready — viola invariante) |
+| report formato | Só statuses com count > 0 | Todos os 6 statuses, incluindo zeros |
+| status ordenação | Priority descending | Topological sort (mais informativo) |
+| cmd_fail → recompute_ready | Sim | Não (safe em prática) |
+| Mensagens de confirmação | Mínimas ("Added: build") | Detalhadas ("Added job 'build' (status=ready)") |
+| Bugs funcionais | 0 | 0 |
+| Desvios de conformidade | 0 | 3 |
+
+---
+
+## R4.4. Pontuação — P17
+
+| Dimensão | COM Framework | SEM Framework |
+|----------|:---:|:---:|
+| Lógica correta | 5 | 5 |
+| Conformidade com requisitos | 5 | 4 (ready persiste, report verbose, fail sem recompute) |
+| Consistência de estado interno | 5 | 4 (ready no JSON) |
+| Qualidade de código | 4 | 5 (topo sort no status, mensagens detalhadas) |
+| Algoritmos de grafo corretos | 5 | 5 |
+| **MÉDIA** | **4.8** | **4.6** |
+
+---
+
+## R4.5. Observação Principal — P17
+
+**O spec não ensina algoritmos — ele mantém o agente honesto sobre o que foi decidido.**
+
+Tanto WF quanto NF implementaram corretamente todos os algoritmos complexos: DFS para detecção de ciclos, BFS para propagação de falhas, Kahn com tiebreak de prioridade para ordenação topológica. Nenhuma versão precisou do spec para acertar esses algoritmos. O implementador sem framework, quando conhece o domínio, resolve a lógica difícil com competência.
+
+A diferença emergiu em outro lugar: nos **contratos implícitos entre camadas** — as decisões de design que não são algoritmos, mas que definem o que é verdade sobre o sistema em todo momento. O spec forçou a resolução explícita de perguntas que a implementação direta não colocaria:
+
+- *O status "ready" deve ser armazenado ou recomputado?* O spec respondeu antes do primeiro `if`: "ready nunca persiste — sempre recomputado no load." A versão NF nunca se fez essa pergunta. Salvou o estado in-memory como estava, o que funciona, mas cria um arquivo de estado tecnicamente incorreto.
+- *O que exatamente o `report` deve exibir?* O spec especificou "apenas statuses com contagem > 0." A versão NF exibiu todos — razoável, mas divergente.
+- *Qual o fluxo obrigatório após um `fail`?* O spec listou: "fail → propagate → recompute_ready → save." A versão NF omitiu `recompute_ready` — safe em prática, mas incompleto como contrato.
+
+O ponto central é que **a versão NF não errou porque não sabia — errou porque nunca foi obrigada a decidir**. O processo de escrever o spec forçou a articulação explícita de cada invariante antes de qualquer linha de código. O resultado não é só um artefato de documentação: é um agente de implementação que opera com a consciência precisa do que foi acordado, e não com as melhores suposições do momento.
+
+Isso revela o valor mais sutil do framework: não é um guia de como implementar, mas um espelho que reflete de volta o que precisa ser verdade sobre o sistema — e exige resposta antes de deixar o código começar.
+
+---
+
+## R4.6. Totais Combinados — Projetos 1–17
+
+| Categoria | COM Framework | SEM Framework |
+|-----------|:---:|:---:|
+| **Total de problemas** | 8 | 16 |
+| **Bugs funcionais** | 4 | 6 |
+| **Desvios estruturais/conformidade** | 0 | 7 |
+| **Vulnerabilidades de segurança** | 0 | 1 (P4 eval) |
+| **Problemas silenciosos (não-crash)** | 4 | 9 |
+| **Projetos com zero problemas** | 10/17 | 6/17 |
+| **Completude média** | 4.85/5 | 4.17/5 |
+
+---
+
+## R4.7. Padrão Consolidado Atualizado (P1–P17)
+
+```
+Projetos simples   (P3, P10, P12, P15):          Empate
+Projetos médios    (P1, P6, P8, P13, P17):        WF +5–15% conformidade; NF melhor UX em detalhes
+Projetos complexos (P2, P4, P5, P11, P16):        WF +15–40%; 0 vs 1+ vuln/desvio crítico
+```
+
+**Insight de P17:** Em projetos com algoritmos de grafo (DFS, BFS, topo sort), ambas as abordagens acertam os algoritmos. O diferencial do spec não é nos algoritmos em si — é nos **invariantes de contrato entre camadas** (o que persiste, quando recomputar, quais campos são derivados vs armazenados).
+
+---
+
+## R4.8. Veredicto Final Revisado (P1–P17)
+
+**COM ForgeMySpec:**
+- Completude média: 4.85/5 vs 4.17/5 SEM framework (+16%)
+- Zero vulnerabilidades de segurança (vs 1)
+- Zero desvios estruturais (vs 7)
+- Invariantes de armazenamento e fluxo sempre corretos
+- Algoritmos complexos: acertos iguais a SEM framework
+
+**SEM framework:**
+- Projetos simples: resultado idêntico
+- UX mais detalhada em aspectos não especificados (mensagens, formatos)
+- Menor LOC médio
+- Algoritmos complexos: acerto equivalente ao WF quando o implementador conhece o domínio
