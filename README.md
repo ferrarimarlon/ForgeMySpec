@@ -12,7 +12,28 @@ ForgeMySpec compiles natural-language requirements into a structured artifact bu
 
 ![ForgeMySpec comparative results](experiments/forgemyspec_chart.png)
 
-![Average Score by Category](experiments/average_score_by_category.png)
+Across **17 projects** — ranging from a CLI task manager to a cryptographic secret vault and a job scheduler with a dependency graph — the same pattern repeated: both approaches got the algorithms right. The spec-first version was not more clever. It was more honest.
+
+The difference showed up in the places a competent implementer would not think to document: invariants between layers, storage contracts, flow ordering, what a field means vs. what it contains. The without-framework version made reasonable choices that worked — but never had to make them explicitly. Without a spec, those decisions happen implicitly, in the moment, and are never recorded.
+
+**What the data shows** (full report: [`experiments/COMPARATIVE_REPORT.md`](experiments/COMPARATIVE_REPORT.md)):
+
+| | With ForgeMySpec | Without framework |
+|---|:---:|:---:|
+| Average artifact completeness | **4.85 / 5** | 4.17 / 5 |
+| Security vulnerabilities | **0** | 1 (`eval()` injection, P4) |
+| Structural deviations from spec | **0** | 7 |
+| Silent quality issues (non-crash) | **4** | 9 |
+| Projects with zero issues | **10 / 17** | 6 / 17 |
+
+**Where the spec helps most** — projects with 3 or more interacting business rules, security constraints, or non-obvious invariants (e.g., "this field is always recomputed, never stored"). In those cases, the act of writing the spec forces every implicit decision into a named, visible contract before implementation begins. The coding agent then operates with the precision of what was agreed — not the best guess of the moment.
+
+**Where the spec adds less** — simple, low-ambiguity projects (one state shape, one path, no interacting rules). In those cases, both approaches converge to equivalent results, and the overhead of spec authoring is a net cost.
+
+**The central finding:** the without-framework version did not fail because it lacked knowledge. It failed because it was never required to decide. Writing a spec is not a documentation exercise — it is a forcing function that surfaces every "I'll figure it out when I get there" before the code starts.
+
+> *"A versão NF não errou porque não sabia — errou porque nunca foi obrigada a decidir."*  
+> The without-framework version didn't err from ignorance — it erred from never being forced to commit.
 
 ---
 
