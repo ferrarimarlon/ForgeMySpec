@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>R4.6 Totais Combinados — ForgeMySpec</title>
+    <style>
+      :root {
+        --bg: #eaf4ff;
+        --bg-deep: #d8eaff;
+        --card: rgba(255, 255, 255, 0.78);
+        --card-strong: rgba(255, 255, 255, 0.92);
+        --line: rgba(70, 111, 154, 0.16);
+        --ink: #16324d;
+        --muted: #64809c;
+        --spec: #2a6fdb;
+        --spec-soft: #cfe1ff;
+        --direct: #aebfd0;
+        --direct-ink: #6f859b;
+        --success: #1d8f63;
+        --success-soft: #ddf5eb;
+        --shadow: 0 18px 60px rgba(35, 86, 140, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 0% 0%, rgba(255,255,255,0.9), transparent 22%),
+          radial-gradient(circle at 100% 0%, rgba(126,179,255,0.35), transparent 20%),
+          linear-gradient(180deg, #f5fbff 0%, var(--bg) 46%, var(--bg-deep) 100%);
+        color: var(--ink);
+        font-family: "Segoe UI Variable", Aptos, "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+      }
+
+      .canvas {
+        width: 1500px;
+        min-height: 940px;
+        margin: 0 auto;
+        padding: 42px;
+      }
+
+      .shell {
+        background: linear-gradient(180deg, rgba(255,255,255,0.52), rgba(255,255,255,0.68));
+        border: 1px solid rgba(255,255,255,0.65);
+        border-radius: 34px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(18px);
+        padding: 30px;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 24px;
+      }
+
+      .eyebrow {
+        margin: 0 0 12px;
+        color: var(--spec);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        max-width: 900px;
+        font-size: 50px;
+        line-height: 1.02;
+        letter-spacing: -0.04em;
+        font-weight: 760;
+      }
+
+      .sub {
+        margin: 14px 0 0;
+        max-width: 760px;
+        font-size: 18px;
+        line-height: 1.45;
+        color: var(--muted);
+      }
+
+      .badge {
+        min-width: 220px;
+        padding: 18px 20px;
+        border-radius: 24px;
+        background: linear-gradient(180deg, rgba(42,111,219,0.14), rgba(42,111,219,0.07));
+        border: 1px solid rgba(42,111,219,0.12);
+      }
+
+      .badge-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--muted);
+        font-weight: 800;
+      }
+
+      .badge-value {
+        margin-top: 8px;
+        font-size: 42px;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        color: var(--spec);
+      }
+
+      .badge-copy {
+        margin-top: 6px;
+        font-size: 14px;
+        line-height: 1.45;
+        color: var(--muted);
+      }
+
+      .kpis {
+        margin-top: 26px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+      }
+
+      .kpi {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        padding: 20px 20px 18px;
+      }
+
+      .kpi-label {
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+      }
+
+      .kpi-value {
+        margin-top: 10px;
+        font-size: 38px;
+        line-height: 1;
+        letter-spacing: -0.04em;
+        font-weight: 800;
+      }
+
+      .kpi-copy {
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.45;
+      }
+
+      .layout {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: 1.35fr 0.95fr;
+        gap: 18px;
+      }
+
+      .panel {
+        background: var(--card-strong);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        padding: 24px;
+      }
+
+      .panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .panel-title {
+        margin: 0;
+        font-size: 15px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+        font-weight: 800;
+      }
+
+      .panel-lead {
+        margin: 10px 0 0;
+        font-size: 28px;
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+        font-weight: 760;
+      }
+
+      .panel-pill {
+        padding: 10px 12px;
+        border-radius: 999px;
+        background: var(--success-soft);
+        color: var(--success);
+        font-size: 13px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .rows {
+        margin-top: 24px;
+        display: grid;
+        gap: 16px;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 200px 1fr 110px;
+        gap: 16px;
+        align-items: center;
+        padding: 16px 16px 14px;
+        border-radius: 22px;
+        background: linear-gradient(180deg, rgba(234,244,255,0.52), rgba(255,255,255,0.66));
+      }
+
+      .metric {
+        font-size: 17px;
+        line-height: 1.2;
+        font-weight: 720;
+      }
+
+      .bars {
+        position: relative;
+        height: 62px;
+      }
+
+      .track {
+        position: absolute;
+        inset: 0;
+        border-radius: 18px;
+        background:
+          repeating-linear-gradient(
+            90deg,
+            rgba(42,111,219,0.03) 0,
+            rgba(42,111,219,0.03) calc(20% - 1px),
+            rgba(42,111,219,0.11) calc(20% - 1px),
+            rgba(42,111,219,0.11) 20%
+          );
+      }
+
+      .bar {
+        position: absolute;
+        left: 0;
+        height: 16px;
+        border-radius: 999px;
+      }
+
+      .bar.direct {
+        top: 10px;
+        background: linear-gradient(90deg, #c9d7e3, var(--direct));
+      }
+
+      .bar.spec {
+        bottom: 10px;
+        background: linear-gradient(90deg, #4890ff, var(--spec));
+      }
+
+      .value {
+        position: absolute;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .value.direct {
+        top: 7px;
+        color: var(--direct-ink);
+      }
+
+      .value.spec {
+        bottom: 6px;
+        color: var(--spec);
+      }
+
+      .delta {
+        text-align: center;
+        padding: 10px 12px;
+        border-radius: 16px;
+        background: var(--success-soft);
+        color: var(--success);
+        font-size: 14px;
+        font-weight: 800;
+      }
+
+      .side {
+        display: grid;
+        grid-template-rows: auto auto;
+        gap: 18px;
+      }
+
+      .gauges {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .gauge-card {
+        padding: 20px;
+        border-radius: 24px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(238,246,255,0.88));
+        border: 1px solid var(--line);
+      }
+
+      .gauge-title {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+        font-weight: 800;
+      }
+
+      .gauge-wrap {
+        margin-top: 18px;
+        display: flex;
+        justify-content: center;
+      }
+
+      .gauge {
+        width: 170px;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        position: relative;
+        display: grid;
+        place-items: center;
+      }
+
+      .gauge::before {
+        content: "";
+        position: absolute;
+        inset: 18px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.96);
+        box-shadow: inset 0 0 0 1px rgba(42,111,219,0.06);
+      }
+
+      .gauge-content {
+        position: relative;
+        text-align: center;
+        z-index: 1;
+      }
+
+      .gauge-value {
+        font-size: 34px;
+        line-height: 1;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+      }
+
+      .gauge-sub {
+        margin-top: 6px;
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+
+      .gauge-copy {
+        margin-top: 14px;
+        text-align: center;
+        font-size: 14px;
+        line-height: 1.45;
+        color: var(--muted);
+      }
+
+      .compare {
+        display: grid;
+        gap: 16px;
+      }
+
+      .mini {
+        padding: 18px;
+        border-radius: 24px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(238,246,255,0.88));
+        border: 1px solid var(--line);
+      }
+
+      .mini-title {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+        font-weight: 800;
+      }
+
+      .mini-value {
+        margin-top: 10px;
+        font-size: 36px;
+        line-height: 1;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+      }
+
+      .compare-bars {
+        margin-top: 14px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .compare-line {
+        display: grid;
+        grid-template-columns: 72px 1fr 48px;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .compare-label {
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .compare-track {
+        height: 12px;
+        border-radius: 999px;
+        background: rgba(42,111,219,0.08);
+        overflow: hidden;
+      }
+
+      .compare-fill {
+        height: 100%;
+        border-radius: inherit;
+      }
+
+      .compare-num {
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--ink);
+        text-align: right;
+      }
+
+      .notes {
+        margin-top: 18px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+
+      .note {
+        padding: 18px;
+        border-radius: 22px;
+        background: rgba(255,255,255,0.62);
+        border: 1px solid var(--line);
+      }
+
+      .note-kicker {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--muted);
+        font-weight: 800;
+      }
+
+      .note-copy {
+        margin-top: 8px;
+        font-size: 15px;
+        line-height: 1.45;
+        color: #45627e;
+      }
+
+      .foot {
+        margin-top: 18px;
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      @media print {
+        body {
+          background: white;
+        }
+
+        .canvas {
+          width: auto;
+          min-height: auto;
+          padding: 0;
+        }
+
+        .shell {
+          box-shadow: none;
+          border: none;
+          border-radius: 0;
+          backdrop-filter: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="canvas">
+      <section class="shell">
+        <div class="topbar">
+          <div>
+            <p class="eyebrow">Dashboard ForgeMySpec · R4.6 totais combinados</p>
+            <h1>A execução guiada por spec produziu resultados mais limpos ao longo do benchmark de 17 projetos.</h1>
+            <p class="sub">Uma leitura visual mais leve dos totais combinados, com foco em carga de problemas, taxa de projetos limpos e qualidade média de saída.</p>
+          </div>
+
+          <aside class="badge">
+            <div class="badge-label">Sinal principal</div>
+            <div class="badge-value">50% menos</div>
+            <div class="badge-copy">problemas totais com ForgeMySpec: <strong>8</strong> contra <strong>16</strong> sem spec.</div>
+          </aside>
+        </div>
+
+        <section class="kpis">
+          <article class="kpi">
+            <div class="kpi-label">Completude média</div>
+            <div class="kpi-value">4.85<span style="font-size:22px; color: var(--muted);"> / 5</span></div>
+            <div class="kpi-copy">Comparado com 4.17/5 sem spec.</div>
+          </article>
+
+          <article class="kpi">
+            <div class="kpi-label">Ganho de qualidade</div>
+            <div class="kpi-value" style="color: var(--spec);">+16%</div>
+            <div class="kpi-copy">Medido na completude média do conjunto completo.</div>
+          </article>
+
+          <article class="kpi">
+            <div class="kpi-label">Projetos sem problemas</div>
+            <div class="kpi-value">10<span style="font-size:22px; color: var(--muted);"> / 17</span></div>
+            <div class="kpi-copy">Contra 6/17 sem workflow guiado por spec.</div>
+          </article>
+
+          <article class="kpi">
+            <div class="kpi-label">Falhas duras removidas</div>
+            <div class="kpi-value">0<span style="font-size:22px; color: var(--muted);"> drift / vuln</span></div>
+            <div class="kpi-copy">Sem desvios estruturais e sem vulnerabilidades de segurança no caminho com spec.</div>
+          </article>
+        </section>
+
+        <section class="layout">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <p class="panel-title">Benchmark consolidado · 17 projetos</p>
+                <p class="panel-lead">Comparação agregada entre as duas execuções do benchmark: com ForgeMySpec e sem spec.</p>
+              </div>
+              <div class="panel-pill">Menor é melhor</div>
+            </div>
+
+            <div class="rows">
+              <div class="row">
+                <div class="metric">Problemas totais</div>
+                <div class="bars">
+                  <div class="track"></div>
+                  <div class="bar direct" style="width: 100%;"></div>
+                  <div class="bar spec" style="width: 50%;"></div>
+                  <div class="value direct" style="left: calc(100% + 10px);">16</div>
+                  <div class="value spec" style="left: calc(50% + 10px);">8</div>
+                </div>
+                <div class="delta">50% menos</div>
+              </div>
+
+              <div class="row">
+                <div class="metric">Bugs funcionais</div>
+                <div class="bars">
+                  <div class="track"></div>
+                  <div class="bar direct" style="width: 37.5%;"></div>
+                  <div class="bar spec" style="width: 25%;"></div>
+                  <div class="value direct" style="left: calc(37.5% + 10px);">6</div>
+                  <div class="value spec" style="left: calc(25% + 10px);">4</div>
+                </div>
+                <div class="delta">33% menos</div>
+              </div>
+
+              <div class="row">
+                <div class="metric">Drift de conformidade</div>
+                <div class="bars">
+                  <div class="track"></div>
+                  <div class="bar direct" style="width: 43.75%;"></div>
+                  <div class="bar spec" style="width: 0%; min-width: 6px;"></div>
+                  <div class="value direct" style="left: calc(43.75% + 10px);">7</div>
+                  <div class="value spec" style="left: 12px;">0</div>
+                </div>
+                <div class="delta">Eliminado</div>
+              </div>
+
+              <div class="row">
+                <div class="metric">Vulnerabilidades</div>
+                <div class="bars">
+                  <div class="track"></div>
+                  <div class="bar direct" style="width: 6.25%; min-width: 8px;"></div>
+                  <div class="bar spec" style="width: 0%; min-width: 6px;"></div>
+                  <div class="value direct" style="left: calc(6.25% + 10px);">1</div>
+                  <div class="value spec" style="left: 12px;">0</div>
+                </div>
+                <div class="delta">Eliminado</div>
+              </div>
+
+              <div class="row">
+                <div class="metric">Problemas silenciosos</div>
+                <div class="bars">
+                  <div class="track"></div>
+                  <div class="bar direct" style="width: 56.25%;"></div>
+                  <div class="bar spec" style="width: 25%;"></div>
+                  <div class="value direct" style="left: calc(56.25% + 10px);">9</div>
+                  <div class="value spec" style="left: calc(25% + 10px);">4</div>
+                </div>
+                <div class="delta">56% menos</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="side">
+            <div class="gauges">
+              <article class="gauge-card">
+                <div class="gauge-title">Completude média</div>
+                <div class="gauge-wrap">
+                  <div class="gauge" style="background: conic-gradient(var(--spec) 0 349.2deg, rgba(42,111,219,0.10) 349.2deg 360deg);">
+                    <div class="gauge-content">
+                      <div class="gauge-value">4.85</div>
+                      <div class="gauge-sub">com spec</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="gauge-copy">Contra <strong>4.17</strong> sem spec, para um ganho de <strong>+16%</strong> na qualidade média de saída.</div>
+              </article>
+
+              <article class="gauge-card">
+                <div class="gauge-title">Taxa de projetos limpos</div>
+                <div class="gauge-wrap">
+                  <div class="gauge" style="background: conic-gradient(var(--spec) 0 211.8deg, rgba(42,111,219,0.10) 211.8deg 360deg);">
+                    <div class="gauge-content">
+                      <div class="gauge-value">10/17</div>
+                      <div class="gauge-sub">com spec</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="gauge-copy">Comparado com <strong>6/17</strong> sem spec-driven workflow, ou <strong>67% mais</strong> projetos sem problemas.</div>
+              </article>
+            </div>
+
+            <div class="compare">
+              <article class="mini">
+                <div class="mini-title">Comparação direta</div>
+                <div class="mini-value">Com ForgeMySpec vs sem spec</div>
+                <div class="compare-bars">
+                  <div class="compare-line">
+                    <div class="compare-label">Com spec</div>
+                    <div class="compare-track">
+                      <div class="compare-fill" style="width: 58.8%; background: linear-gradient(90deg, #4b92ff, var(--spec));"></div>
+                    </div>
+                    <div class="compare-num">10</div>
+                  </div>
+
+                  <div class="compare-line">
+                    <div class="compare-label">Sem</div>
+                    <div class="compare-track">
+                      <div class="compare-fill" style="width: 35.3%; background: linear-gradient(90deg, #cad7e3, var(--direct));"></div>
+                    </div>
+                    <div class="compare-num">6</div>
+                  </div>
+                </div>
+              </article>
+
+              <article class="mini">
+                <div class="mini-title">Leitura rápida</div>
+                <div class="mini-value" style="font-size: 28px; line-height: 1.15;">Execução mais limpa sob restrição</div>
+                <div class="kpi-copy" style="margin-top: 12px;">
+                  O gap do benchmark aparece com mais clareza em drift, falhas silenciosas de qualidade e comportamento sensível à conformidade.
+                </div>
+              </article>
+            </div>
+          </section>
+        </section>
+
+        <section class="notes">
+          <article class="note">
+            <div class="note-kicker">Disciplina estrutural</div>
+            <div class="note-copy">O ForgeMySpec registrou <strong>0</strong> desvios estruturais contra <strong>7</strong> sem spec.</div>
+          </article>
+
+          <article class="note">
+            <div class="note-kicker">Perfil de segurança</div>
+            <div class="note-copy">O caminho guiado por spec terminou com <strong>0</strong> vulnerabilidades de segurança no conjunto de 17 projetos.</div>
+          </article>
+
+          <article class="note">
+            <div class="note-kicker">Controle de falhas silenciosas</div>
+            <div class="note-copy">Problemas silenciosos caíram de <strong>9</strong> para <strong>4</strong>, reduzindo defeitos que passam em checagens funcionais.</div>
+          </article>
+        </section>
+
+        <footer class="foot">
+          <div>Fonte: <strong>R4.6. Totais Combinados — Projetos 1–17</strong> em <code>experiments/COMPARATIVE_REPORT.md</code></div>
+          <div>Mockup HTML de dashboard para exportação e publicação.</div>
+        </footer>
+      </section>
+    </main>
+  </body>
+</html>
