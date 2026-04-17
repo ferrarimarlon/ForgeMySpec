@@ -1,0 +1,7 @@
+name,age,salary,department
+Alice,30,75000,Engineering
+Bob,25,60000,Marketing
+Carol,,82000,Engineering
+Dave,35,91000,Engineering
+Eve,28,,Marketing
+Frank,42,110000,Finance

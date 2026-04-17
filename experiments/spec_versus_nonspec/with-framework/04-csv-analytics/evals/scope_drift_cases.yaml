@@ -1,0 +1,19 @@
+must_not_introduce:
+  - pattern: "import pandas|import numpy|import polars|import scipy"
+    reason: "No external data libraries"
+  - pattern: "import matplotlib|import plotly|import seaborn"
+    reason: "No charts or plots"
+  - pattern: "SELECT.*FROM|sqlite3"
+    reason: "No SQL queries"
+
+must_include:
+  - pattern: "import csv|from csv"
+    reason: "CSV reading required"
+  - pattern: "import statistics|from statistics"
+    reason: "statistics module required for mean/median/stdev"
+  - pattern: "import json"
+    reason: "JSON report output required"
+  - pattern: "import argparse"
+    reason: "CLI arg parsing required"
+  - pattern: "stdev|std"
+    reason: "Standard deviation computation required"

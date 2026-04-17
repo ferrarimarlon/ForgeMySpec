@@ -1,0 +1,134 @@
+version: "0.1"
+title: "Markdown Note-Taker CLI"
+objective: >
+  Build a single-file Python CLI (note_taker.py) for creating, listing, showing,
+  editing, and deleting Markdown notes stored as .md files with YAML frontmatter
+  in ~/.note-taker/. Notes have a unique integer id, slugified filename, and
+  metadata (id, title, tags, created_at, updated_at) embedded in frontmatter.
+execution_mode: step_by_step
+
+context:
+  system: >
+    macOS/Linux Python 3.9+ environment. Single file note_taker.py runnable with
+    `python3 note_taker.py <command> [options]`. No external packages.
+    Storage: ~/.note-taker/ directory created on first run.
+  assumptions:
+    - ~/.note-taker/ is created with os.makedirs(exist_ok=True) on startup.
+    - Note id is the next integer after the current max id in the store (starts at 1).
+    - Slug: title lowercased, spaces→hyphens, non-alphanumeric removed, max 40 chars.
+    - Frontmatter format: "---\nkey: value\n---\n" with simple key:value lines (no PyYAML).
+    - tags stored as comma-separated string in frontmatter: "tags: tag1,tag2".
+    - Body is everything after the closing "---" separator.
+    - If --body not provided for `new`, body is empty string (no $EDITOR invocation in non-interactive mode).
+    - created_at and updated_at stored as ISO-8601 strings.
+    - `list` output table: ID(4) | Title(30) | Tags(20) | Created(20).
+    - Search is case-insensitive substring match on title + body.
+
+constraints:
+  - Single file: note_taker.py only.
+  - No external dependencies — stdlib only (os, pathlib, argparse, datetime, re, sys).
+  - Storage directory: ~/.note-taker/ (expanduser).
+  - Filename: "<id>-<slug>.md" (e.g. "1-my-first-note.md").
+  - Frontmatter fields exactly: id, title, tags, created_at, updated_at.
+  - Subcommands: new, list, show, edit, delete.
+  - No PyYAML — parse frontmatter manually with regex/split.
+  - All files in experiments/with-framework/05-note-taker/.
+
+success_criteria:
+  - "`python3 note_taker.py new --title 'My Note' --body 'Hello'` creates file in ~/.note-taker/."
+  - "`python3 note_taker.py list` shows aligned table with created notes."
+  - "`python3 note_taker.py list --tag python` filters to notes tagged python."
+  - "`python3 note_taker.py list --search hello` returns notes containing 'hello' in title or body."
+  - "`python3 note_taker.py show 1` prints full frontmatter + body."
+  - "`python3 note_taker.py edit 1 --title 'New Title'` updates title and updated_at."
+  - "`python3 note_taker.py delete 1` removes the file."
+  - "Note file exists at ~/.note-taker/<id>-<slug>.md with correct frontmatter."
+
+hypotheses:
+  - id: h1
+    description: >
+      Manual frontmatter parsing (split on "---" delimiter) reliably reads and
+      writes the simple key:value format without PyYAML.
+    confidence: 0.91
+  - id: h2
+    description: >
+      Using max(existing_ids) + 1 for id assignment is collision-free in a
+      single-user sequential-access scenario.
+    confidence: 0.97
+  - id: h3
+    description: >
+      Argparse subcommand structure (new/list/show/edit/delete) maps cleanly
+      to all note CRUD operations with optional flags.
+    confidence: 0.95
+
+required_evidence:
+  - Shell session: new×2 (with tags), list, list --tag, list --search, show, edit, delete.
+  - cat of a .md file showing correct frontmatter + body.
+  - list --tag returns only matching notes.
+  - list --search returns only notes containing keyword.
+  - edit updates updated_at but preserves created_at.
+
+actions:
+  - id: a1
+    description: "Design frontmatter format, slug function, id allocation, and file path scheme."
+    type: design
+    requires_confirmation: false
+    supports: [h1, h2]
+  - id: a2
+    description: "Implement parse_note(path) → dict and write_note(meta, body, path) functions."
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+  - id: a3
+    description: "Implement load_all_notes() → list[dict] and next_id() → int helpers."
+    type: implement
+    requires_confirmation: false
+    supports: [h2]
+  - id: a4
+    description: "Implement subcommand handlers: cmd_new, cmd_list, cmd_show, cmd_edit, cmd_delete."
+    type: implement
+    requires_confirmation: false
+    supports: [h3]
+  - id: a5
+    description: "Wire argparse; validate with full CRUD session; verify file content."
+    type: validate
+    requires_confirmation: false
+    supports: [h1, h2, h3]
+
+decision_rules:
+  - "If note id not found, print 'Note <id> not found' and exit 1."
+  - "Slug: re.sub(r'[^a-z0-9-]+', '', title.lower().replace(' ', '-'))[:40]."
+  - "Empty tags string → tags field is empty string in frontmatter."
+  - "edit with no fields changed → print 'Nothing to update' and exit 0."
+  - "delete confirms: print 'Deleted note <id>: <title>'."
+  - "show prints raw file content (frontmatter + body) unchanged."
+  - "list with no notes → print 'No notes found.'"
+
+metadata:
+  source_prompt: >
+    Build a Markdown Note-Taking CLI. Subcommands: new, list, show, edit, delete.
+    Store notes as .md files with YAML frontmatter in ~/.note-taker/. Search by
+    tag or keyword. Single file note_taker.py, stdlib only.
+  generator: specforge-skill
+  model: claude-sonnet-4-6
+  scope_contract:
+    must_include:
+      - argparse
+      - pathlib
+      - frontmatter parsing
+      - new subcommand
+      - list subcommand
+      - show subcommand
+      - edit subcommand
+      - delete subcommand
+      - tag filter
+      - keyword search
+      - slug filename
+    must_not_include:
+      - PyYAML
+      - pyyaml
+      - external pip packages
+      - sqlite3
+      - $EDITOR invocation
+      - web interface
+      - encryption

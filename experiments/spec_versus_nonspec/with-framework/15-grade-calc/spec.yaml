@@ -1,0 +1,83 @@
+version: "0.1"
+title: "Grade Calculator CLI"
+objective: "CLI that reads a grades CSV (student, assignment, score, max_score, weight) and computes weighted averages, letter grades, GPA, pass/fail, and class statistics (mean, median, highest, lowest GPA) per student."
+execution_mode: step_by_step
+context:
+  system: "Python 3.9, stdlib only, csv module for I/O"
+  assumptions:
+    - "Weights may not sum to 100 — normalize before computing weighted average"
+    - "Missing scores treated as 0"
+    - "Weighted average = sum(normalized_weight * score/max_score * 100)"
+    - "Letter grade boundaries are >= (A>=90, B>=80, C>=70, D>=60, F<60)"
+    - "GPA: A=4.0, B=3.0, C=2.0, D=1.0, F=0.0"
+constraints:
+  - "No external libraries"
+  - "Pass threshold: weighted avg >= 60"
+  - "Class stats use GPA values, not raw scores"
+  - "Median: middle value (or average of two middle values for even count)"
+success_criteria:
+  - "Weighted average normalizes weights correctly"
+  - "Letter grade boundaries use >= not >"
+  - "GPA values correct per letter"
+  - "Class stats computed from GPA values"
+  - "Missing scores treated as 0"
+hypotheses:
+  - id: h1
+    description: "Weight normalization ensures fair comparison regardless of input weights"
+    confidence: 0.95
+  - id: h2
+    description: "GPA-based class stats are more meaningful than raw score stats"
+    confidence: 0.85
+actions:
+  - id: a1
+    description: "Implement CSV reading with missing-score handling"
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+  - id: a2
+    description: "Implement weight normalization and weighted average"
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+  - id: a3
+    description: "Implement letter grade, GPA, pass/fail computation"
+    type: implement
+    requires_confirmation: false
+    supports: [h2]
+  - id: a4
+    description: "Implement report and student commands with class stats"
+    type: implement
+    requires_confirmation: false
+    supports: [h2]
+  - id: a5
+    description: "Validate normalization, boundary conditions, and class stats"
+    type: validate
+    requires_confirmation: false
+    supports: [h1, h2]
+decision_rules:
+  - "Normalize: weight_normalized = weight / sum(all weights for student)"
+  - "weighted_avg = sum(w_norm * (score/max_score) * 100)"
+  - "Letter: if avg >= 90: A; elif >= 80: B; elif >= 70: C; elif >= 60: D; else: F"
+  - "Median of sorted GPA list: middle (odd) or avg of two middles (even)"
+  - "Class stats: mean, median, max, min of GPA values across all students"
+required_evidence:
+  - "weights summing to 50 normalized correctly"
+  - "boundary 90 gives A not B"
+  - "class median computed correctly for even number of students"
+metadata:
+  source_prompt: "Grade calculator with weight normalization and GPA stats"
+  generator: specforge-skill
+  model: claude-sonnet-4-6
+  scope_contract:
+    must_include:
+      - "report command"
+      - "student command"
+      - "weight normalization"
+      - "letter grade boundaries (>=)"
+      - "GPA computation"
+      - "class statistics"
+      - "missing score as 0"
+    must_not_include:
+      - "external libraries"
+      - "curve grading"
+      - "database"

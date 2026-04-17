@@ -1,0 +1,184 @@
+version: "0.1"
+title: "Secret Vault CLI"
+objective: >
+  A single-file Python CLI (vault.py) that stores encrypted key-value secrets
+  on disk, protected by a master password, with TTL expiry, access audit logging,
+  and brute-force lockout.
+execution_mode: step_by_step
+
+context:
+  system: >
+    Python 3.9+, macOS/Linux. Only allowed external dependency: `cryptography`
+    (Fernet, PBKDF2HMAC). Vault dir: ~/.vault/. No frameworks, no ORMs.
+  assumptions:
+    - VAULT_MASTER_KEY is set in the caller's environment before any invocation.
+    - ~/.vault/ may not exist on first run; vault.py must create it with chmod 700.
+    - vault.enc is binary (salt header + encrypted JSON blob).
+    - audit.log and .lockout are plain text files in ~/.vault/.
+
+constraints:
+  - Master password must be read ONLY from env var VAULT_MASTER_KEY; never accept it as a CLI argument.
+  - Key names: regex [a-zA-Z0-9_]{1,64}, normalized to lowercase before storage.
+  - Values: max 4096 bytes after UTF-8 encoding.
+  - Encryption: Fernet with key derived via PBKDF2HMAC(SHA-256, iterations=200000, salt=random 16 bytes stored as first 16 bytes of vault.enc).
+  - TTL default 90 days; stored as ISO-8601 expiry datetime (UTC).
+  - get must NEVER print a value if the secret is expired; exit 3 in that case.
+  - list must NEVER show full value; show first 4 chars + *** only.
+  - audit.log must NEVER contain secret values; log only timestamp, action, key, OK/FAIL.
+  - After 3 consecutive wrong-password attempts, write lockout expiry (now + 300s) to ~/.vault/.lockout; exit 2.
+  - vault.enc created with chmod 600; ~/.vault/ with chmod 700.
+  - No eval(), no subprocess shell=True, no pickle.
+
+success_criteria:
+  - set KEY VALUE stores encrypted secret; get KEY retrieves it.
+  - set with wrong-format key exits 1 with validation message.
+  - get on expired key exits 3, prints nothing to stdout.
+  - list masks all values (first 4 chars + ***).
+  - rotate on non-existent key exits 1 without modifying vault.
+  - 3 wrong passwords trigger lockout; 4th attempt within window exits 2 with "Vault locked until HH:MM:SS".
+  - audit.log contains no secret values after any sequence of commands.
+  - vault.enc is not readable to group/other (chmod 600 verified).
+  - audit command prints last 20 lines of audit.log.
+  - delete on missing key exits 1 with error message.
+
+hypotheses:
+  - id: H1
+    description: Fernet + PBKDF2HMAC with 200k iterations is sufficient for at-rest security given the constraints.
+    confidence: 0.95
+  - id: H2
+    description: Storing salt as raw 16-byte header before the Fernet ciphertext is the simplest correct approach.
+    confidence: 0.98
+  - id: H3
+    description: A plain JSON dict (key → {value, expiry}) is sufficient internal structure; no DB needed.
+    confidence: 0.99
+  - id: H4
+    description: File-level locking is not required because the vault is single-user and operations are fast.
+    confidence: 0.85
+  - id: H5
+    description: Lockout via a .lockout file (ISO expiry timestamp) is tamper-evident enough for the threat model.
+    confidence: 0.80
+
+required_evidence:
+  - vault.py executes all 6 commands without import errors.
+  - set + get round-trip returns exact original value.
+  - get on expired key: stdout empty, stderr non-empty, exit code 3.
+  - list output contains no full secret value (manually verified).
+  - audit.log line for every command; no value strings present.
+  - 3 wrong passwords → .lockout file created; next attempt exits 2.
+  - vault.enc permissions are 0o600 after first write.
+  - rotate on missing key exits 1, vault unchanged.
+
+actions:
+  - id: A1
+    description: "Implement _derive_key(password, salt) using PBKDF2HMAC SHA-256 200k iterations → 32-byte key → urlsafe_b64encode for Fernet."
+    type: implement
+    requires_confirmation: false
+    supports: [H1, H2]
+
+  - id: A2
+    description: "Implement _load_vault() / _save_vault(): read/write salt header + Fernet-encrypted JSON. Create ~/.vault/ (700) and vault.enc (600) on first run."
+    type: implement
+    requires_confirmation: false
+    supports: [H2, H3]
+
+  - id: A3
+    description: "Implement _check_lockout() and _record_fail(): read/write ~/.vault/.lockout. After 3 fails write lockout expiry; exit 2 with message."
+    type: implement
+    requires_confirmation: false
+    supports: [H5]
+
+  - id: A4
+    description: "Implement _audit(action, key, result): append 'YYYY-MM-DD HH:MM:SS | ACTION | key | OK/FAIL' to ~/.vault/audit.log. Never include values."
+    type: implement
+    requires_confirmation: false
+    supports: [H3]
+
+  - id: A5
+    description: "Implement cmd_set: validate key regex, encode value (max 4096 bytes), compute expiry = now + ttl days, store in vault dict, call _save_vault, _audit OK."
+    type: implement
+    requires_confirmation: false
+    supports: [H3]
+
+  - id: A6
+    description: "Implement cmd_get: load vault, check expiry → exit 3 if expired (audit FAIL, nothing to stdout), else print value to stdout, audit OK."
+    type: implement
+    requires_confirmation: false
+    supports: [H3]
+
+  - id: A7
+    description: "Implement cmd_list: for each entry print f'{key:<20} {expiry:<25} {value[:4]}***'. Sort by key."
+    type: implement
+    requires_confirmation: false
+    supports: [H3]
+
+  - id: A8
+    description: "Implement cmd_delete: exit 1 if key missing, else remove from dict, save, audit OK."
+    type: implement
+    requires_confirmation: false
+    supports: [H3]
+
+  - id: A9
+    description: "Implement cmd_rotate: exit 1 if key missing, else overwrite value + reset expiry, save, audit OK."
+    type: implement
+    requires_confirmation: false
+    supports: [H3]
+
+  - id: A10
+    description: "Implement cmd_audit: read last 20 lines from ~/.vault/audit.log and print to stdout."
+    type: implement
+    requires_confirmation: false
+    supports: [H3]
+
+  - id: A11
+    description: "Wire argparse: subcommands set/get/list/delete/rotate/audit with correct args. Read VAULT_MASTER_KEY from os.environ; exit 2 if missing."
+    type: implement
+    requires_confirmation: false
+    supports: [H3]
+
+  - id: A12
+    description: "Validate: run all required_evidence scenarios manually and confirm exit codes, file permissions, and audit.log cleanliness."
+    type: validate
+    requires_confirmation: false
+    supports: [H1, H2, H3, H4, H5]
+
+decision_rules:
+  - "If VAULT_MASTER_KEY is absent: print 'VAULT_MASTER_KEY not set' to stderr, exit 2 — before any disk access."
+  - "Key validation failure (regex or length): print error to stderr, exit 1 — before opening vault."
+  - "Value > 4096 bytes: print error to stderr, exit 1."
+  - "Wrong password (InvalidToken from Fernet): increment fail counter, _audit FAIL, check lockout threshold."
+  - "Fail counter storage: use ~/.vault/.fails (integer, reset on success). Lockout written to ~/.vault/.lockout as ISO expiry string."
+  - "Expired key on get: exit 3, stderr only, nothing to stdout."
+  - "rotate/delete on missing key: exit 1, do not modify vault."
+
+metadata:
+  source_prompt: >
+    Build a CLI secret vault in Python called vault.py. Requirements:
+    1. Master password ONLY via env var VAULT_MASTER_KEY.
+    2. Encryption: Fernet + PBKDF2HMAC SHA-256, 200k iterations, random 16-byte salt in header.
+    3. Key names: alphanumeric + underscores, 1-64 chars, lowercase.
+    4. Values: max 4096 bytes UTF-8.
+    5. TTL --ttl DAYS default 90, stored as ISO expiry.
+    6. Commands: set, get, list, delete, rotate, audit.
+    7. get: stdout only, exit 3 if expired.
+    8. list: first 4 chars + ***.
+    9. rotate: exit 1 if key missing.
+    10. audit: last 20 lines of audit.log.
+    11. Lockout after 3 wrong passwords, exit 2.
+    12. Never log secret values.
+    13. vault.enc chmod 600, ~/.vault/ chmod 700.
+    14. Exit codes: 0/1/2/3.
+  scope_contract:
+    must_include:
+      - PBKDF2HMAC key derivation with 200k iterations
+      - Fernet symmetric encryption
+      - Per-key TTL with ISO expiry
+      - Brute-force lockout (.lockout file)
+      - Audit log (no values)
+      - chmod 600/700 enforcement
+      - All 6 subcommands (set/get/list/delete/rotate/audit)
+    must_not_include:
+      - External dependencies beyond `cryptography`
+      - Database (SQLite or otherwise)
+      - Network calls
+      - Interactive password prompts
+      - eval() or shell=True subprocess

@@ -1,0 +1,83 @@
+version: "0.1"
+title: "Budget Tracker CLI"
+objective: "CLI for monthly budget tracking. Tracks budgets per category and expenses. Shows summary table with percentages, alerts for over-budget and near-limit (>80%) categories, and supports reset that preserves budgets but clears expenses."
+execution_mode: step_by_step
+context:
+  system: "Python 3.9, stdlib only, state in budget.json"
+  assumptions:
+    - "budget.json stores {budgets: {category: amount}, expenses: [{category, amount, note}]}"
+    - "Percentage = (spent/budget)*100 rounded to 1 decimal"
+    - "Near-limit: > 80% but not over budget"
+    - "Over-budget: spent > budget amount"
+    - "Unknown category on add-expense is an error"
+constraints:
+  - "No external libraries"
+  - "All monetary values are floats"
+  - "reset clears expenses list but keeps budgets dict intact"
+  - "Unknown category must error with clear message"
+success_criteria:
+  - "set-budget creates or updates category budget"
+  - "add-expense rejects unknown categories"
+  - "summary shows all columns correctly"
+  - "alert lists over-budget and near-limit categories"
+  - "reset preserves budgets, clears expenses"
+hypotheses:
+  - id: h1
+    description: "Category validation on add-expense prevents data inconsistency"
+    confidence: 0.95
+  - id: h2
+    description: "Percentage rounded to 1 decimal is sufficient precision"
+    confidence: 0.90
+actions:
+  - id: a1
+    description: "Implement budget.json data model and I/O"
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+  - id: a2
+    description: "Implement set-budget, add-expense commands"
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+  - id: a3
+    description: "Implement summary and alert commands"
+    type: implement
+    requires_confirmation: false
+    supports: [h2]
+  - id: a4
+    description: "Implement reset command"
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+  - id: a5
+    description: "Validate alert thresholds and reset behavior"
+    type: validate
+    requires_confirmation: false
+    supports: [h1, h2]
+decision_rules:
+  - "Percentage: round(spent/budget*100, 1) if budget > 0 else 0.0"
+  - "Alert: over-budget if spent > budget; near-limit if pct > 80 and not over"
+  - "reset: data['expenses'] = []; keep data['budgets'] unchanged"
+  - "add-expense: if category not in budgets, exit 1 with error message"
+required_evidence:
+  - "unknown category rejected on add-expense"
+  - "near-limit alert at >80% not over budget"
+  - "reset clears expenses but keeps budgets"
+metadata:
+  source_prompt: "Budget tracker CLI with alerts and category validation"
+  generator: specforge-skill
+  model: claude-sonnet-4-6
+  scope_contract:
+    must_include:
+      - "set-budget command"
+      - "add-expense command"
+      - "summary command"
+      - "alert command"
+      - "reset command"
+      - "category validation"
+      - "80% near-limit alert"
+      - "budget.json persistence"
+    must_not_include:
+      - "external libraries"
+      - "web interface"
+      - "database"

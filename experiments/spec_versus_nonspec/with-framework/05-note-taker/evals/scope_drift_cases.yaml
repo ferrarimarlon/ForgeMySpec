@@ -1,0 +1,23 @@
+must_not_introduce:
+  - pattern: "import yaml|from yaml|import PyYAML"
+    reason: "No PyYAML — manual frontmatter parsing required"
+  - pattern: "import sqlite3|import json"
+    reason: "No database — file-based storage only"
+  - pattern: "subprocess.*EDITOR|os.system.*EDITOR"
+    reason: "$EDITOR invocation out of scope"
+  - pattern: "import flask|import fastapi"
+    reason: "No web interface"
+  - pattern: "import cryptography|import hashlib.*encrypt"
+    reason: "No encryption"
+
+must_include:
+  - pattern: "import argparse"
+    reason: "CLI parsing required"
+  - pattern: "expanduser|note-taker"
+    reason: "~/.note-taker/ storage required"
+  - pattern: "---"
+    reason: "YAML frontmatter delimiter required"
+  - pattern: "slug|slugify"
+    reason: "Slug filename generation required"
+  - pattern: "created_at|updated_at"
+    reason: "Timestamps in frontmatter required"

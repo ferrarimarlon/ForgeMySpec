@@ -1,0 +1,30 @@
+drift_cases:
+  - id: D1
+    description: "Adding interactive password prompt (getpass) instead of env var"
+    verdict: out_of_scope
+    reason: "Req 1 is explicit: VAULT_MASTER_KEY env var only."
+
+  - id: D2
+    description: "Using SQLite instead of encrypted JSON"
+    verdict: out_of_scope
+    reason: "must_not_include: database. JSON blob inside Fernet is the spec."
+
+  - id: D3
+    description: "Adding a --show flag to list to reveal full values"
+    verdict: out_of_scope
+    reason: "list must NEVER show full values per req 8."
+
+  - id: D4
+    description: "Using AES-GCM directly instead of Fernet"
+    verdict: out_of_scope
+    reason: "Req 2 specifies Fernet explicitly."
+
+  - id: D5
+    description: "Storing fail count inside vault.enc"
+    verdict: out_of_scope
+    reason: ".fails is a separate plaintext file in ~/.vault/ per CLAUDE.md layout."
+
+  - id: D6
+    description: "Printing value to stderr on get (e.g., for debugging)"
+    verdict: out_of_scope
+    reason: "Req 7 and req 12 prohibit secret values on stderr under any circumstance."

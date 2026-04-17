@@ -1,0 +1,129 @@
+version: "0.1"
+title: "CSV Analytics Tool"
+objective: >
+  Build a single-file Python CLI (csv_analytics.py) that reads one or more CSV
+  files, computes per-column descriptive statistics for numeric columns, supports
+  row filtering by column condition, optionally restricts analysis to selected
+  columns, prints a human-readable table to stdout, and exports a JSON report.
+execution_mode: step_by_step
+
+context:
+  system: >
+    macOS/Linux Python 3.9+ environment. Single file csv_analytics.py runnable
+    with `python3 csv_analytics.py <input> [options]`. No external packages.
+    statistics module (stdlib) provides mean, median, stdev.
+  assumptions:
+    - Input <input> is either a single .csv file path or a directory containing .csv files.
+    - CSV files use comma delimiter and have a header row.
+    - Numeric detection: try float(cell) — if it succeeds the cell is numeric.
+    - Missing values are empty strings — skipped in numeric stats.
+    - std deviation uses statistics.stdev (sample); falls back to 0.0 if fewer than 2 values.
+    - Filter syntax: "column_name op value" where op ∈ {==, !=, >, <, >=, <=}.
+    - Filter value is coerced to float if column is numeric, else compared as string.
+    - --columns is a comma-separated list of column names.
+    - JSON report keys per column: count, min, max, mean, median, stdev (null for non-numeric).
+
+constraints:
+  - Single file: csv_analytics.py only.
+  - No external dependencies — stdlib only (csv, json, statistics, argparse, pathlib, re).
+  - Stats computed: count (non-missing), min, max, mean, median, stdev for numeric cols.
+  - Non-numeric columns: only count (non-missing) in stats; min/max/mean/median/stdev = null.
+  - --filter accepts exactly one condition string (single filter only).
+  - --output defaults to report.json in cwd if not specified.
+  - Table output uses fixed-width formatting (no external tabulate).
+  - All files in experiments/with-framework/04-csv-analytics/.
+
+success_criteria:
+  - "`python3 csv_analytics.py data.csv` prints stats table and writes report.json."
+  - "--filter 'age > 30' correctly filters rows before computing stats."
+  - "--columns 'age,salary' restricts analysis to those two columns."
+  - "Missing values in a column are excluded from numeric calculations."
+  - "report.json contains correct per-column stats matching stdout table."
+  - "Non-numeric columns show count only; numeric fields are null in JSON."
+  - "Input as directory: all .csv files in dir are concatenated and analysed."
+
+hypotheses:
+  - id: h1
+    description: >
+      csv.DictReader handles all standard CSV files with header rows; float()
+      coercion reliably distinguishes numeric from non-numeric columns.
+    confidence: 0.95
+  - id: h2
+    description: >
+      statistics.mean/median/stdev on a list of floats covers all required
+      numeric stat computations without external libraries.
+    confidence: 0.98
+  - id: h3
+    description: >
+      A simple re-based filter parser (col, op, val) covers the single-filter
+      requirement without a query language engine.
+    confidence: 0.93
+
+required_evidence:
+  - python3 csv_analytics.py on a sample CSV with mixed numeric/non-numeric columns prints correct table.
+  - --filter 'age > 25' reduces row count correctly before stats.
+  - report.json content matches stdout table values.
+  - Empty cells in CSV do not cause crashes or skew results.
+  - --columns 'col1,col2' restricts output to those columns only.
+
+actions:
+  - id: a1
+    description: "Design data model: load_csv(paths) → list[dict]; detect_numeric(col, rows) → bool."
+    type: design
+    requires_confirmation: false
+    supports: [h1]
+  - id: a2
+    description: "Implement load_csv, collect_values(rows, col) → list[float|str], apply_filter(rows, filter_str)."
+    type: implement
+    requires_confirmation: false
+    supports: [h1, h3]
+  - id: a3
+    description: "Implement compute_stats(values, is_numeric) → dict with count/min/max/mean/median/stdev."
+    type: implement
+    requires_confirmation: false
+    supports: [h2]
+  - id: a4
+    description: "Implement print_table(stats_map) and write_report(stats_map, output_path); wire argparse."
+    type: implement
+    requires_confirmation: false
+    supports: [h1, h2]
+  - id: a5
+    description: "Create sample CSV; run with --filter, --columns, --output; verify JSON and table."
+    type: validate
+    requires_confirmation: false
+    supports: [h1, h2, h3]
+
+decision_rules:
+  - "If a column has zero non-missing values, stats are all null."
+  - "stdev with < 2 values → 0.0 (not an error)."
+  - "Filter parse error → print error message and exit 1."
+  - "Unknown column in --filter or --columns → print warning, continue without it."
+  - "Directory input with no .csv files → print error and exit 1."
+  - "Table column widths: ColName(20) | Count(6) | Min(10) | Max(10) | Mean(10) | Median(10) | Stdev(10)."
+
+metadata:
+  source_prompt: >
+    Build a CSV Analytics Tool. Read CSV files, compute per-column stats (count,
+    min, max, mean, median, stdev), filter rows, select columns, export JSON
+    report. Single file csv_analytics.py, stdlib only.
+  generator: specforge-skill
+  model: claude-sonnet-4-6
+  scope_contract:
+    must_include:
+      - csv.DictReader
+      - statistics module
+      - argparse
+      - --filter flag
+      - --columns flag
+      - --output flag
+      - JSON report
+      - formatted table stdout
+      - missing value handling
+    must_not_include:
+      - pandas
+      - numpy
+      - polars
+      - external pip packages
+      - SQL queries
+      - multi-file output
+      - charts or plots

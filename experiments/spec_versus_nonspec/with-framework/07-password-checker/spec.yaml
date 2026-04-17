@@ -1,0 +1,78 @@
+version: "0.1"
+title: "Password Policy Checker CLI"
+objective: "CLI that checks passwords against a configurable JSON policy including length, character class requirements, forbidden words, and Shannon entropy. Also generates compliant random passwords and validates the policy file itself."
+execution_mode: step_by_step
+context:
+  system: "Python 3.9, stdlib only, policy loaded from policy.json"
+  assumptions:
+    - "Shannon entropy: -sum(p * log2(p)) for character frequency distribution"
+    - "All policy rules checked independently — report all failures, not just first"
+    - "generate must produce a password that passes ALL rules on first try (retry loop)"
+    - "Special chars default to printable non-alphanumeric if not specified"
+constraints:
+  - "No external libraries"
+  - "policy.json must be valid JSON with known fields"
+  - "Entropy calculation uses character frequency of the password itself"
+success_criteria:
+  - "check reports all violations independently"
+  - "generate produces a password that passes check"
+  - "validate-policy reports missing/invalid fields in policy.json"
+  - "Entropy calculation matches Shannon formula"
+hypotheses:
+  - id: h1
+    description: "Reporting all failures simultaneously improves UX over fail-fast"
+    confidence: 0.95
+  - id: h2
+    description: "Random generation with retry loop guarantees compliance"
+    confidence: 0.90
+actions:
+  - id: a1
+    description: "Implement policy loading and validation"
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+  - id: a2
+    description: "Implement check command with independent rule evaluation"
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+  - id: a3
+    description: "Implement Shannon entropy calculation"
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+  - id: a4
+    description: "Implement generate command with retry loop"
+    type: implement
+    requires_confirmation: false
+    supports: [h2]
+  - id: a5
+    description: "Validate with edge cases: empty password, entropy boundary"
+    type: validate
+    requires_confirmation: false
+    supports: [h1, h2]
+decision_rules:
+  - "Entropy of empty password is 0"
+  - "forbidden_words check is case-insensitive substring match"
+  - "generate retries until all rules pass (max 1000 attempts)"
+  - "validate-policy checks: min_length<=max_length, min_entropy_bits>=0"
+required_evidence:
+  - "check lists all violations"
+  - "generate output passes check"
+  - "entropy of single-char password is 0"
+metadata:
+  source_prompt: "Password policy checker with Shannon entropy and random generation"
+  generator: specforge-skill
+  model: claude-sonnet-4-6
+  scope_contract:
+    must_include:
+      - "check command"
+      - "generate command"
+      - "validate-policy command"
+      - "Shannon entropy"
+      - "forbidden_words"
+      - "all-rules-independent reporting"
+    must_not_include:
+      - "external password libraries"
+      - "database"
+      - "web interface"

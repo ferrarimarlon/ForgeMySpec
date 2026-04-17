@@ -1,0 +1,79 @@
+version: "0.1"
+title: "Time Tracker CLI"
+objective: "CLI for tracking time spent on projects. Supports start/stop/status/log/report commands. Detects overlapping sessions, formats durations as HH:MM:SS, supports filtering by project and date."
+execution_mode: step_by_step
+context:
+  system: "Python 3.9, stdlib only, sessions stored in sessions.json"
+  assumptions:
+    - "Only one session can be active at a time"
+    - "start stores timestamp as ISO 8601 string"
+    - "stop computes duration from start to now"
+    - "Duration displayed as HH:MM:SS"
+    - "Date filtering uses YYYY-MM-DD format matching session start date"
+constraints:
+  - "No external libraries"
+  - "sessions.json stores list of {project, start, end, duration_seconds}"
+  - "Active session has end=null"
+  - "Cannot start if a session is already active"
+success_criteria:
+  - "start creates active session, rejects if one already running"
+  - "stop finalizes active session with end time and duration"
+  - "status shows current active session with elapsed time"
+  - "log shows all sessions with durations"
+  - "report aggregates by project and/or date"
+hypotheses:
+  - id: h1
+    description: "Overlap detection via checking for null-end session prevents invalid state"
+    confidence: 0.95
+  - id: h2
+    description: "ISO timestamp storage enables reliable date filtering"
+    confidence: 0.90
+actions:
+  - id: a1
+    description: "Design session data model with start/end/duration fields"
+    type: design
+    requires_confirmation: false
+    supports: [h1, h2]
+  - id: a2
+    description: "Implement start/stop/status commands"
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+  - id: a3
+    description: "Implement log and report commands with filtering"
+    type: implement
+    requires_confirmation: false
+    supports: [h2]
+  - id: a4
+    description: "Validate overlap detection and duration calculation"
+    type: validate
+    requires_confirmation: false
+    supports: [h1, h2]
+decision_rules:
+  - "start fails with error if any session has end=null"
+  - "stop fails with error if no active session"
+  - "report --project filters by exact project name match"
+  - "report --date filters sessions where start date == given date"
+  - "Duration = (end_time - start_time).total_seconds() stored as integer"
+required_evidence:
+  - "start rejects when session active"
+  - "duration formatted as HH:MM:SS"
+  - "report groups correctly by project"
+metadata:
+  source_prompt: "Time tracker CLI with overlap detection and reporting"
+  generator: specforge-skill
+  model: claude-sonnet-4-6
+  scope_contract:
+    must_include:
+      - "start command"
+      - "stop command"
+      - "status command"
+      - "log command"
+      - "report command"
+      - "overlap detection"
+      - "HH:MM:SS duration format"
+      - "sessions.json persistence"
+    must_not_include:
+      - "GUI"
+      - "external libraries"
+      - "database"

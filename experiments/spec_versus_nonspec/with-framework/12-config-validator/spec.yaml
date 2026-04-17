@@ -1,0 +1,79 @@
+version: "0.1"
+title: "Config Validator CLI"
+objective: "CLI that validates a JSON config file against a JSON schema. Checks type, required, min/max, enum, pattern, items_type for each key. Supports dot-notation nested keys. Reports ALL errors. Exits 0 if valid, 1 if invalid."
+execution_mode: step_by_step
+context:
+  system: "Python 3.9, stdlib only, json and re modules"
+  assumptions:
+    - "Schema keys use dot notation for nested config (e.g., database.host)"
+    - "All validators run independently — collect all errors"
+    - "Type coercion NOT allowed: string '42' != int 42"
+    - "pattern field is a Python regex applied to string values"
+    - "items_type checks type of each element in a list"
+constraints:
+  - "No external libraries (no jsonschema)"
+  - "Nested key access via dot notation in schema key names"
+  - "Exit 0 = valid, exit 1 = invalid"
+  - "All errors printed before exiting"
+success_criteria:
+  - "type checking rejects coerced values"
+  - "min/max validated for numeric types"
+  - "enum validated for any type"
+  - "pattern validated for string types"
+  - "items_type validates each list element"
+  - "required fields reported if missing"
+  - "ALL errors reported before exit"
+hypotheses:
+  - id: h1
+    description: "Independent validator functions enable all-errors-at-once reporting"
+    confidence: 0.95
+  - id: h2
+    description: "Dot-notation key resolution handles arbitrary nesting depth"
+    confidence: 0.90
+actions:
+  - id: a1
+    description: "Implement dot-notation config key resolver"
+    type: implement
+    requires_confirmation: false
+    supports: [h2]
+  - id: a2
+    description: "Implement type, required, min/max, enum, pattern, items_type validators"
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+  - id: a3
+    description: "Implement validate command collecting all errors"
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+  - id: a4
+    description: "Validate with nested keys, coercion attempt, pattern mismatch"
+    type: validate
+    requires_confirmation: false
+    supports: [h1, h2]
+decision_rules:
+  - "Type mapping: string=str, int=int, float=float, bool=bool, list=list, dict=dict"
+  - "isinstance() used for type checking — no coercion"
+  - "Dot notation: 'a.b.c' resolves config['a']['b']['c']"
+  - "Missing nested key for required field is a missing-field error"
+  - "pattern uses re.search() not re.fullmatch()"
+required_evidence:
+  - "string '42' fails int type check"
+  - "required missing field reported"
+  - "nested dot-notation key validated"
+  - "all errors reported before exit 1"
+metadata:
+  source_prompt: "Config validator with JSON schema and all-errors reporting"
+  generator: specforge-skill
+  model: claude-sonnet-4-6
+  scope_contract:
+    must_include:
+      - "validate command"
+      - "type/required/min/max/enum/pattern/items_type validators"
+      - "dot-notation nested keys"
+      - "all-errors reporting"
+      - "exit 0/1"
+    must_not_include:
+      - "jsonschema library"
+      - "external dependencies"
+      - "config writing"

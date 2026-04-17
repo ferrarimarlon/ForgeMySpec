@@ -1,0 +1,83 @@
+version: "0.1"
+title: "State Machine CLI"
+objective: "CLI that loads a state machine JSON definition and processes events. Validates definitions (no unreachable states, no duplicate transitions), supports guard conditions as simple expressions, tracks history, and outputs ASCII transition table."
+execution_mode: step_by_step
+context:
+  system: "Python 3.9, stdlib only, JSON for definition format"
+  assumptions:
+    - "Definition: {states: [], initial_state: str, transitions: [{from_state, event, to_state, guard_condition?}]}"
+    - "Guard conditions: 'field op value' e.g. 'count > 5'"
+    - "Events from file: one per line"
+    - "History: list of (event, from_state, to_state) tuples"
+constraints:
+  - "No external libraries"
+  - "Guard conditions are simple: field OPERATOR value (>, <, ==, !=, >=, <=)"
+  - "Invalid event for current state is an error (not ignored)"
+  - "Context dict passed for guard evaluation"
+success_criteria:
+  - "validate detects unreachable states and duplicate transitions"
+  - "run processes events and tracks history"
+  - "diagram outputs ASCII transition table"
+  - "guard conditions evaluated correctly"
+  - "error on invalid event for current state"
+hypotheses:
+  - id: h1
+    description: "BFS from initial_state detects unreachable states reliably"
+    confidence: 0.90
+  - id: h2
+    description: "Simple expression parser for guards avoids security risks of eval()"
+    confidence: 0.85
+actions:
+  - id: a1
+    description: "Implement definition loading and validation"
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+  - id: a2
+    description: "Implement run command with event processing and history"
+    type: implement
+    requires_confirmation: false
+    supports: [h2]
+  - id: a3
+    description: "Implement guard condition parser"
+    type: implement
+    requires_confirmation: false
+    supports: [h2]
+  - id: a4
+    description: "Implement diagram command as ASCII table"
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+  - id: a5
+    description: "Validate unreachable detection and guard evaluation"
+    type: validate
+    requires_confirmation: false
+    supports: [h1, h2]
+decision_rules:
+  - "Unreachable: states not reachable via BFS from initial_state"
+  - "Duplicate: same from_state + event combination appears twice"
+  - "Guard: parse 'field op value', look up field in context dict"
+  - "Invalid event: print error, continue or stop based on mode"
+  - "Diagram: rows=from_state, cols=event, cells=to_state"
+required_evidence:
+  - "unreachable state detected"
+  - "duplicate transition detected"
+  - "guard condition filters transition"
+  - "history tracked correctly"
+metadata:
+  source_prompt: "State machine CLI with validation and guard conditions"
+  generator: specforge-skill
+  model: claude-sonnet-4-6
+  scope_contract:
+    must_include:
+      - "run command"
+      - "validate command"
+      - "diagram command"
+      - "guard conditions"
+      - "unreachable state detection"
+      - "duplicate transition detection"
+      - "history tracking"
+    must_not_include:
+      - "eval() for guards"
+      - "external libraries"
+      - "GUI"

@@ -1,0 +1,77 @@
+version: "0.1"
+title: "Cron Expression Parser CLI"
+objective: "CLI that parses standard 5-field cron expressions and computes the next N execution times. Supports *, numbers, ranges, lists, and step values. Skips invalid dates (e.g., Feb 30)."
+execution_mode: step_by_step
+context:
+  system: "Python 3.9, stdlib only, datetime for time computation"
+  assumptions:
+    - "5-field format: minute hour day-of-month month day-of-week"
+    - "Field ranges: minute 0-59, hour 0-23, dom 1-31, month 1-12, dow 0-6"
+    - "dow 0=Sunday, 6=Saturday"
+    - "Invalid dates (Feb 30) skipped by checking calendar validity"
+    - "next iterates minute by minute from start time"
+constraints:
+  - "No external libraries"
+  - "Step values: */N means every N units, A-B/N means every N in range A-B"
+  - "Lists: comma-separated values"
+  - "Ranges: A-B inclusive"
+success_criteria:
+  - "next computes correct times for all field types"
+  - "validate reports invalid field values"
+  - "Invalid dates (Feb 30) are skipped gracefully"
+  - "Steps, ranges, lists parse correctly"
+hypotheses:
+  - id: h1
+    description: "Expanding each field to a set of valid values enables O(1) match checking"
+    confidence: 0.90
+  - id: h2
+    description: "Iterating minute-by-minute handles all edge cases including month rollover"
+    confidence: 0.85
+actions:
+  - id: a1
+    description: "Implement field parser for *, numbers, ranges, lists, steps"
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+  - id: a2
+    description: "Implement next command iterating from start time"
+    type: implement
+    requires_confirmation: false
+    supports: [h1, h2]
+  - id: a3
+    description: "Implement validate command checking field bounds"
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+  - id: a4
+    description: "Validate with complex expressions and invalid date skipping"
+    type: validate
+    requires_confirmation: false
+    supports: [h1, h2]
+decision_rules:
+  - "Parse each field into a sorted set of valid integers"
+  - "Advance by minutes, check (minute, hour, dom, month, dow) all match"
+  - "Skip datetime exceptions (ValueError for invalid dates)"
+  - "Default --count is 5, --from is now"
+  - "Iteration limit: 366 days * 24 * 60 minutes to prevent infinite loop"
+required_evidence:
+  - "next '0 9 * * 1' produces Monday 09:00 times"
+  - "*/5 on minutes produces 0,5,10,...,55"
+  - "Feb 30 is never produced"
+metadata:
+  source_prompt: "Cron expression parser with next-time computation"
+  generator: specforge-skill
+  model: claude-sonnet-4-6
+  scope_contract:
+    must_include:
+      - "next command"
+      - "validate command"
+      - "* wildcard"
+      - "ranges (A-B)"
+      - "lists (A,B,C)"
+      - "steps (*/N, A-B/N)"
+      - "invalid date skipping"
+    must_not_include:
+      - "6-field cron (seconds)"
+      - "named months/days"
+      - "external libraries"

@@ -1,0 +1,78 @@
+version: "0.1"
+title: "Invoice Generator CLI"
+objective: "CLI that reads an invoice JSON definition, computes subtotal, discount, tax, and total with consistent rounding, and outputs a formatted text invoice plus JSON summary. Validates all fields and reports ALL validation errors."
+execution_mode: step_by_step
+context:
+  system: "Python 3.9, stdlib only, JSON input/output"
+  assumptions:
+    - "Discount applied before tax: taxable = subtotal - discount_amount"
+    - "Round to 2 decimal places at each computation step"
+    - "Validation collects ALL errors before reporting"
+    - "Items: qty > 0, unit_price >= 0; tax_rate 0-100; discount 0-100"
+constraints:
+  - "No external libraries"
+  - "All monetary values use round(value, 2)"
+  - "Text invoice formatted with fixed-width columns"
+  - "JSON summary written to stdout or --output file"
+success_criteria:
+  - "subtotal = sum(qty * unit_price) for all items, rounded at each step"
+  - "discount_amount = subtotal * discount/100"
+  - "tax_amount = taxable_amount * tax_rate/100"
+  - "total = taxable_amount + tax_amount"
+  - "ALL validation errors reported before exit"
+hypotheses:
+  - id: h1
+    description: "Round-at-each-step prevents float accumulation errors"
+    confidence: 0.90
+  - id: h2
+    description: "Collecting all validation errors improves debugging UX"
+    confidence: 0.95
+actions:
+  - id: a1
+    description: "Implement invoice JSON loading and validation"
+    type: implement
+    requires_confirmation: false
+    supports: [h2]
+  - id: a2
+    description: "Implement financial computation with rounding"
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+  - id: a3
+    description: "Implement text invoice and JSON summary output"
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+  - id: a4
+    description: "Validate computation order and rounding"
+    type: validate
+    requires_confirmation: false
+    supports: [h1, h2]
+decision_rules:
+  - "item_total = round(qty * unit_price, 2)"
+  - "subtotal = round(sum(item_totals), 2)"
+  - "discount_amount = round(subtotal * discount_pct / 100, 2)"
+  - "taxable = round(subtotal - discount_amount, 2)"
+  - "tax_amount = round(taxable * tax_rate / 100, 2)"
+  - "total = round(taxable + tax_amount, 2)"
+  - "Validation: collect errors list, exit 1 with all errors if non-empty"
+required_evidence:
+  - "discount applied before tax"
+  - "all validation errors reported simultaneously"
+  - "rounding consistent across all steps"
+metadata:
+  source_prompt: "Invoice generator with validation and financial computation"
+  generator: specforge-skill
+  model: claude-sonnet-4-6
+  scope_contract:
+    must_include:
+      - "JSON input reading"
+      - "subtotal/discount/tax/total computation"
+      - "text invoice output"
+      - "JSON summary output"
+      - "all-errors validation"
+      - "discount before tax"
+    must_not_include:
+      - "external libraries"
+      - "PDF generation"
+      - "database"

@@ -1,0 +1,23 @@
+must_not_introduce:
+  - pattern: "import requests|import flask|import fastapi|import sqlalchemy|import peewee"
+    reason: "No external dependencies allowed"
+  - pattern: "show.*subcommand|search.*subcommand"
+    reason: "show/search subcommands are out of scope"
+  - pattern: "async def|asyncio"
+    reason: "Async code is out of scope"
+  - pattern: "class.*Model|Base.*declarative"
+    reason: "ORM patterns are forbidden"
+  - pattern: "app = Flask|app = FastAPI"
+    reason: "Web interface is out of scope"
+
+must_include:
+  - pattern: "import sqlite3"
+    reason: "SQLite persistence required"
+  - pattern: "import argparse"
+    reason: "CLI parsing required"
+  - pattern: "subcommand.*add|add_parser.*add"
+    reason: "add subcommand required"
+  - pattern: "subcommand.*list|add_parser.*list"
+    reason: "list subcommand required"
+  - pattern: "ljust|rjust|format.*table"
+    reason: "Formatted table output required"

@@ -1,0 +1,128 @@
+version: "0.1"
+title: "REST Blog API"
+objective: >
+  Build a single-file Python REST API (blog_api.py) for blog post CRUD using
+  only the standard library (http.server + sqlite3 + json). All endpoints are
+  protected by an X-API-Key header. The server listens on localhost:8080.
+execution_mode: step_by_step
+
+context:
+  system: >
+    macOS/Linux Python 3.9+ environment. Single file blog_api.py runnable with
+    `python3 blog_api.py`. No frameworks (no Flask, FastAPI, Django). Uses
+    http.server.BaseHTTPRequestHandler for routing and sqlite3 for persistence.
+  assumptions:
+    - Python 3.9+ stdlib available (http.server, sqlite3, json, datetime, re).
+    - Port 8080 is free on localhost.
+    - Single API key "secret123" is sufficient for this exercise.
+    - All request/response bodies are JSON (Content-Type: application/json).
+    - created_at and updated_at stored as ISO-8601 strings (datetime.utcnow().isoformat()).
+    - URL routing done with re.match patterns, not a framework router.
+
+constraints:
+  - Single file: blog_api.py only.
+  - No external dependencies — stdlib only.
+  - API key "secret123" checked via X-API-Key request header; return 401 if missing/wrong.
+  - Post fields exactly: id (auto-increment), title (TEXT), body (TEXT), author (TEXT), created_at (TEXT), updated_at (TEXT).
+  - Endpoints exactly: GET /posts, GET /posts/<id>, POST /posts, PUT /posts/<id>, DELETE /posts/<id>.
+  - Respond 404 JSON for unknown routes, 405 for wrong method on known route.
+  - SQLite DB file: blog.db in cwd.
+  - All files in experiments/with-framework/02-blog-api/.
+
+success_criteria:
+  - "`curl -H 'X-API-Key: secret123' http://localhost:8080/posts` returns JSON array."
+  - "POST /posts with valid JSON body creates a post and returns 201 + created post."
+  - "GET /posts/<id> returns the post or 404 JSON if not found."
+  - "PUT /posts/<id> updates title/body/author and updates updated_at."
+  - "DELETE /posts/<id> returns 204 No Content."
+  - "Request without X-API-Key returns 401 JSON."
+  - "Request to unknown route returns 404 JSON."
+  - "Server starts cleanly with `python3 blog_api.py` and accepts connections."
+
+hypotheses:
+  - id: h1
+    description: >
+      http.server.BaseHTTPRequestHandler + re-based routing can handle all 5
+      CRUD endpoint patterns without a web framework.
+    confidence: 0.92
+  - id: h2
+    description: >
+      sqlite3 with raw SQL covers all persistence needs for the post schema.
+    confidence: 0.98
+  - id: h3
+    description: >
+      A single X-API-Key header check in a base handler method covers auth
+      for all endpoints without middleware.
+    confidence: 0.95
+
+required_evidence:
+  - curl transcript: POST creates post (201), GET /posts lists it, GET /posts/<id> fetches it, PUT updates it, DELETE removes it.
+  - curl without X-API-Key returns 401 JSON body.
+  - curl to /nonexistent returns 404 JSON body.
+  - blog.db file exists after first request.
+  - Server process starts without error output.
+
+actions:
+  - id: a1
+    description: "Design URL routing table (regex patterns → handler methods) and DB schema."
+    type: design
+    requires_confirmation: false
+    supports: [h1, h2]
+  - id: a2
+    description: "Implement DB init and CRUD helpers (insert_post, get_posts, get_post, update_post, delete_post)."
+    type: implement
+    requires_confirmation: false
+    supports: [h2]
+  - id: a3
+    description: "Implement BlogHandler(BaseHTTPRequestHandler) with auth check and do_GET/do_POST/do_PUT/do_DELETE dispatch."
+    type: implement
+    requires_confirmation: false
+    supports: [h1, h3]
+  - id: a4
+    description: "Implement JSON response helpers (send_json, send_error) and __main__ server startup."
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+  - id: a5
+    description: "Start server in background; run curl evidence suite; verify blog.db; stop server."
+    type: validate
+    requires_confirmation: false
+    supports: [h1, h2, h3]
+
+decision_rules:
+  - "Missing or wrong X-API-Key → respond 401 with JSON body {'error': 'Unauthorized'}."
+  - "Unknown route → 404 JSON {'error': 'Not found'}."
+  - "Wrong method on known route → 405 JSON {'error': 'Method not allowed'}."
+  - "POST /posts missing required fields (title, body, author) → 400 JSON {'error': 'Missing fields: ...'}."
+  - "PUT /posts/<id> ignores unknown fields; only updates provided fields + updated_at."
+  - "DELETE /posts/<id> returns 204 with empty body regardless of whether row existed."
+  - "All datetime values stored as UTC ISO-8601 strings."
+
+metadata:
+  source_prompt: >
+    Build a REST Blog API in Python using only the standard library (http.server
+    + sqlite3). CRUD for posts, X-API-Key auth, JSON bodies, localhost:8080,
+    single file blog_api.py.
+  generator: specforge-skill
+  model: claude-sonnet-4-6
+  scope_contract:
+    must_include:
+      - http.server
+      - sqlite3
+      - X-API-Key auth
+      - GET /posts
+      - POST /posts
+      - PUT /posts/<id>
+      - DELETE /posts/<id>
+      - JSON responses
+      - 401 on missing key
+    must_not_include:
+      - flask
+      - fastapi
+      - django
+      - requests library
+      - ORM
+      - async/await
+      - multi-file structure
+      - user registration
+      - comments endpoint

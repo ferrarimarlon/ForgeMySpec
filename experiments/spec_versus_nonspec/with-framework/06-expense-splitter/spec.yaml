@@ -1,0 +1,74 @@
+version: "0.1"
+title: "Expense Splitter CLI"
+objective: "CLI tool that reads a YAML/text file of expenses (who paid, amount, for whom), computes net balances per person, and suggests the minimum number of transactions to settle all debts using a greedy algorithm matching largest creditor with largest debtor."
+execution_mode: step_by_step
+context:
+  system: "Python 3.9, stdlib only, state stored in expenses.json, CLI via argparse"
+  assumptions:
+    - "Amounts are floats; fractional cents handled by rounding to 2 decimal places"
+    - "Expenses stored as list of {id, payer, amount, participants, description}"
+    - "Settlement uses greedy: sort creditors/debtors by absolute balance, match largest pair"
+    - "Balances are net: positive = owed money, negative = owes money"
+constraints:
+  - "No external libraries"
+  - "State file is expenses.json in current directory"
+  - "All monetary values rounded to 2 decimal places"
+  - "Participants field lists who benefits from the expense (including payer if applicable)"
+success_criteria:
+  - "add command stores expense and updates balances"
+  - "balances command shows net balance per person"
+  - "settle command shows minimum transactions to clear all debts"
+  - "Greedy algorithm produces optimal or near-optimal settlement"
+  - "Fractional cents handled without accumulation error"
+hypotheses:
+  - id: h1
+    description: "Greedy settlement produces minimum transactions when balances sum to zero"
+    confidence: 0.90
+  - id: h2
+    description: "Rounding at each step prevents float drift accumulation"
+    confidence: 0.85
+actions:
+  - id: a1
+    description: "Define data model: expenses list and balance computation"
+    type: design
+    requires_confirmation: false
+    supports: [h1]
+  - id: a2
+    description: "Implement add, balances, settle commands"
+    type: implement
+    requires_confirmation: false
+    supports: [h1, h2]
+  - id: a3
+    description: "Implement greedy settlement algorithm"
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+  - id: a4
+    description: "Validate with multi-person expense scenarios"
+    type: validate
+    requires_confirmation: false
+    supports: [h1, h2]
+decision_rules:
+  - "Payer's balance increases by (amount - payer_share); each non-payer participant decreases by their share"
+  - "Settlement: while creditors and debtors remain, match largest creditor with largest debtor"
+  - "Stop settlement when all balances are within 0.01 of zero"
+required_evidence:
+  - "add stores expense correctly"
+  - "balances sum to zero across all participants"
+  - "settle produces correct number of transactions"
+metadata:
+  source_prompt: "CLI expense splitter with greedy settlement algorithm"
+  generator: specforge-skill
+  model: claude-sonnet-4-6
+  scope_contract:
+    must_include:
+      - "add command"
+      - "balances command"
+      - "settle command"
+      - "greedy settlement algorithm"
+      - "expenses.json persistence"
+      - "fractional cent handling"
+    must_not_include:
+      - "web interface"
+      - "external libraries"
+      - "database"

@@ -1,0 +1,23 @@
+must_not_introduce:
+  - pattern: "import flask|import fastapi|import django|import requests|import aiohttp"
+    reason: "No external web framework or HTTP client"
+  - pattern: "class.*Model|declarative_base|session.add"
+    reason: "ORM forbidden"
+  - pattern: "async def|asyncio.run|await "
+    reason: "Async code out of scope"
+  - pattern: "/comments|/users|/register|/login"
+    reason: "Only /posts routes in scope"
+  - pattern: "import.*third_party|pip install"
+    reason: "External packages forbidden"
+
+must_include:
+  - pattern: "import http.server|from http.server"
+    reason: "http.server required for routing"
+  - pattern: "import sqlite3"
+    reason: "SQLite persistence required"
+  - pattern: "X-API-Key|x-api-key"
+    reason: "API key auth required"
+  - pattern: "send_response.*201|201"
+    reason: "POST must return 201"
+  - pattern: "send_response.*401|401"
+    reason: "Auth failure must return 401"

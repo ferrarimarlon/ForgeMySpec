@@ -1,0 +1,78 @@
+version: "0.1"
+title: "Data Deduplicator CLI"
+objective: "CLI that reads a CSV, deduplicates rows by one or more key columns using first/last/error strategies, writes clean CSV, and optionally prints a summary report of duplicates found."
+execution_mode: step_by_step
+context:
+  system: "Python 3.9, stdlib only, csv module for I/O"
+  assumptions:
+    - "Key columns are comma-separated in --keys argument"
+    - "first: keep first occurrence of each key"
+    - "last: keep last occurrence of each key"
+    - "error: exit 1 with list of duplicate keys if any found"
+    - "Composite key is tuple of values from key columns"
+constraints:
+  - "No external libraries"
+  - "Input and output are CSV files"
+  - "error strategy must exit with code 1 when duplicates exist"
+  - "--report prints summary to stdout before writing output"
+success_criteria:
+  - "first strategy keeps first row for each key"
+  - "last strategy keeps last row for each key"
+  - "error strategy exits 1 with duplicate list"
+  - "report shows count of duplicates per key"
+  - "composite keys work correctly"
+hypotheses:
+  - id: h1
+    description: "Dict-based deduplication preserves order for first/last strategies"
+    confidence: 0.95
+  - id: h2
+    description: "Composite key as tuple enables multi-column deduplication"
+    confidence: 0.95
+actions:
+  - id: a1
+    description: "Implement CSV reading and composite key extraction"
+    type: implement
+    requires_confirmation: false
+    supports: [h1, h2]
+  - id: a2
+    description: "Implement first/last/error strategies"
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+  - id: a3
+    description: "Implement --report output"
+    type: implement
+    requires_confirmation: false
+    supports: [h2]
+  - id: a4
+    description: "Validate strategies and composite keys"
+    type: validate
+    requires_confirmation: false
+    supports: [h1, h2]
+decision_rules:
+  - "first: OrderedDict, skip key if already seen"
+  - "last: dict overwrite, last write wins"
+  - "error: collect all duplicates, report them all, exit 1"
+  - "report shows: key value | duplicate count"
+  - "output file written only if no error (for error strategy)"
+required_evidence:
+  - "first keeps correct row"
+  - "last keeps correct row"
+  - "error exits 1 with duplicate list"
+  - "composite key deduplication works"
+metadata:
+  source_prompt: "CSV deduplicator with first/last/error strategies and composite keys"
+  generator: specforge-skill
+  model: claude-sonnet-4-6
+  scope_contract:
+    must_include:
+      - "--keys argument"
+      - "--strategy first|last|error"
+      - "--output path"
+      - "--report flag"
+      - "composite key support"
+      - "exit 1 for error strategy"
+    must_not_include:
+      - "external libraries"
+      - "database"
+      - "fuzzy matching"

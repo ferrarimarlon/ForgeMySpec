@@ -1,0 +1,127 @@
+version: "0.1"
+title: "CLI Task Manager"
+objective: >
+  Build a single-file Python CLI task manager (task_manager.py) that persists
+  tasks in SQLite using only the standard library. Users can create, read,
+  update, and delete tasks; filter by status or priority; and mark tasks done —
+  all via formatted terminal output.
+execution_mode: step_by_step
+
+context:
+  system: >
+    macOS/Linux Python 3.9+ environment. No virtual-env or external packages
+    required. The deliverable is a single file: task_manager.py runnable with
+    `python task_manager.py <command> [options]`.
+  assumptions:
+    - Python 3.9+ is available on PATH.
+    - sqlite3 module is part of stdlib (always present).
+    - The database file (tasks.db) is created in the working directory on first run.
+    - No web interface or daemon process is needed.
+    - Terminal supports basic ANSI width; table formatting uses fixed-width columns.
+
+constraints:
+  - Single file implementation: task_manager.py only.
+  - No external dependencies — stdlib only (sqlite3, argparse, datetime, textwrap).
+  - Database file named tasks.db in cwd.
+  - Task fields exactly: id (auto-increment), title, description, priority (low/medium/high), status (todo/in-progress/done), due_date (YYYY-MM-DD or empty).
+  - CLI entry via argparse subcommands: add, list, update, delete, done.
+  - Table output must align columns without third-party libraries.
+  - All files placed under experiments/with-framework/01-task-manager/.
+
+success_criteria:
+  - "`python task_manager.py add --title 'X' --priority high` exits 0 and prints confirmation."
+  - "`python task_manager.py list` renders a properly aligned table with all tasks."
+  - "`python task_manager.py list --status todo --priority high` filters correctly."
+  - "`python task_manager.py update <id> --status in-progress` mutates the record."
+  - "`python task_manager.py done <id>` sets status=done."
+  - "`python task_manager.py delete <id>` removes the record and confirms."
+  - Consecutive runs accumulate data correctly in tasks.db.
+  - No import errors or unhandled exceptions for valid inputs.
+
+hypotheses:
+  - id: h1
+    description: >
+      sqlite3 + argparse cover all persistence and CLI parsing needs without
+      external dependencies.
+    confidence: 0.98
+  - id: h2
+    description: >
+      Fixed-width column formatting via ljust/rjust produces readable tables
+      across all task field lengths.
+    confidence: 0.90
+  - id: h3
+    description: >
+      A single argparse subcommand structure (add/list/update/delete/done) maps
+      cleanly to all required CRUD operations.
+    confidence: 0.95
+
+required_evidence:
+  - Shell session showing `add`, `list`, `update`, `done`, `delete` subcommands all exit 0.
+  - `list` output shows aligned table with at least 3 tasks of mixed priority/status.
+  - `list --status todo` returns only todo tasks.
+  - `python -c "import task_manager"` exits 0 (no import-time side effects).
+  - tasks.db file exists after first run.
+
+actions:
+  - id: a1
+    description: "Design DB schema and argparse structure; define field enums."
+    type: design
+    requires_confirmation: false
+    supports: [h1, h3]
+  - id: a2
+    description: "Implement DB init function and CRUD helpers (add, get, update, delete)."
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+  - id: a3
+    description: "Implement CLI subcommand handlers and table formatter."
+    type: implement
+    requires_confirmation: false
+    supports: [h2, h3]
+  - id: a4
+    description: "Wire argparse to handlers; add __main__ guard."
+    type: implement
+    requires_confirmation: false
+    supports: [h1, h3]
+  - id: a5
+    description: "Validate all subcommands manually; verify tasks.db creation and data integrity."
+    type: validate
+    requires_confirmation: false
+    supports: [h1, h2, h3]
+
+decision_rules:
+  - "If due_date is omitted, store empty string; display as '-' in table."
+  - "If priority arg is invalid, print usage error and exit 1."
+  - "If task id not found for update/delete/done, print 'Task <id> not found' and exit 1."
+  - "Table columns: ID(4) | Title(30) | Priority(8) | Status(11) | Due(12)."
+  - "Description is stored but not shown in list table; shown only in a future `show <id>` command (out of scope)."
+
+metadata:
+  source_prompt: >
+    Build a CLI Task Manager in Python. Requirements: Add, list, update, delete
+    tasks (CRUD). Each task has: id, title, description, priority
+    (low/medium/high), status (todo/in-progress/done), due_date. Persist data in
+    SQLite (no ORM, raw sqlite3). Filter tasks by status and priority. Mark task
+    as done. Output as formatted table in terminal. Single file CLI entry point:
+    task_manager.py. No external dependencies beyond stdlib.
+  generator: specforge-skill
+  model: claude-sonnet-4-6
+  scope_contract:
+    must_include:
+      - sqlite3
+      - argparse
+      - add subcommand
+      - list subcommand
+      - update subcommand
+      - delete subcommand
+      - done subcommand
+      - priority filter
+      - status filter
+      - formatted table output
+    must_not_include:
+      - external pip packages
+      - web interface
+      - ORM (SQLAlchemy, peewee, etc.)
+      - async code
+      - multi-file structure
+      - show subcommand

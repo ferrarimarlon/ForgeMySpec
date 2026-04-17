@@ -1,0 +1,23 @@
+must_not_introduce:
+  - pattern: "import watchdog|from watchdog"
+    reason: "No external watchdog library"
+  - pattern: "import inotify|pyinotify"
+    reason: "No inotify bindings"
+  - pattern: "rglob|walk.*recursive|os.walk"
+    reason: "No recursive directory scanning"
+  - pattern: "tkinter|PyQt|wx\."
+    reason: "No GUI"
+  - pattern: "import requests|import flask"
+    reason: "No network code"
+
+must_include:
+  - pattern: "import shutil|from shutil"
+    reason: "shutil.move required"
+  - pattern: "import logging|from logging"
+    reason: "Logging required"
+  - pattern: "import argparse"
+    reason: "CLI arg parsing required"
+  - pattern: "images|documents|videos|audio|archives|other"
+    reason: "All 6 category subdirs required"
+  - pattern: "organizer.log"
+    reason: "Log file required"

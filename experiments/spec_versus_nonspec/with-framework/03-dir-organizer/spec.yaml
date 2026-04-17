@@ -1,0 +1,127 @@
+version: "0.1"
+title: "Directory Organizer"
+objective: >
+  Build a single-file Python CLI (organizer.py) that scans a target directory
+  and moves files into typed subdirectories based on file extension. Supports
+  --once (single pass) and --watch (continuous polling every 2 s) modes.
+  Logs all moves to organizer.log inside the target directory.
+execution_mode: step_by_step
+
+context:
+  system: >
+    macOS/Linux Python 3.9+ environment. Single file organizer.py runnable with
+    `python3 organizer.py <target_dir> [--once|--watch]`. No external packages.
+  assumptions:
+    - pathlib, shutil, os, time, logging, argparse are all stdlib.
+    - Target directory exists before script is run.
+    - Files at the ROOT of target dir are candidates; files in subdirs are skipped.
+    - Hidden files (name starts with '.') are skipped.
+    - organizer.log is created/appended in the target directory, not the cwd.
+    - Polling interval for --watch mode is exactly 2 seconds.
+    - Destination subdirs are created if they don't exist.
+    - If dest file already exists, skip the move and log a warning.
+
+constraints:
+  - Single file: organizer.py only.
+  - No external dependencies — stdlib only.
+  - Extension mapping exactly as specified (6 categories including other/).
+  - --once exits after one pass; --watch loops indefinitely until Ctrl-C.
+  - Log format: "YYYY-MM-DD HH:MM:SS - INFO - Moved <filename> → <subdir>/".
+  - All files in experiments/with-framework/03-dir-organizer/.
+
+success_criteria:
+  - "Running --once on a test directory with mixed files moves each to the correct subdir."
+  - "organizer.log is created and contains one entry per moved file."
+  - "Files already in a subdir are NOT moved again in --watch mode."
+  - "Hidden files (e.g. .gitignore) are NOT moved."
+  - "organizer.log itself is NOT moved."
+  - "--watch mode runs continuously; Ctrl-C exits cleanly."
+  - "Destination subdir is created if it doesn't exist."
+
+hypotheses:
+  - id: h1
+    description: >
+      pathlib.Path iteration over a directory, filtered to root-level files only,
+      correctly identifies all candidates without recursion.
+    confidence: 0.97
+  - id: h2
+    description: >
+      shutil.move handles cross-device and same-device moves transparently on
+      macOS/Linux for all target file types.
+    confidence: 0.95
+  - id: h3
+    description: >
+      Python's logging module with a FileHandler in the target directory captures
+      all move events without interfering with the organizer's own file scan.
+    confidence: 0.93
+
+required_evidence:
+  - Shell session: create test dir with .jpg, .pdf, .mp4, .zip, .unknown, .hidden; run --once; verify each landed in correct subdir.
+  - cat organizer.log shows one line per moved file with correct format.
+  - .hidden file NOT present in any subdir.
+  - organizer.log NOT moved.
+  - Re-running --once on already-organized dir produces no additional moves.
+
+actions:
+  - id: a1
+    description: "Define extension→subdir mapping dict and setup_logging() function."
+    type: design
+    requires_confirmation: false
+    supports: [h1, h3]
+  - id: a2
+    description: "Implement organize_once(target): iterate root files, map extension, move, log."
+    type: implement
+    requires_confirmation: false
+    supports: [h1, h2]
+  - id: a3
+    description: "Implement watch_mode(target, interval=2): loop calling organize_once; handle KeyboardInterrupt."
+    type: implement
+    requires_confirmation: false
+    supports: [h1, h2]
+  - id: a4
+    description: "Wire argparse (target positional, --once/--watch mutex group); add __main__ guard."
+    type: implement
+    requires_confirmation: false
+    supports: [h1, h3]
+  - id: a5
+    description: "Validate with test directory; verify log content, skip rules, idempotency."
+    type: validate
+    requires_confirmation: false
+    supports: [h1, h2, h3]
+
+decision_rules:
+  - "If neither --once nor --watch provided, default to --once."
+  - "Skip file if path.parent != target (already in a subdir)."
+  - "Skip file if name starts with '.'."
+  - "Skip file if name == 'organizer.log'."
+  - "If dest file already exists, log WARNING 'Skipped <name>: already exists in <subdir>/' and do not overwrite."
+  - "Extension matching is case-insensitive (e.g. .JPG → images/)."
+  - "Unmapped extension → other/ subdir."
+
+metadata:
+  source_prompt: >
+    Build a Directory Organizer in Python. Watch a target directory and move
+    files into subdirectories by extension. Two modes: --watch and --once.
+    Log moves to organizer.log. Skip files already in subdirs and hidden files.
+    Single file organizer.py, stdlib only.
+  generator: specforge-skill
+  model: claude-sonnet-4-6
+  scope_contract:
+    must_include:
+      - pathlib
+      - shutil.move
+      - logging
+      - argparse
+      - --once mode
+      - --watch mode
+      - organizer.log
+      - images/ subdir
+      - documents/ subdir
+      - other/ subdir
+    must_not_include:
+      - watchdog library
+      - inotify
+      - external pip packages
+      - recursive subdirectory scanning
+      - GUI
+      - multi-file structure
