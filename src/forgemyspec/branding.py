@@ -6,187 +6,207 @@ import shutil
 
 from . import __app_name__, __version__
 
+# ── ANSI palette ───────────────────────────────────────────────────────────────
+RESET  = "\033[0m"
+BOLD   = "\033[1m"
+DIM    = "\033[2m"
 
-RESET = "\033[0m"
-BOLD = "\033[1m"
-DIM = "\033[2m"
+SLATE  = "\033[38;5;240m"    # dark gray
+STEEL  = "\033[38;5;250m"    # light gray
+SILVER = "\033[38;5;252m"    # near-white
 
-SLATE = "\033[38;5;240m"
-STEEL = "\033[38;5;250m"
-SILVER = "\033[38;5;252m"
-SKY = "\033[38;5;111m"
-CYAN = "\033[38;5;45m"
-MINT = "\033[38;5;49m"
-GOLD = "\033[38;5;221m"
-CORAL = "\033[38;5;209m"
-RED = "\033[38;5;203m"
-ORANGE = "\033[38;5;216m"
+SKY    = "\033[38;5;111m"    # soft blue
+CYAN   = "\033[38;5;45m"     # bright cyan
+MINT   = "\033[38;5;49m"     # mint green (OpenAI badge)
 
-WORDMARK = (
-    r"  ______                    __  ___      _____                 ",
-    r" / ____/___  _________ ____/  |/  /_  __/ ___/____  ___  _____ ",
-    r"/ /_  / __ \/ ___/ __ `/ _  /|_/ / / / /\__ \/ __ \/ _ \/ ___/ ",
-    r"/ __/ / /_/ / /  / /_/ /  __/  / / /_/ /___/ / /_/ /  __/ /    ",
-    r"/_/    \____/_/   \__, /\___/_/ /_/\__, //____/ .___/\___/_/     ",
-    r"                 /____/           /____/     /_/                 ",
-)
+AMBER  = "\033[38;5;214m"    # bright amber
+GOLD   = "\033[38;5;221m"    # warm gold
+ORANGE = "\033[38;5;209m"    # coral-orange (Anthropic badge)
+CORAL  = "\033[38;5;203m"    # coral-red
+RED    = CORAL
 
+# ── gem / logo mark ────────────────────────────────────────────────────────────
+#
+#   Three rows of ◆ forming a horizontal gem shape:
+#
+#     ◈  Row 0  "  ◆◆◆◆◆  "  outer ring  (ORANGE)
+#     ◈  Row 1  "◆◆◆◆◆◆◆◆◆"  middle band  (AMBER)
+#     ◈  Row 2  "  ◆◆◆◆◆  "  outer ring  (GOLD)
+#
+_MARK        = ["  ◆◆◆◆◆  ", "◆◆◆◆◆◆◆◆◆", "  ◆◆◆◆◆  "]
+_MARK_COLORS = [ORANGE, AMBER, GOLD]
+_MARK_W      = 9   # visible width of each mark row
+
+
+# ── public render functions ────────────────────────────────────────────────────
 
 def render_banner() -> str:
-    width = _terminal_width()
-    inner_width = min(max(68, width - 6), 96)
-    wordmark = _render_wordmark(inner_width)
-    left_width = max(26, min(38, inner_width // 2 - 2))
-    right_width = max(24, inner_width - left_width - 3)
-    provider_label, provider_color = _provider_label()
-    workspace = os.getcwd()
-    body = [
-        _frame_line("+", "-", "+", inner_width),
-        *_frame_multiline(wordmark, inner_width),
-        _frame_content("", inner_width),
-        _frame_content(f"{BOLD}{ORANGE}ForgeMySpec{RESET}  {DIM}{SLATE}v{__version__}{RESET}", inner_width),
-        _frame_content(f"{STEEL}Compile requirements into Claude execution artifacts{RESET}", inner_width),
-        _frame_content("", inner_width),
-        _frame_split(
-            [
-                f"{DIM}{SLATE}Provider{RESET}",
-                f"{provider_color}{provider_label}{RESET}",
-                "",
-                f"{DIM}{SLATE}Workspace{RESET}",
-                f"{STEEL}{workspace}{RESET}",
-            ],
-            [
-                f"{DIM}{SLATE}Flow{RESET}",
-                f"{SILVER}task -> spec -> lint -> package{RESET}",
-                "",
-                f"{DIM}{SLATE}Commands{RESET}",
-                f"{STEEL}/help   /quit{RESET}",
-            ],
-            left_width,
-            right_width,
-        ),
-        _frame_line("+", "-", "+", inner_width),
+    iw = _iw()
+
+    gap = 3
+    titles = [
+        f"{BOLD}{AMBER}{__app_name__}{RESET}",
+        f"{DIM}{STEEL}Compile requirements into Claude artifacts{RESET}",
+        f"{DIM}{SLATE}v{__version__}{RESET}",
     ]
-    return "\n".join(body)
+    logo_rows = [
+        _line(f" {color}{mark}{RESET}{' ' * gap}{title} ", iw)
+        for mark, color, title in zip(_MARK, _MARK_COLORS, titles)
+    ]
+
+    plabel, pcolor = _provider_label()
+    ws = _truncate_path(os.getcwd(), max(20, iw - 14))
+
+    a = f"{DIM}{SLATE}→{RESET}"
+    flow = f"{SILVER}task {a} spec {a} lint {a} package{RESET}"
+
+    parts = [
+        _hline("╭", "─", "╮", iw),
+        _blank(iw),
+        *logo_rows,
+        _blank(iw),
+        _hline("├", "─", "┤", iw),
+        _blank(iw),
+        _kv("Provider ", f"{pcolor}{plabel}{RESET}", iw),
+        _kv("Workspace", f"{STEEL}{ws}{RESET}", iw),
+        _blank(iw),
+        _kv("Flow     ", flow, iw),
+        _kv("Commands ", f"{STEEL}/help   /quit{RESET}", iw),
+        _blank(iw),
+        _hline("╰", "─", "╯", iw),
+    ]
+    return "\n".join(parts)
 
 
 def render_footer() -> str:
     width = _terminal_width()
-    left = f"{DIM}{SLATE}/help{RESET}"
+    left   = f"{DIM}{SLATE}/help{RESET}"
     center = f"{DIM}{SLATE}type a requirement{RESET}"
-    right = f"{DIM}{SLATE}/quit{RESET}"
-    plain_total = _visible_len("/help") + _visible_len("type a requirement") + _visible_len("/quit")
-    spaces = max(4, width - plain_total)
-    left_gap = spaces // 2
-    right_gap = spaces - left_gap
-    return left + (" " * left_gap) + center + (" " * right_gap) + right
+    right  = f"{DIM}{SLATE}/quit{RESET}"
+    dot    = f"{DIM}{SLATE} · {RESET}"
+    plain  = _visible_len("/help") + _visible_len(" · ") * 2 + _visible_len("type a requirement") + _visible_len("/quit")
+    pad    = max(2, (width - plain) // 2)
+    return " " * pad + left + dot + center + dot + right
 
 
 def render_help() -> str:
     lines = [
-        f"{BOLD}{ORANGE}ForgeMySpec help{RESET}",
-        f"{STEEL}forgemyspec \"<task text>\"{RESET}",
-        f"{DIM}{SLATE}Run directly from the shell with a positional requirement.{RESET}",
-        f"{STEEL}forgemyspec --prompt <text>{RESET}",
-        f"{DIM}{SLATE}Provide the requirement as a named argument.{RESET}",
-        f"{STEEL}forgemyspec --from-file <prompt.txt>{RESET}",
-        f"{DIM}{SLATE}Load the requirement from a file.{RESET}",
-        f"{STEEL}/quit{RESET}",
-        f"{DIM}{SLATE}Exit the interactive client.{RESET}",
+        f"{BOLD}{AMBER}ForgeMySpec — help{RESET}",
+        "",
+        f"  {DIM}{SLATE}positional{RESET}   {STEEL}forgemyspec \"<task>\"{RESET}",
+        f"  {DIM}{SLATE}named flag{RESET}   {STEEL}forgemyspec --prompt <text>{RESET}",
+        f"  {DIM}{SLATE}from file {RESET}   {STEEL}forgemyspec --from-file <path>{RESET}",
+        "",
+        f"  {DIM}{SLATE}/quit{RESET}        {STEEL}exit the interactive shell{RESET}",
     ]
     return "\n".join(lines)
 
 
 def render_shell_intro() -> str:
     return (
-        f"{BOLD}{STEEL}Describe the requirement you want to compile.{RESET} "
-        f"{DIM}{SLATE}ForgeMySpec will ask for the output folder next.{RESET}"
+        f"  {STEEL}Describe the requirement you want to compile.{RESET}  "
+        f"{DIM}{SLATE}ForgeMySpec will ask for an output folder next.{RESET}"
     )
 
 
 def render_user_prompt() -> str:
-    return f"{ORANGE}>{RESET} "
+    return f"{AMBER}❯{RESET} "
 
 
 def render_assistant_line(text: str) -> str:
-    return f"{DIM}{SLATE}|{RESET} {STEEL}{text}{RESET}"
+    return f"  {DIM}{SLATE}│{RESET}  {STEEL}{text}{RESET}"
 
 
 def render_status(text: str) -> str:
-    return f"{GOLD}●{RESET} {SLATE}{text}{RESET}"
+    return f"  {AMBER}◆{RESET}  {SLATE}{text}{RESET}"
+
+
+def render_success(text: str) -> str:
+    return f"  {MINT}✓{RESET}  {STEEL}{text}{RESET}"
+
+
+def render_error(text: str) -> str:
+    return f"  {CORAL}✗{RESET}  {STEEL}{text}{RESET}"
 
 
 def render_section_break() -> str:
     width = min(_terminal_width(), 108)
-    return f"{DIM}{SLATE}{'─' * max(24, width - 2)}{RESET}"
+    return f"  {DIM}{SLATE}{'─' * max(24, width - 4)}{RESET}"
 
 
-def _provider_badge() -> str:
-    if os.getenv("OPENAI_API_KEY"):
-        return f"{MINT}●{RESET}{SKY} {_env_or_default('OPENAI_MODEL', 'gpt-codex')} · OpenAI{RESET}"
-    if os.getenv("ANTHROPIC_API_KEY"):
-        return f"{CORAL}●{RESET}{SKY} {_env_or_default('ANTHROPIC_MODEL', 'claude-3-5-sonnet-latest')} · Anthropic{RESET}"
-    return f"{GOLD}●{RESET}{SLATE} No provider configured{RESET}"
+# ── private helpers ────────────────────────────────────────────────────────────
 
-
-def _env_or_default(key: str, default: str) -> str:
-    value = os.getenv(key)
-    return value if value else default
+def _iw() -> int:
+    """Inner width: space between │ chars (used by _line, _hline, _blank, _kv)."""
+    return min(max(58, _terminal_width() - 4), 88)
 
 
 def _terminal_width() -> int:
     return max(56, min(shutil.get_terminal_size((100, 28)).columns, 124))
 
 
+def _line(content: str, iw: int) -> str:
+    """Wrap *content* between │ chars, padding to fill inner_width + 2 chars."""
+    vis     = _visible_len(content)
+    padding = max(0, iw + 2 - vis)
+    return f"{DIM}{SLATE}│{RESET}{content}{' ' * padding}{DIM}{SLATE}│{RESET}"
+
+
+def _blank(iw: int) -> str:
+    return f"{DIM}{SLATE}│{' ' * (iw + 2)}│{RESET}"
+
+
+def _hline(left: str, fill: str, right: str, iw: int) -> str:
+    return f"{DIM}{SLATE}{left}{fill * (iw + 2)}{right}{RESET}"
+
+
+def _kv(key: str, value: str, iw: int) -> str:
+    content = f"  {DIM}{SLATE}{key}  {RESET}{value} "
+    return _line(content, iw)
+
+
 def _provider_label() -> tuple[str, str]:
     if os.getenv("OPENAI_API_KEY"):
-        return f"{_env_or_default('OPENAI_MODEL', 'gpt-codex')}  OpenAI", MINT
+        model = os.getenv("OPENAI_MODEL", "gpt-4o")
+        return f"{model}  OpenAI", MINT
     if os.getenv("ANTHROPIC_API_KEY"):
-        return f"{_env_or_default('ANTHROPIC_MODEL', 'claude-3-5-sonnet-latest')}  Anthropic", CORAL
+        model = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-5")
+        return f"{model}  Anthropic", ORANGE
     return "No provider configured", GOLD
 
 
-def _render_wordmark(inner_width: int) -> str:
-    lines = []
-    for raw_line in WORDMARK:
-        pad = max(0, (inner_width - _visible_len(raw_line)) // 2)
-        lines.append((" " * pad) + f"{ORANGE}{raw_line}{RESET}")
-    return "\n".join(lines)
+def _provider_badge() -> str:
+    label, color = _provider_label()
+    return f"{color}●{RESET}{SKY} {label}{RESET}"
 
 
-def _frame_multiline(text: str, inner_width: int) -> list[str]:
-    return [_frame_content(line, inner_width) for line in text.splitlines()]
+def _truncate_path(path: str, max_len: int) -> str:
+    if len(path) <= max_len:
+        return path
+    home = os.path.expanduser("~")
+    if path.startswith(home):
+        path = "~" + path[len(home):]
+    if len(path) <= max_len:
+        return path
+    return "…" + path[-(max_len - 1):]
 
+
+def _visible_len(text: str) -> int:
+    return len(re.sub(r"\x1b\[[0-9;]*m", "", text))
+
+
+# ── legacy frame helpers (kept for any external callers) ──────────────────────
 
 def _frame_content(text: str, inner_width: int) -> str:
-    visible = _visible_len(text)
-    padding = max(0, inner_width - visible)
-    return f"{DIM}{SLATE}|{RESET} {text}{' ' * padding} {DIM}{SLATE}|{RESET}"
+    vis     = _visible_len(text)
+    padding = max(0, inner_width - vis)
+    return f"{DIM}{SLATE}│{RESET} {text}{' ' * padding} {DIM}{SLATE}│{RESET}"
 
 
 def _frame_line(left: str, fill: str, right: str, inner_width: int) -> str:
     return f"{DIM}{SLATE}{left}{fill * (inner_width + 2)}{right}{RESET}"
 
 
-def _frame_split(left_lines: list[str], right_lines: list[str], left_width: int, right_width: int) -> str:
-    rows = []
-    height = max(len(left_lines), len(right_lines))
-    left = left_lines + [""] * (height - len(left_lines))
-    right = right_lines + [""] * (height - len(right_lines))
-    for left_text, right_text in zip(left, right):
-        left_visible = _visible_len(left_text)
-        right_visible = _visible_len(right_text)
-        left_padding = max(0, left_width - left_visible)
-        right_padding = max(0, right_width - right_visible)
-        rows.append(
-            f"{DIM}{SLATE}|{RESET} "
-            f"{left_text}{' ' * left_padding} "
-            f"{DIM}{SLATE}|{RESET} "
-            f"{right_text}{' ' * right_padding} "
-            f"{DIM}{SLATE}|{RESET}"
-        )
-    return "\n".join(rows)
-
-
-def _visible_len(text: str) -> int:
-    return len(re.sub(r"\x1b\[[0-9;]*m", "", text))
+def _center_text(text: str, inner_width: int) -> str:
+    pad = max(0, (inner_width - _visible_len(text)) // 2)
+    return (" " * pad) + text

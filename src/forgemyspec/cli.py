@@ -8,9 +8,13 @@ import sys
 from .branding import (
     render_assistant_line,
     render_banner,
+    render_error,
     render_footer,
     render_help,
+    render_section_break,
     render_shell_intro,
+    render_status,
+    render_success,
     render_user_prompt,
 )
 from .claude_skill import package_claude_skill
@@ -76,16 +80,17 @@ def _run_pipeline(
     policy: CompilerPolicy,
     interactive: bool,
 ) -> int:
+    print(render_status("Generating spec…"))
     try:
         spec = build_spec(prompt, execution_mode="advisory", llm_settings=llm_settings, policy=policy)
     except LLMError as exc:
         if interactive:
-            print(render_assistant_line(f"Failed with provider '{provider}': {exc}"))
+            print(render_error(f"Provider '{provider}' error: {exc}"))
             return 1
         raise SystemExit(f"Failed to generate spec with provider '{provider}': {exc}") from exc
     except PolicyConfigError as exc:
         if interactive:
-            print(render_assistant_line(f"Compiler policy configuration error: {exc}"))
+            print(render_error(f"Compiler policy error: {exc}"))
             return 1
         raise SystemExit(f"Compiler policy configuration error: {exc}") from exc
 
@@ -94,47 +99,38 @@ def _run_pipeline(
     spec_path = output_dir / "spec.yaml"
     write_spec(spec, str(spec_path))
 
+    print(render_status("Linting spec…"))
     try:
         report = lint_spec(spec.to_dict(), policy=policy)
     except PolicyConfigError as exc:
         if interactive:
-            print(render_assistant_line(f"Compiler policy configuration error: {exc}"))
+            print(render_error(f"Compiler policy error: {exc}"))
             return 1
         raise SystemExit(f"Compiler policy configuration error: {exc}") from exc
 
     lint_failed = report.has_errors or report.score < policy.lint_min_passing_score
     if lint_failed:
-        if interactive:
-            print(render_assistant_line(f"Spec generated at {spec_path}"))
-            for line in format_lint_report(report).splitlines():
-                print(render_assistant_line(line))
-            print(
-                render_assistant_line(
-                    f"Packaging blocked due to lint failures (minimum score: {policy.lint_min_passing_score})."
-                )
-            )
-            return 1
-        print(f"Spec generated at {spec_path}")
-        print(format_lint_report(report))
-        print(f"Packaging blocked due to lint failures (minimum score: {policy.lint_min_passing_score}).")
-        return 1
-
-    result = package_claude_skill(str(spec_path), str(output_dir))
-    if interactive:
-        print(render_assistant_line(f"Spec generated at {spec_path}"))
+        print(render_section_break())
         for line in format_lint_report(report).splitlines():
             print(render_assistant_line(line))
-        print(render_assistant_line(f"Claude skill bundle written to {result.root}"))
-        return 0
+        print(render_error(f"Packaging blocked — lint score below minimum ({policy.lint_min_passing_score})."))
+        return 1
 
-    print(f"Spec generated at {spec_path}")
-    print(format_lint_report(report))
-    print(f"Claude skill bundle written to {result.root}")
-    print(f"- spec: {result.spec_path}")
-    print(f"- memory: {result.memory_path}")
-    print(f"- command: {result.command_path}")
-    print(f"- checklist: {result.checklist_path}")
-    print(f"- eval template: {result.eval_template_path}")
+    print(render_status("Packaging Claude skill bundle…"))
+    result = package_claude_skill(str(spec_path), str(output_dir))
+
+    print(render_section_break())
+    for line in format_lint_report(report).splitlines():
+        print(render_assistant_line(line))
+    print(render_section_break())
+    print(render_success(f"Spec written       {spec_path}"))
+    print(render_success(f"Bundle written     {result.root}"))
+    if not interactive:
+        print(render_assistant_line(f"spec      {result.spec_path}"))
+        print(render_assistant_line(f"memory    {result.memory_path}"))
+        print(render_assistant_line(f"command   {result.command_path}"))
+        print(render_assistant_line(f"checklist {result.checklist_path}"))
+        print(render_assistant_line(f"eval      {result.eval_template_path}"))
     return 0
 
 
@@ -145,8 +141,11 @@ def _run_interactive_client(
     policy: CompilerPolicy,
 ) -> int:
     print(render_banner())
+    print()
     print(render_shell_intro())
+    print()
     print(render_footer())
+    print()
     current_output_dir = output_dir
     while True:
         try:
@@ -167,8 +166,10 @@ def _run_interactive_client(
 
 
 def _ask_output_dir(default_output_dir: str) -> str:
+    from .branding import DIM, RESET, SLATE, STEEL
+    prompt = f"  {DIM}{SLATE}Output folder{RESET} [{STEEL}{default_output_dir}{RESET}]: "
     try:
-        typed = input(f"Output folder [{default_output_dir}]: ").strip()
+        typed = input(prompt).strip()
     except EOFError:
         print()
         return default_output_dir
