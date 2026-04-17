@@ -24,7 +24,13 @@ A direct implementation answers those questions as they arise. A spec answers th
 | Silent quality issues | 4 | 9 |
 | Projects with zero issues | 10 / 17 | 6 / 17 |
 
-The benefit concentrates in projects with three or more interacting constraints. Below that, both approaches converge and the spec overhead is real. Above it, clarity becomes a step in the engineering process — produced before implementation begins, with a record that survives the session.
+Some of the differences were functional. A CSV analytics filter implemented without a spec used `eval()` to parse user expressions — a code injection vulnerability that passed all functional tests. A time tracker checked session activity by the truthiness of a duration value, making zero-second sessions appear active. An invoice validator accepted items with no `description` field because the requirement listed it but no spec enumerated mandatory fields per item.
+
+Others were structural. In a job scheduler with ten interacting requirements, both versions implemented cycle detection, topological sort, and recursive failure propagation correctly. The without-framework version still persisted a derived status that the spec had declared must never be stored. The question of whether to persist it was never raised.
+
+This is the older argument in software engineering: clarity of requirements and explicit implementation contracts are not overhead added on top of the work — they are part of the work. Code that carries no record of its own constraints is code that the next engineer has to reverse-engineer before touching. The spec is that record, produced when the decisions are being made rather than reconstructed afterward from the code that resulted from them.
+
+The benefit concentrates in projects with three or more interacting constraints. Below that, both approaches converge and the spec overhead is real. Above it, the spec pays for itself twice — once during implementation and once when someone has to understand, extend, or debug what was built.
 
 Full data: [`experiments/COMPARATIVE_REPORT.md`](experiments/COMPARATIVE_REPORT.md)
 
