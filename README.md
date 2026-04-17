@@ -1,5 +1,7 @@
 # SpecForge
 
+![SpecForge comparative results](experiments/specforge_chart.png)
+
 [![Tests](https://github.com/ferrarimarlon/specforge/actions/workflows/tests.yml/badge.svg)](https://github.com/ferrarimarlon/specforge/actions/workflows/tests.yml)
 
 **Turn a human request into a machine-executable contract — before the first line of code is written.**
