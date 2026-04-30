@@ -12,8 +12,6 @@ context:
   - "Assumir modo para dois jogadores locais, por aus\xEAncia de pedido de IA ou modo\
     \ online."
 constraints:
-- "N\xE3o adicionar funcionalidades n\xE3o solicitadas, como modo online, ranking\
-  \ ou anima\xE7\xF5es."
 - Manter as regras tradicionais do jogo da velha 3x3.
 - "Usar uma implementa\xE7\xE3o simples e execut\xE1vel."
 - "Se linguagem ou plataforma n\xE3o forem informadas, tratar como decis\xE3o em aberto\
