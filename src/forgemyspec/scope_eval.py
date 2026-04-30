@@ -82,7 +82,7 @@ def _coerce_list(value: Any) -> List[str]:
 
 
 def _extract_implementation_text(spec_data: Dict[str, Any]) -> str:
-    """Return only the sections that describe what will be built."""
+    """Return sections that describe what will be built or assumed true."""
     parts: List[str] = []
 
     for action in spec_data.get("actions") or []:
@@ -97,6 +97,11 @@ def _extract_implementation_text(spec_data: Dict[str, Any]) -> str:
     for hypothesis in spec_data.get("hypotheses") or []:
         if isinstance(hypothesis, dict):
             parts.append(hypothesis.get("description") or "")
+
+    context = spec_data.get("context") if isinstance(spec_data.get("context"), dict) else {}
+    for assumption in context.get("assumptions") or []:
+        if isinstance(assumption, str):
+            parts.append(assumption)
 
     return " ".join(parts)
 
