@@ -26,13 +26,13 @@ def evaluate_scope_drift(
 
     contract = _extract_scope_contract(spec_data, compiler_policy.scope_contract_field)
     candidate = _normalize_text(candidate_text)
-    candidate_no_constraints = _normalize_text(_strip_constraints(spec_data, candidate_text))
+    implementation_text = _normalize_text(_extract_implementation_text(spec_data))
 
     violations: List[str] = []
 
     for phrase in contract.get("must_not_include", []):
         normalized_phrase = _normalize_text(phrase)
-        if normalized_phrase and normalized_phrase in candidate_no_constraints:
+        if normalized_phrase and normalized_phrase in implementation_text:
             violations.append(f"Candidate includes forbidden scope phrase: '{phrase}'")
 
     for phrase in contract.get("must_include", []):
@@ -81,13 +81,24 @@ def _coerce_list(value: Any) -> List[str]:
     return [item.strip() for item in value if isinstance(item, str) and item.strip()]
 
 
-def _strip_constraints(spec_data: Dict[str, Any], candidate_text: str) -> str:
-    constraints = spec_data.get("constraints") if isinstance(spec_data.get("constraints"), list) else []
-    result = candidate_text
-    for item in constraints:
-        if isinstance(item, str):
-            result = result.replace(item, "")
-    return result
+def _extract_implementation_text(spec_data: Dict[str, Any]) -> str:
+    """Return only the sections that describe what will be built."""
+    parts: List[str] = []
+
+    for action in spec_data.get("actions") or []:
+        if isinstance(action, dict):
+            parts.append(action.get("description") or "")
+            parts.append(action.get("type") or "")
+
+    for criterion in spec_data.get("success_criteria") or []:
+        if isinstance(criterion, str):
+            parts.append(criterion)
+
+    for hypothesis in spec_data.get("hypotheses") or []:
+        if isinstance(hypothesis, dict):
+            parts.append(hypothesis.get("description") or "")
+
+    return " ".join(parts)
 
 
 def _normalize_text(value: str) -> str:
