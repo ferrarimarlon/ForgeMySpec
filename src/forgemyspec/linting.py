@@ -326,6 +326,8 @@ def _validate_traceability_breadth(actions: List[Any], hypotheses: List[Any], ad
     }
     if len(hypothesis_ids) < 2:
         return
+    _BROAD_ACTION_TYPES = {"validate", "review", "test"}
+
     for index, action in enumerate(actions, start=1):
         if not isinstance(action, dict):
             continue
@@ -333,13 +335,19 @@ def _validate_traceability_breadth(actions: List[Any], hypotheses: List[Any], ad
         if not isinstance(supports, list):
             continue
         linked = {e for e in supports if isinstance(e, str) and e.strip()}
-        if linked and linked >= hypothesis_ids:
-            add(
-                "warning",
-                "LINT-TR-003",
-                "Action links to all hypotheses; verify traceability is specific, not blanket",
-                f"actions[{index}].supports",
-            )
+        if not linked or not linked >= hypothesis_ids:
+            continue
+        action_type = (action.get("type") or "").strip().lower()
+        if action_type in _BROAD_ACTION_TYPES:
+            continue
+        ids_str = ", ".join(sorted(hypothesis_ids))
+        add(
+            "warning",
+            "LINT-TR-003",
+            f"'{action_type}' action supports all {len(hypothesis_ids)} hypotheses ({ids_str}) — "
+            f"each non-validation action should target only the hypotheses it directly advances",
+            f"actions[{index}].supports",
+        )
 
 
 def _validate_evidence_quality(required_evidence: List[Any], add) -> None:
