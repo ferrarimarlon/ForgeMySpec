@@ -83,10 +83,7 @@ actions:
     four operations, invalid input, unsupported operators, and division by zero.
   type: validate
   requires_confirmation: false
-  supports:
-  - h1
-  - h2
-  - h3
+  supports: []
 decision_rules:
 - If the user input format is not otherwise specified, use an interactive prompt sequence
   for first number, operator, and second number.
