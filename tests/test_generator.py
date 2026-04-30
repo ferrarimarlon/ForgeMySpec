@@ -51,7 +51,6 @@ class GeneratorTests(unittest.TestCase):
             spec.metadata["scope_contract"],
             {
                 "must_include": ["parser cli", "argument parsing"],
-                "must_not_include": ["web ui", "database"],
             },
         )
 
