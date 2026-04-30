@@ -1,0 +1,12 @@
+version: '0.1'
+purpose: Manual eval seeds to detect scope drift in Claude implementations
+source_prompt: create a console calculator with basic operations.
+checks:
+  must_include:
+  - interactive console calculator
+  - support addition subtraction multiplication division
+  - validate numeric input and operator
+  - safe division-by-zero handling
+  - clear result and error output
+  - no unsafe execution of user input
+cases: []

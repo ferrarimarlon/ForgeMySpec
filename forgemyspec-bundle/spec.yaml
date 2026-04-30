@@ -1,0 +1,108 @@
+version: '0.1'
+title: Console Calculator with Basic Operations
+objective: Create a console-based calculator that accepts user input and performs
+  basic arithmetic operations.
+context:
+  system: A command-line application is to be built for interactive arithmetic calculations.
+  assumptions:
+  - Basic operations means addition, subtraction, multiplication, and division.
+  - The calculator will run in an interactive console session.
+  - Users will enter two numeric operands and one operator per calculation.
+  - Division behavior will include explicit handling for division by zero.
+  - No persistence, networking, or graphical interface is required.
+constraints:
+- The application must operate in a console environment.
+- The application must support addition, subtraction, multiplication, and division.
+- The application must validate user input before performing calculations.
+- The application must handle division by zero safely and report the condition to
+  the user.
+- The implementation must avoid unsafe execution of user input as code.
+- The scope is limited to basic arithmetic operations only.
+success_criteria:
+- A user can enter two numeric values and a supported operator in the console and
+  receive the correct result.
+- The calculator returns correct results for addition, subtraction, multiplication,
+  and division in test cases.
+- Invalid numeric input or unsupported operators produce a clear error message in
+  the console.
+- Division by zero produces a clear, safe error message without crashing the application.
+- Evidence includes runnable console interaction examples or tests demonstrating all
+  supported operations and error handling.
+hypotheses:
+- id: h1
+  description: An interactive console program can collect two numeric operands and
+    an arithmetic operator, then compute and display the correct result for addition,
+    subtraction, multiplication, and division.
+  confidence: 0.95
+- id: h2
+  description: Input validation in the console flow can detect invalid numbers and
+    unsupported operators and present clear error messages.
+  confidence: 0.93
+- id: h3
+  description: Explicit division-by-zero handling can prevent crashes and provide
+    a safe, user-visible error response.
+  confidence: 0.97
+required_evidence:
+- Console session output showing correct results for addition, subtraction, multiplication,
+  and division with sample inputs.
+- Console session output showing a clear error message when invalid numeric input is entered.
+- Console session output showing a clear error message when an unsupported operator is entered.
+- Console session output showing a safe error message when division by zero is requested
+  without crashing the application.
+actions:
+- id: a1
+  description: Analyze the request and define the calculator input/output flow for
+    a console-based interaction using two operands and one operator.
+  type: analyze
+  requires_confirmation: false
+  supports:
+  - h1
+- id: a2
+  description: Design the console prompts, supported operators, validation rules,
+    and result/error messaging behavior.
+  type: design
+  requires_confirmation: false
+  supports:
+  - h1
+  - h2
+- id: a3
+  description: Implement the console calculator to read input, validate operands and
+    operator, perform the selected arithmetic operation, and display the result or
+    error message. Include explicit division-by-zero guard without using eval or exec.
+  type: implement
+  requires_confirmation: false
+  supports:
+  - h1
+  - h2
+  - h3
+- id: a4
+  description: Validate the calculator with runnable examples or tests covering all
+    four operations, invalid input, unsupported operators, and division by zero.
+  type: validate
+  requires_confirmation: false
+  supports:
+  - h1
+  - h2
+  - h3
+decision_rules:
+- If the user input format is not otherwise specified, use an interactive prompt sequence
+  for first number, operator, and second number.
+- If a numeric input cannot be parsed, display a clear error message and do not perform
+  a calculation.
+- If the operator is not one of +, -, *, /, display a clear error message and do not
+  perform a calculation.
+- If division by zero is requested, display a clear error message and do not crash.
+- If implementation language is unspecified, choose a language suitable for a simple
+  console application and provide runnable code.
+execution_mode: critical
+metadata:
+  scope_contract:
+    must_include:
+    - interactive console calculator
+    - support addition subtraction multiplication division
+    - validate numeric input and operator
+    - safe division-by-zero handling
+    - clear result and error output
+    - no unsafe execution of user input
+  source_prompt: create a console calculator with basic operations.
+  generator: llm-openai
