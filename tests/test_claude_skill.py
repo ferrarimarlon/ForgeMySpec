@@ -56,7 +56,7 @@ class ClaudeSkillTests(unittest.TestCase):
         self.assertIn("Non-Negotiable Guardrails", memory)
         self.assertIn("Objective implemented exactly", checklist)
         self.assertIn("Implement strictly from `./spec.yaml`", command)
-        self.assertIn("must_not_introduce", eval_template)
+        self.assertIn("must_include", eval_template)
         self.assertIn("parser cli", eval_template)
 
 
