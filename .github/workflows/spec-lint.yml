@@ -48,9 +48,49 @@ jobs:
           import os
           import pathlib
           import yaml
-          from forgemyspec.linting import lint_spec, format_lint_report
-          from forgemyspec.scope_eval import evaluate_scope_drift, format_scope_eval
+          from forgemyspec.linting import lint_spec
+          from forgemyspec.scope_eval import evaluate_scope_drift
           from forgemyspec.generator import load_spec
+
+          PASS = "PASS"
+          FAIL = "FAIL"
+          WARN = "WARN"
+
+          CATEGORY_LABELS = {
+              "LINT-STRUCT": "Structure",
+              "LINT-CTX":    "Context",
+              "LINT-MIN":    "Minimum Items",
+              "LINT-HY":     "Hypotheses",
+              "LINT-ACT":    "Actions",
+              "LINT-TR":     "Traceability",
+              "LINT-META":   "Metadata",
+              "LINT-DUP":    "Duplicates",
+          }
+
+          def category_of(code):
+              for prefix, label in CATEGORY_LABELS.items():
+                  if code.startswith(prefix):
+                      return label
+              return "Other"
+
+          def print_section(title):
+              print(f"\n  {title}")
+              print(f"  {'-' * (len(title) + 2)}")
+
+          def print_check(label, status, detail=""):
+              icon = "[+]" if status == PASS else ("[!]" if status == WARN else "[x]")
+              line = f"    {icon}  {label}"
+              if detail:
+                  line += f": {detail}"
+              print(line)
+
+          def print_header(path, status):
+              width = 62
+              print()
+              print("  " + "=" * width)
+              tag = f"  [ {status} ]  {path}"
+              print(tag)
+              print("  " + "=" * width)
 
           specs = os.environ["CHANGED_SPECS"].split()
           specs = [p for p in specs if pathlib.Path(p).exists()]
@@ -59,30 +99,75 @@ jobs:
               sys.exit(0)
 
           failed = False
-          for path in sorted(specs):
-              print(f"\n{'='*60}")
-              print(f"  {path}")
-              print(f"{'='*60}")
+          summary = []
 
+          for path in sorted(specs):
               try:
                   spec_data = load_spec(path)
               except yaml.YAMLError as e:
-                  print(f"[ERROR] Invalid YAML: {e}")
+                  print_header(path, FAIL)
+                  print_check("YAML parse", FAIL, str(e).splitlines()[0])
                   failed = True
+                  summary.append((path, FAIL, 0, 0, 1))
                   continue
 
               candidate_text = pathlib.Path(path).read_text(encoding="utf-8")
-
               lint_report = lint_spec(spec_data)
-              print(format_lint_report(lint_report))
-              if lint_report.has_errors:
+              scope_result = evaluate_scope_drift(spec_data, candidate_text)
+
+              spec_failed = lint_report.has_errors or not scope_result.passed
+              if spec_failed:
                   failed = True
 
-              print()
-              scope_result = evaluate_scope_drift(spec_data, candidate_text)
-              print(format_scope_eval(scope_result))
-              if not scope_result.passed:
-                  failed = True
+              overall = FAIL if spec_failed else (WARN if lint_report.warning_count else PASS)
+              print_header(path, overall)
+
+              # --- Lint checks grouped by category ---
+              issues_by_cat = {}
+              for issue in lint_report.issues:
+                  cat = category_of(issue.code)
+                  issues_by_cat.setdefault(cat, []).append(issue)
+
+              all_cats = list(dict.fromkeys(list(CATEGORY_LABELS.values())))
+              print_section("Lint Checks")
+              for cat in all_cats:
+                  issues = issues_by_cat.get(cat, [])
+                  errors = [i for i in issues if i.severity == "error"]
+                  warnings = [i for i in issues if i.severity == "warning"]
+                  if errors:
+                      for i in errors:
+                          print_check(f"{cat}  ({i.code})", FAIL, i.message)
+                  elif warnings:
+                      for i in warnings:
+                          print_check(f"{cat}  ({i.code})", WARN, i.message)
+                  else:
+                      print_check(cat, PASS)
+
+              # --- Lint score ---
+              score_status = PASS if not lint_report.has_errors else FAIL
+              print(f"\n    Lint score: {lint_report.score}/100  |  Errors: {lint_report.error_count}  |  Warnings: {lint_report.warning_count}")
+
+              # --- Scope checks ---
+              print_section("Scope Contract")
+              if not scope_result.violations:
+                  print_check("All scope phrases", PASS)
+              else:
+                  for v in scope_result.violations:
+                      print_check("Scope phrase", FAIL, v)
+              print(f"\n    Scope score: {scope_result.score}/100")
+
+              summary.append((path, overall, lint_report.score, scope_result.score, len(scope_result.violations)))
+
+          # --- Summary table ---
+          print()
+          print("  " + "=" * 62)
+          print("  SUMMARY")
+          print("  " + "=" * 62)
+          for path, status, lint_score, scope_score, scope_violations in summary:
+              icon = "[+]" if status == PASS else ("[!]" if status == WARN else "[x]")
+              print(f"  {icon}  {path}")
+              print(f"       Lint: {lint_score}/100   Scope: {scope_score}/100")
+          print()
 
           sys.exit(1 if failed else 0)
           EOF
