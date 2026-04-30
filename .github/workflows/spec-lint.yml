@@ -52,45 +52,18 @@ jobs:
           from forgemyspec.scope_eval import evaluate_scope_drift
           from forgemyspec.generator import load_spec
 
-          PASS = "PASS"
-          FAIL = "FAIL"
-          WARN = "WARN"
+          W = 62
 
-          CATEGORY_LABELS = {
-              "LINT-STRUCT": "Structure",
-              "LINT-CTX":    "Context",
-              "LINT-MIN":    "Minimum Items",
-              "LINT-HY":     "Hypotheses",
-              "LINT-ACT":    "Actions",
-              "LINT-TR":     "Traceability",
-              "LINT-META":   "Metadata",
-              "LINT-DUP":    "Duplicates",
-          }
-
-          def category_of(code):
-              for prefix, label in CATEGORY_LABELS.items():
-                  if code.startswith(prefix):
-                      return label
-              return "Other"
-
-          def print_section(title):
-              print(f"\n  {title}")
-              print(f"  {'-' * (len(title) + 2)}")
-
-          def print_check(label, status, detail=""):
-              icon = "[+]" if status == PASS else ("[!]" if status == WARN else "[x]")
-              line = f"    {icon}  {label}"
-              if detail:
-                  line += f": {detail}"
-              print(line)
-
-          def print_header(path, status):
-              width = 62
+          def header(path, status):
+              icon = "[+]" if status == "PASS" else ("[!]" if status == "WARN" else "[x]")
               print()
-              print("  " + "=" * width)
-              tag = f"  [ {status} ]  {path}"
-              print(tag)
-              print("  " + "=" * width)
+              print("  " + "=" * W)
+              print(f"  {icon}  {path}")
+              print("  " + "=" * W)
+
+          def row(status, code, location, message):
+              icon = "[+]" if status == "pass" else ("[!]" if status == "warn" else "[x]")
+              print(f"    {icon}  {code:<18}  {location:<30}  {message}")
 
           specs = os.environ["CHANGED_SPECS"].split()
           specs = [p for p in specs if pathlib.Path(p).exists()]
@@ -105,10 +78,10 @@ jobs:
               try:
                   spec_data = load_spec(path)
               except yaml.YAMLError as e:
-                  print_header(path, FAIL)
-                  print_check("YAML parse", FAIL, str(e).splitlines()[0])
+                  header(path, "FAIL")
+                  row("fail", "YAML-PARSE", path, str(e).splitlines()[0])
                   failed = True
-                  summary.append((path, FAIL, 0, 0, 1))
+                  summary.append((path, "FAIL", 0, 0))
                   continue
 
               candidate_text = pathlib.Path(path).read_text(encoding="utf-8")
@@ -119,54 +92,31 @@ jobs:
               if spec_failed:
                   failed = True
 
-              overall = FAIL if spec_failed else (WARN if lint_report.warning_count else PASS)
-              print_header(path, overall)
+              overall = "FAIL" if spec_failed else ("WARN" if lint_report.warning_count else "PASS")
+              header(path, overall)
 
-              # --- Lint checks grouped by category ---
-              issues_by_cat = {}
-              for issue in lint_report.issues:
-                  cat = category_of(issue.code)
-                  issues_by_cat.setdefault(cat, []).append(issue)
+              print(f"\n    {'CODE':<18}  {'LOCATION':<30}  MESSAGE")
+              print(f"    {'-'*18}  {'-'*30}  {'-'*30}")
 
-              all_cats = list(dict.fromkeys(list(CATEGORY_LABELS.values())))
-              print_section("Lint Checks")
-              for cat in all_cats:
-                  issues = issues_by_cat.get(cat, [])
-                  errors = [i for i in issues if i.severity == "error"]
-                  warnings = [i for i in issues if i.severity == "warning"]
-                  if errors:
-                      for i in errors:
-                          print_check(f"{cat}  ({i.code})", FAIL, i.message)
-                  elif warnings:
-                      for i in warnings:
-                          print_check(f"{cat}  ({i.code})", WARN, i.message)
-                  else:
-                      print_check(cat, PASS)
-
-              # --- Lint score ---
-              score_status = PASS if not lint_report.has_errors else FAIL
-              print(f"\n    Lint score: {lint_report.score}/100  |  Errors: {lint_report.error_count}  |  Warnings: {lint_report.warning_count}")
-
-              # --- Scope checks ---
-              print_section("Scope Contract")
-              if not scope_result.violations:
-                  print_check("All scope phrases", PASS)
+              if not lint_report.issues and scope_result.passed:
+                  print(f"    [+]  {'(no issues)'}")
               else:
+                  for issue in lint_report.issues:
+                      status = "fail" if issue.severity == "error" else "warn"
+                      row(status, issue.code, issue.location, issue.message)
                   for v in scope_result.violations:
-                      print_check("Scope phrase", FAIL, v)
-              print(f"\n    Scope score: {scope_result.score}/100")
+                      row("fail", "SCOPE", "scope_contract", v)
 
-              summary.append((path, overall, lint_report.score, scope_result.score, len(scope_result.violations)))
+              print(f"\n    Lint: {lint_report.score}/100  ({lint_report.error_count} errors, {lint_report.warning_count} warnings)  |  Scope: {scope_result.score}/100")
+              summary.append((path, overall, lint_report.score, scope_result.score))
 
-          # --- Summary table ---
           print()
-          print("  " + "=" * 62)
+          print("  " + "=" * W)
           print("  SUMMARY")
-          print("  " + "=" * 62)
-          for path, status, lint_score, scope_score, scope_violations in summary:
-              icon = "[+]" if status == PASS else ("[!]" if status == WARN else "[x]")
-              print(f"  {icon}  {path}")
-              print(f"       Lint: {lint_score}/100   Scope: {scope_score}/100")
+          print("  " + "=" * W)
+          for path, status, lint_score, scope_score in summary:
+              icon = "[+]" if status == "PASS" else ("[!]" if status == "WARN" else "[x]")
+              print(f"  {icon}  {path}  —  Lint: {lint_score}/100  Scope: {scope_score}/100")
           print()
 
           sys.exit(1 if failed else 0)
