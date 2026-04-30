@@ -1,0 +1,22 @@
+version: '0.1'
+purpose: Manual eval seeds to detect scope drift in Claude implementations
+source_prompt: create a jogo da velha game with two human players and no online features.
+  Local and simple. Must be in console, not GUI.
+checks:
+  must_not_introduce:
+  - network multiplayer
+  - internet connectivity
+  - graphical interface
+  - AI opponent
+  - accounts or login
+  - non-console rendering
+  must_include:
+  - console text board
+  - two local human players
+  - turn-based input
+  - move validation
+  - win detection
+  - draw detection
+  - no online features
+  - no GUI
+cases: []

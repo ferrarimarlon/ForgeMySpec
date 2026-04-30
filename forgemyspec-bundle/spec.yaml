@@ -1,0 +1,136 @@
+version: '0.1'
+title: Console Jogo da Velha for Two Local Human Players
+objective: Create a simple local console-based Jogo da Velha (tic-tac-toe) game for
+  exactly two human players, with no online or GUI features.
+context:
+  system: A coding task to build a local terminal/console application that allows
+    two human players to play Jogo da Velha on the same machine.
+  assumptions:
+  - The game runs entirely in a text-based console or terminal.
+  - Both players take turns on the same device using keyboard input.
+  - The standard 3x3 Jogo da Velha rules apply.
+  - Players are represented by two distinct markers, assumed to be X and O.
+  - No networking, matchmaking, accounts, or remote multiplayer is needed.
+  - No graphical interface is allowed.
+  - If the programming language is not specified, any suitable language for console
+    applications may be used.
+constraints:
+- Must be a console application only.
+- Must support exactly two human local players.
+- Must not include online, networked, or remote play features.
+- Must not include a GUI or graphical window.
+- Must keep the implementation simple and local.
+- Must follow standard turn-based Jogo da Velha gameplay on a 3x3 board.
+success_criteria:
+- The application starts in a console and displays a 3x3 game board in text form.
+- Two human players can alternately enter moves from the keyboard on the same machine.
+- The game prevents invalid moves such as selecting an occupied cell or an out-of-range
+  position.
+- The game detects and announces a win for either player when three matching markers
+  align horizontally, vertically, or diagonally.
+- The game detects and announces a draw when all board cells are filled without a
+  winner.
+- The implementation contains no online or networking functionality.
+- The implementation contains no GUI components and runs entirely in the console.
+hypotheses:
+- id: h1
+  description: A simple console-based 3x3 implementation is sufficient to satisfy
+    the request.
+  confidence: 0.98
+- id: h2
+  description: Two local human players should share one device and provide input sequentially.
+  confidence: 0.97
+- id: h3
+  description: Standard tic-tac-toe rules with X and O markers match the user's intent
+    for Jogo da Velha.
+  confidence: 0.93
+- id: h4
+  description: Excluding GUI and online features is a strict requirement, not an optional
+    preference.
+  confidence: 0.99
+required_evidence:
+- Source code for a console application implementing the game loop.
+- Evidence in code that input is taken from local keyboard/console only.
+- Evidence in code that the board is rendered as text in the console.
+- Evidence in code that win and draw conditions are checked.
+- Evidence in code that invalid moves are rejected.
+- Evidence in code that no networking or GUI libraries/features are used.
+actions:
+- id: a1
+  description: Design the game flow for a two-player local console Jogo da Velha match,
+    including board representation, turn order, move input, validation, and endgame
+    detection.
+  type: design
+  requires_confirmation: false
+  supports:
+  - h1
+  - h2
+  - h3
+  - h4
+- id: a2
+  description: Implement the console-based 3x3 board display, alternating player turns,
+    and local keyboard input handling for two human players.
+  type: implement
+  requires_confirmation: false
+  supports:
+  - h1
+  - h2
+  - h3
+  - h4
+- id: a3
+  description: Implement move validation to reject occupied or invalid positions and
+    prompt the current player again.
+  type: implement
+  requires_confirmation: false
+  supports:
+  - h1
+  - h3
+- id: a4
+  description: Implement win and draw detection and display the final result in the
+    console.
+  type: implement
+  requires_confirmation: false
+  supports:
+  - h1
+  - h3
+- id: a5
+  description: Validate that the final solution uses only console interaction and
+    contains no GUI or online functionality.
+  type: validate
+  requires_confirmation: false
+  supports:
+  - h4
+decision_rules:
+- If a feature is not necessary for local two-player console gameplay, exclude it.
+- If an implementation choice introduces GUI behavior, reject that choice.
+- If an implementation choice introduces networking or online behavior, reject that
+  choice.
+- If the input format is unspecified, choose a simple console-friendly format such
+  as numbered cell selection.
+- If invalid input is entered, the game must not advance the turn until a valid move
+  is provided.
+- If no language is specified, prefer a straightforward language suitable for console
+  programs without adding extra frameworks.
+execution_mode: advisory
+metadata:
+  scope_contract:
+    must_include:
+    - console text board
+    - two local human players
+    - turn-based input
+    - move validation
+    - win detection
+    - draw detection
+    - no online features
+    - no GUI
+    must_not_include:
+    - network multiplayer
+    - internet connectivity
+    - graphical interface
+    - AI opponent
+    - accounts or login
+    - non-console rendering
+  source_prompt: create a jogo da velha game with two human players and no online
+    features. Local and simple. Must be in console, not GUI.
+  generator: llm-openai
+  model: null
