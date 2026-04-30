@@ -26,19 +26,35 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e .
 
+      - name: Get changed spec files
+        id: changed
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch origin ${{ github.base_ref }} --depth=1
+            specs=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- '**/spec.yaml' | tr '\n' ' ')
+          else
+            specs=$(git diff --name-only HEAD~1 HEAD -- '**/spec.yaml' | tr '\n' ' ')
+          fi
+          echo "specs=$specs" >> "$GITHUB_OUTPUT"
+
       - name: Lint specs and check scope drift
+        if: steps.changed.outputs.specs != ''
+        env:
+          CHANGED_SPECS: ${{ steps.changed.outputs.specs }}
         run: |
           python - <<'EOF'
           import sys
-          import glob
+          import os
           import pathlib
+          import yaml
           from forgemyspec.linting import lint_spec, format_lint_report
           from forgemyspec.scope_eval import evaluate_scope_drift, format_scope_eval
           from forgemyspec.generator import load_spec
 
-          specs = glob.glob("**/spec.yaml", recursive=True)
+          specs = os.environ["CHANGED_SPECS"].split()
+          specs = [p for p in specs if pathlib.Path(p).exists()]
           if not specs:
-              print("No spec.yaml files found.")
+              print("No changed spec.yaml files found.")
               sys.exit(0)
 
           failed = False
@@ -47,16 +63,20 @@ jobs:
               print(f"  {path}")
               print(f"{'='*60}")
 
-              spec_data = load_spec(path)
+              try:
+                  spec_data = load_spec(path)
+              except yaml.YAMLError as e:
+                  print(f"[ERROR] Invalid YAML: {e}")
+                  failed = True
+                  continue
+
               candidate_text = pathlib.Path(path).read_text(encoding="utf-8")
 
-              # Lint + policy
               lint_report = lint_spec(spec_data)
               print(format_lint_report(lint_report))
               if lint_report.has_errors:
                   failed = True
 
-              # Scope drift
               print()
               scope_result = evaluate_scope_drift(spec_data, candidate_text)
               print(format_scope_eval(scope_result))
