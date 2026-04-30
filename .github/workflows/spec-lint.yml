@@ -16,6 +16,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -30,8 +32,7 @@ jobs:
         id: changed
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            git fetch origin ${{ github.base_ref }} --depth=1
-            specs=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- '**/spec.yaml' | tr '\n' ' ')
+            specs=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- '*.yaml' | grep 'spec\.yaml$' | tr '\n' ' ')
           else
             specs=$(git diff --name-only HEAD~1 HEAD -- '**/spec.yaml' | tr '\n' ' ')
           fi
