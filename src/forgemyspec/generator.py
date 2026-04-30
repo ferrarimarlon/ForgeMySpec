@@ -198,12 +198,10 @@ def _normalize_scope_contract(value: Any) -> Dict[str, List[str]]:
         return {}
 
     must_include = _dedupe(_coerce_list(value.get("must_include")))
-    must_not_include = _dedupe(_coerce_list(value.get("must_not_include")))
-    if not must_include and not must_not_include:
+    if not must_include:
         return {}
     return {
         "must_include": must_include,
-        "must_not_include": must_not_include,
     }
 
 

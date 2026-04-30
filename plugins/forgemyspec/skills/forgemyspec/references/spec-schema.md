@@ -38,6 +38,6 @@ Common keys:
 
 - `source_prompt`: Original user requirement.
 - `generator`, `model`: Provenance when compiled by tooling.
-- `scope_contract`: `{ must_include: string[], must_not_include: string[] }` when scope is explicit.
+- `scope_contract`: `{ must_include: string[] }` when scope is explicit. List short phrases that must be present in the implementation. Do NOT add a `must_not_include` field — use `constraints` to document what will not be built.
 
 Full detail matches the project README section “Structure of the Generated Spec”.

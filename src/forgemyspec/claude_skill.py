@@ -187,7 +187,6 @@ def render_scope_eval_template(spec_data: Dict[str, Any]) -> str:
         "purpose": "Manual eval seeds to detect scope drift in Claude implementations",
         "source_prompt": prompt,
         "checks": {
-            "must_not_introduce": scope_contract["must_not_include"],
             "must_include": scope_contract["must_include"],
         },
         "cases": [],
@@ -209,11 +208,8 @@ def _as_list(value: Any) -> List[str]:
 
 def _normalize_scope_contract(value: Any) -> Dict[str, List[str]]:
     if not isinstance(value, dict):
-        return {"must_include": [], "must_not_include": []}
+        return {"must_include": []}
 
-    must_include = _as_list(value.get("must_include"))
-    must_not_include = _as_list(value.get("must_not_include"))
     return {
-        "must_include": must_include,
-        "must_not_include": must_not_include,
+        "must_include": _as_list(value.get("must_include")),
     }

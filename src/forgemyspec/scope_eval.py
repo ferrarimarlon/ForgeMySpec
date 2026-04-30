@@ -58,14 +58,10 @@ def _extract_scope_contract(spec_data: Dict[str, Any], field_name: str) -> Dict[
     metadata = spec_data.get("metadata") if isinstance(spec_data.get("metadata"), dict) else {}
     contract = metadata.get(field_name) if isinstance(metadata, dict) else None
     if not isinstance(contract, dict):
-        return {"must_include": [], "must_not_include": []}
-
-    must_include = _coerce_list(contract.get("must_include"))
-    must_not_include = _coerce_list(contract.get("must_not_include"))
+        return {"must_include": []}
 
     return {
-        "must_include": must_include,
-        "must_not_include": must_not_include,
+        "must_include": _coerce_list(contract.get("must_include")),
     }
 
 

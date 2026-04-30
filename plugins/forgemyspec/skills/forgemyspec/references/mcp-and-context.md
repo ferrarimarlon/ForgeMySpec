@@ -6,7 +6,7 @@ Inside Claude Code, ForgeMySpec benefits from **grounding** the requirement befo
 
 1. **Read before you write**: Pull relevant files, tickets, or schemas so `constraints` and `success_criteria` reflect reality, not guesses.
 2. **Cite implicitly**: The spec text should state invariants (“must match API v2 error shape”) without pasting secrets or huge logs into `spec.yaml`.
-3. **Scope contract**: If MCPs reveal out-of-scope work (legacy module, forbidden dependency), encode it under `metadata.scope_contract.must_not_include`.
+3. **Scope contract**: If MCPs reveal required capabilities, encode them as short phrases under `metadata.scope_contract.must_include`. Out-of-scope items belong in `constraints`, not in `scope_contract`.
 4. **Assumptions**: Anything inferred but not verified belongs in `context.assumptions`, not in `constraints`.
 
 ## Typical MCP patterns
