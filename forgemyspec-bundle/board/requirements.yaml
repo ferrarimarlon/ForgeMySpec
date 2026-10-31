@@ -1,5 +1,5 @@
 # Every request the user makes in the conversation, as a requirement. Status: done | doing | open | blocked.
-# `quote` keeps the user's own words; a requirement's % is its done steps over all steps.
+# `quote` keeps the user's own words; a step is verified only by `board verify` (its check passed on the current code); `ok: true` without a check is claimed.
 - id: R01
   status: done
   title: Solid, tested specs before an AI touches code
@@ -7,6 +7,13 @@
   done: Spec → contract → implementation flow with a deterministic lint and gate.
   evidence: 3 bundles gate PASS; enforcement spec lint 100.
   harness: spec lint, gate
+  steps:
+  - do: enforcement spec lints clean
+    check: 'cmd: PYTHONPATH=src python3 -m forgemyspec lint forgemyspec-bundle/enforcement/spec.yaml'
+  - do: gate passes every stage on the example
+    check: 'test: test_gate.GateEndToEndTests.test_example_bundle_passes_every_stage'
+  - do: gate rejects a wrong implementation
+    check: 'test: test_gate.GateEndToEndTests.test_wrong_implementation_fails_verify'
 - id: R02
   status: done
   title: Dafny formal layer (option A)
@@ -14,6 +21,15 @@
   done: Dafny contract, verified implementation, translated to Python.
   evidence: 'kernel: 29 proofs, 30/30 mutants, 9/9 planted errors; budget-core: 14/14, 4/4.'
   harness: Dafny kernel, mutation, planted errors
+  steps:
+  - do: kernel matches a fresh Dafny translation
+    check: 'cmd: PYTHONPATH=src python3 -m forgemyspec kernel --check'
+  - do: decisions come from the translated kernel
+    check: 'test: test_kernel.KernelTests.test_decisions_come_from_translated_kernel'
+  - do: planted errors are rejected
+    check: 'test: test_gate.PlantedErrorsTests.test_stage'
+  - do: weak contracts let mutants survive
+    check: 'test: test_gate.GateEndToEndTests.test_weak_contract_lets_mutants_survive'
 - id: R03
   status: done
   title: Everything inside Claude Code, no external LLM
@@ -21,6 +37,10 @@
   done: External-LLM CLI path removed; skills and agent in the repo.
   evidence: API grep empty in src, plugins, .github.
   harness: CI API grep
+  steps:
+  - do: no external LLM API in src, plugins, .github
+    check: 'cmd: ! grep -rnE ''api\.openai\.com|api\.anthropic\.com|OPENAI_API_KEY|ANTHROPIC_API_KEY|load_dotenv'' src plugins .github --exclude=tests.yml
+      --exclude-dir=_kernel'
 - id: R04
   status: done
   title: Strict hooks installed by a command, no plugin
@@ -28,6 +48,15 @@
   done: '`forgemyspec init` installs guards, pre-commit and CI; suspended in this repo by your decision.'
   evidence: 'init --check: Installation matches.'
   harness: guards (suspended here)
+  steps:
+  - do: init installs, merges and is idempotent
+    check: 'test: test_init.InitTests.test_install_merge_idempotent_check'
+  - do: file guard decision table
+    check: 'test: test_hooks.FileGuardTests.test_decision_table'
+  - do: shell guard decision table
+    check: 'test: test_hooks.BashGuardTests.test_decision_table'
+  - do: a crashing guard blocks
+    check: 'test: test_hooks.FileGuardTests.test_crashing_guard_blocks'
 - id: R05
   status: done
   title: Proven trust kernel (the machine that builds the machine)
@@ -35,6 +64,13 @@
   done: Trust decisions come from a Dafny-proven kernel.
   evidence: kernel --check matches; 15 obligations proven.
   harness: Dafny kernel
+  steps:
+  - do: kernel decisions
+    check: 'test: test_kernel.KernelTests.test_decisions_come_from_translated_kernel'
+  - do: kernel translation is current
+    check: 'test: test_kernel.KernelTests.test_translated_kernel_matches_a_fresh_translation'
+  - do: evidence attributed per obligation
+    check: 'test: test_gate.EvidenceTests.test_attribution'
 - id: R06
   status: done
   title: Whole product in English
@@ -42,6 +78,9 @@
   done: Code, messages, specs and docs in English.
   evidence: test_messages passes.
   harness: test
+  steps:
+  - do: every harness message is in English
+    check: 'test: test_messages.MessagesTests.test_all_output_in_english'
 - id: R07
   status: done
   title: Approval here in the chat, turned into a guarantee
@@ -49,12 +88,22 @@
   done: Short code bound to the content hash, accepted only from your message, used once.
   evidence: test_chat_approval_flow; locks record approved_via chat.
   harness: approval code, kernel DecideApproval
+  steps:
+  - do: chat approval flow
+    check: 'test: test_approvals.ApprovalTests.test_chat_approval_flow'
+  - do: a code cannot move to other items
+    check: 'test: test_approvals.ApprovalTests.test_code_cannot_be_moved_to_other_items'
+  - do: transcripts and user settings are protected
+    check: 'test: test_approvals.ApprovalTests.test_transcripts_and_user_settings_are_protected'
 - id: R08
   status: done
   title: Local commits; push only on your order
   quote: faça commit e push
   done: Pushed once, when you said so.
   evidence: main at d7a9cba on GitHub.
+  steps:
+  - do: v0.6 commit is on GitHub (pushed on your order)
+    check: 'cmd: git merge-base --is-ancestor 981428e origin/main'
 - id: R09
   status: done
   title: Suspend the harness in this repo, keep everything locked
@@ -62,6 +111,13 @@
   done: Hooks and pre-commit removed; bundles, locks and contracts unchanged.
   evidence: suspend with code XE76KP.
   harness: approval code
+  steps:
+  - do: suspend keeps the user's own hooks
+    check: 'test: test_init.SuspendTests.test_suspend_keeps_user_hooks'
+  - do: no guard hook in this repo
+    check: 'cmd: ! grep -q ''hook pre-tool-use'' .claude/settings.json'
+  - do: locks still in place
+    check: 'cmd: test -f forgemyspec-bundle/kernel/contract.lock && test -f examples/budget-core/contract.lock'
 - id: R10
   status: done
   title: Remove the "Stop says" messages
@@ -69,6 +125,9 @@
   done: Stop hook neither blocks nor writes in the chat; hooks suspended here.
   evidence: test_hooks.StopHookTests.
   harness: test
+  steps:
+  - do: Stop hook writes nothing without a board
+    check: 'test: test_hooks.StopHookTests.test_gate_states'
 - id: R11
   status: done
   title: 'Mandatory screen: requirements, harness used, harness % and model %'
@@ -77,15 +136,13 @@
   evidence: figures from the transcript and the harness ledger. Approved by you.
   next: You confirm it works on the tablet.
   steps:
-  - do: board command with harness figures
-    ok: true
-  - do: harness % and model % bars
-    ok: true
-  - do: requirement count
-    ok: true
+  - do: board with requirements and status bars
+    check: 'test: test_board.BoardTests.test_bars_and_detail'
+  - do: harness = verified, model = claimed
+    check: 'test: test_board.BoardTests.test_verified_only_by_a_passing_check'
   - do: each requirement with its %
-    ok: true
-  - do: you confirm it on the tablet
+    check: 'test: test_board.BoardTests.test_effort_is_attributed_to_the_requirement_in_focus'
+  - do: you confirmed it on the tablet
     ok: true
 - id: R12
   status: done
@@ -95,12 +152,10 @@
   next: I add new requests on every iteration.
   steps:
   - do: requirements file in the repo
-    ok: true
-  - do: detail on request (abre Rnn)
-    ok: true
-  - do: your new requests added each iteration
-    ok: true
-  - do: you confirm the list matches the conversation
+    check: 'cmd: test -f forgemyspec-bundle/board/requirements.yaml'
+  - do: detail on request (abre R<n>)
+    check: 'test: test_board.BoardTests.test_bars_and_detail'
+  - do: you confirmed the list matches the conversation
     ok: true
   evidence: Approved by you.
 - id: R13
@@ -111,16 +166,14 @@
   evidence: 75 tests OK; enforcement gate PASS.
   next: v0.6 changes not committed yet.
   steps:
-  - do: harness suspended here
-    ok: true
-  - do: Stop hook silent
-    ok: true
+  - do: guards off in this repo
+    check: 'cmd: ! grep -q ''hook pre-tool-use'' .claude/settings.json'
   - do: gate --fast
-    ok: true
+    check: 'test: test_gate.FastGateTests.test_fast_tier'
   - do: v0.6 committed
-    ok: true
-  - do: lean CI (R17)
-    ok: true
+    check: 'cmd: git log --oneline | grep -q ''v0.6'''
+  - do: one CI workflow
+    check: 'cmd: test "$(ls .github/workflows | wc -l | tr -d '' '')" = 1'
 - id: R14
   status: done
   title: Live panel embedded in the chat at zero tokens
@@ -130,24 +183,22 @@
   next: This board in my replies replaces it.
   steps:
   - do: mod written
-    ok: true
-  - do: mod loads in the session
-    ok: true
-  - do: replaced by the board in the chat
+    check: 'cmd: test -f ~/.claude/dev-mods/0d7f290f-d68a-4572-a40f-da072e0e0b7b/forgemyspec-panel/hooks/register.tsx'
+  - do: tablet does not draw mod slots; replaced by the board
     ok: true
 - id: R15
   status: done
   title: Gates as a plugin (plugin/ subfolder for now)
   quote: constrói os gates para um plugin que a gente vai colocar em outro repositório
   steps:
-  - do: plugin built into plugin/ in this repo
-    ok: true
-  - do: harness, skills, agent and hooks exported
-    ok: true
-  - do: smoke test and plugin validate pass
-    ok: true
-  - do: committed
-    ok: true
+  - do: plugin manifest in plugin/
+    check: 'cmd: test -f plugin/.claude-plugin/plugin.json'
+  - do: plugin smoke test
+    check: 'cmd: python3 -m unittest discover -s plugin/tests'
+  - do: claude plugin validate
+    check: 'cmd: claude plugin validate plugin'
+  - do: plugin committed
+    check: 'cmd: git ls-files --error-unmatch plugin/.claude-plugin/plugin.json'
   evidence: scripts/build_plugin.py → plugin/; smoke test OK; claude plugin validate passed.
   next: Move to its own repository when you decide.
 - id: R16
@@ -157,10 +208,10 @@
   done: 'Logged: script literals, sed -i, cd, reading hooksPath, init hash.'
   next: Fix in the plugin.
   steps:
-  - do: defects logged
-    ok: true
-  - do: defects fixed with tests
-    ok: true
+  - do: 'shell guard: no false blocks'
+    check: 'test: test_hooks.BashGuardTests.test_decision_table'
+  - do: init hashes the harness the command runs
+    check: 'test: test_approvals.ApprovalTests.test_init_hashes_the_harness_the_command_runs'
   evidence: 5 false blocks fixed; test_hooks and test_approvals cover each; 77 tests OK.
 - id: R17
   status: done
@@ -169,12 +220,8 @@
   done: No workflow running now.
   next: Remove spec-lint.yml and merge the jobs.
   steps:
-  - do: no workflow running
-    ok: true
-  - do: spec-lint.yml removed
-    ok: true
-  - do: one CI job
-    ok: true
+  - do: one CI workflow with cancel-in-progress
+    check: 'cmd: grep -q cancel-in-progress .github/workflows/tests.yml && test "$(ls .github/workflows | wc -l | tr -d '' '')" = 1'
   evidence: spec-lint.yml and forgemyspec.yml removed; one CI workflow with cancel-in-progress.
 - id: R18
   status: done
@@ -183,10 +230,8 @@
   done: Approved in spec v0.6.
   next: Update the /forgemyspec skill text.
   steps:
-  - do: approved in spec v0.6
-    ok: true
-  - do: /forgemyspec skill text updated
-    ok: true
+  - do: /forgemyspec defaults to spec-only
+    check: 'cmd: grep -q ''Default: a spec-only bundle'' plugins/forgemyspec/skills/forgemyspec/SKILL.md'
   evidence: '/forgemyspec skill: spec-only by default, Dafny only for critical logic.'
 - id: R19
   status: done
@@ -196,10 +241,8 @@
   next: You tell me what to adjust.
   steps:
   - do: status bars
-    ok: true
-  - do: bars in every reply
-    ok: true
-  - do: you approve the format
+    check: 'test: test_board.BoardTests.test_bars_and_detail'
+  - do: you approved the format
     ok: true
   evidence: approved by you ("Beleza"); test_board passes.
 - id: R20
@@ -207,11 +250,9 @@
   title: List the requirements in progress, each with its %
   quote: falta listar os requisitos que nós estamos fazendo… as porcentagens de cada um, de forma bem clara e sucinta
   steps:
-  - do: one line per open requirement with a bar and %
-    ok: true
-  - do: '% from checkable steps, shown in the detail'
-    ok: true
-  - do: you approve it
+  - do: one line per open requirement with its %
+    check: 'test: test_board.BoardTests.test_verified_only_by_a_passing_check'
+  - do: you approved it
     ok: true
   evidence: approved by you ("Beleza"); test_board passes.
 - id: R21
@@ -220,96 +261,92 @@
   quote: a gente coloca isso permanente
   done: Rule in CLAUDE.md and in my memory.
   evidence: CLAUDE.md 'Conversation board' section.
+  steps:
+  - do: board rule in CLAUDE.md
+    check: 'cmd: grep -q ''## Conversation board'' CLAUDE.md'
 - id: R22
   status: done
   title: 'The reply is the board: open an R, work it, explain only on request'
-  quote: a sua resposta deveria ser esse quadro… abrir um novo desse, um R desse, trabalhar em cima dele… se eu pedir detalhe
-    é que você explica
+  quote: a sua resposta deveria ser esse quadro… abrir um novo desse, um R desse, trabalhar em cima dele… se eu pedir detalhe é que você explica
   done: Rule in CLAUDE.md and in my memory.
   evidence: CLAUDE.md 'Conversation board' section.
+  steps:
+  - do: reply-is-the-board rule in CLAUDE.md
+    check: 'cmd: grep -q ''The reply is the board'' CLAUDE.md'
 - id: R23
   status: done
   title: Show the board while work happens, not tool output
   quote: eu tava esperando o quadro sendo atualizado aqui
   done: The board is the reply at each step.
   steps:
-  - do: board at each update
+  - do: board shown at each step
     ok: true
 - id: R24
   status: done
   title: Approve all delivered requirements
   quote: Eu estou dando ok em todos
   steps:
-  - do: R11–R14 marked done
+  - do: R11–R14 approved by you
     ok: true
 - id: R25
   status: done
   title: The board ships with every install (plugin and init)
   quote: essa tela de requerimentos e interatividade tem que estar presente sempre quando a gente instala
   steps:
-  - do: rule in the per-prompt state summary
-    ok: true
-  - do: section in the CLAUDE.md block init writes
-    ok: true
-  - do: /forgemyspec-board skill
-    ok: true
-  - do: board file allowed by the guard
-    ok: true
-  - do: test_board covers it
-    ok: true
-  - do: plugin rebuilt with it
-    ok: true
-  - do: committed
-    ok: true
+  - do: board in state rules, init block, skill and defaults
+    check: 'test: test_board.BoardTests.test_present_in_every_installed_project'
   evidence: state rules, init CLAUDE block, /forgemyspec-board skill, plugin rebuilt; 78+ tests OK.
 - id: R26
   status: done
   title: 'Each requirement: contract, status, LLM vs harness effort, live'
   quote: você destrincha ele, cria um contrato, coloca ele aqui… seta o esforço de LLM harness… mostrando aqui em tempo real
   steps:
-  - do: steps shown as the requirement's contract
-    ok: true
-  - do: 'focus marker: work is attributed to one requirement'
-    ok: true
-  - do: per-requirement harness % and model %
-    ok: true
-  - do: board shown after every step
-    ok: true
-  - do: test
-    ok: true
+  - do: effort per requirement in focus
+    check: 'test: test_board.BoardTests.test_effort_is_attributed_to_the_requirement_in_focus'
   evidence: board start R<n>; per-requirement H%/M%; test_board effort test passes.
 - id: R27
   status: done
   title: Keep the plugin here, in a subfolder
   quote: mantém o plugin aqui por enquanto… A gente cria uma subpasta
   steps:
-  - do: plugin/ subfolder
-    ok: true
-  - do: external copy removed
-    ok: true
+  - do: plugin in plugin/, no external copy
+    check: 'cmd: test -d plugin && test ! -e ~/Desktop/forgemyspec-plugin'
 - id: R28
   status: done
   title: Always the full board from the command, never a summary line
   quote: A tela tá feia, cara. A tela descaracterizou.
   steps:
-  - do: 'rule: paste the command output whole, never a hand-made line'
-    ok: true
-  - do: rule in CLAUDE.md and memory
-    ok: true
+  - do: full-output rule in CLAUDE.md
+    check: 'cmd: grep -q ''never replace it with a hand-made summary line'' CLAUDE.md'
   evidence: The last two replies used a one-line summary; this reply uses the full board.
 - id: R29
   status: done
   title: Guarantee the board in every reply (plugin enforces it)
   quote: É garantido que o plugin sempre vai plotar essa tela?
   steps:
-  - do: Stop hook reads the last reply and blocks once if the board is missing
-    ok: true
-  - do: the block reason tells Claude to paste `forgemyspec board`
-    ok: true
-  - do: Stop hook added to the plugin's hooks
-    ok: true
-  - do: 'pipe test: reply without board → block; with board → pass'
-    ok: true
-  - do: active in this repo (only this check; guards stay off)
-    ok: true
+  - do: Stop hook sends back a reply without the board once
+    check: 'test: test_board.BoardTests.test_stop_hook_sends_back_a_reply_without_the_board_once'
+  - do: Stop hook on in the plugin
+    check: 'cmd: grep -q ''"Stop"'' plugin/hooks/hooks.json'
+  - do: Stop hook on in this repo
+    check: 'cmd: grep -q ''hook stop'' .claude/settings.json'
   evidence: test_board stop-hook test; plugin hooks include Stop; .claude/settings.json Stop hook.
+- id: R30
+  status: done
+  title: 'Top-notch board: verified, not self-declared'
+  quote: essa é a melhor caixa possível, profissional… suprassumo do que tem de informações
+  steps:
+  - do: ✔ only from a passing harness check; stale when code changes
+    check: 'test: test_board.BoardTests.test_verified_only_by_a_passing_check'
+  - do: harness = verified share, model = claimed share
+    check: 'test: test_board.BoardTests.test_verified_only_by_a_passing_check'
+  - do: tokens per requirement
+    check: 'test: test_board.BoardTests.test_verified_only_by_a_passing_check'
+  - do: memory, NOW and WAITING lines
+    check: 'test: test_board.BoardTests.test_verified_only_by_a_passing_check'
+  - do: every requirement linked to checks
+    check: 'cmd: python3 -c "import yaml,sys; r=yaml.safe_load(open(''forgemyspec-bundle/board/requirements.yaml'')); sys.exit(0 if all(any(''check''
+      in s for s in x.get(''steps'',[])) or all(s.get(''ok'') for s in x.get(''steps'',[])) for x in r) else 1)"'
+  - do: board tests
+    check: 'test: test_board'
+  evidence: 'board verify: 59/59 checks passed; test_board passes.'

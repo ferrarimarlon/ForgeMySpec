@@ -223,7 +223,7 @@ CLI_HELP = {
     "risk": "Print the project's risk box.",
     "json": "Print the live panel's data as JSON instead of the box.",
     "board": "Print the conversation board: each request as a requirement, with status bars.",
-    "detail": "Print one requirement in full (for example R11), or `start R11` to mark the requirement being worked on.",
+    "detail": "R11 prints one requirement in full; `start R11` marks the requirement being worked on; `verify [R11]` runs the checks.",
     "fast": "In-session tier: skip mutation and planted errors; a spec-only bundle runs only its obligations' tests.",
     "kernel": "Generate src/forgemyspec/_kernel from the Dafny kernel, or compare with --check.",
     "init": "Install ForgeMySpec into a repository (needs the user's approval).",
@@ -478,19 +478,30 @@ BOARD_ROW = "{label:<9} {bar} {value}"
 BOARD_DONE_LABEL = "done"
 BOARD_STATUS = {"done": "done", "doing": "doing", "open": "open", "blocked": "blocked"}
 BOARD_ICON = {"done": "✅", "doing": "🔵", "open": "⚪", "blocked": "🔴"}
+BOARD_MARK = {"verified": "✔", "stale": "↻", "failed": "✗", "claimed": "?", "todo": "·"}
 BOARD_HARNESS = "harness"
-BOARD_HARNESS_VALUE = "{p}%  {runs} runs + {checks} checks"
+BOARD_VERIFIED = "{p}%  ✔ verified by checks ({n}/{total} steps)"
 BOARD_MODEL = "model"
-BOARD_MODEL_VALUE = "{p}%  {writes} writes · {tokens} tokens"
-BOARD_CHANGED = "changed:"
-BOARD_ACTIVE = "{icon} {id} {bar} {p:>3}%  {effort}  {title}"
+BOARD_CLAIMED = "{p}%  ? claimed, no check ({n})"
+BOARD_REST = "          {text}"
+BOARD_REST_ITEM = {"stale": "↻ {n} stale", "failed": "✗ {n} failed", "todo": "· {n} to do"}
+BOARD_ACTIVITY = "activity  {runs} harness runs · {checks} guard checks · {writes} model writes · {tokens} tokens"
+BOARD_MEMORY = "memory    context {context} tokens"
+BOARD_NOW = "NOW       {id} {title}"
+BOARD_WAITING = "WAITING   {id} {text}"
+BOARD_ACTIVE = "{icon} {id} {bar} {p:>3}%  {marks:<10} {effort}  {tokens:>4}  {title}"
 BOARD_EFFORT = "H{h:>3}% M{m:>3}%"
 BOARD_EFFORT_NONE = "H   –  M   – "
-BOARD_EFFORT_LINE = "  effort {effort}  (H = harness runs, M = model writes)"
-BOARD_CONTRACT = "  contract:"
+BOARD_EFFORT_LINE = "  effort {effort} · {tokens} tokens  (H = harness runs, M = model writes)"
+BOARD_CONTRACT = "  contract:  ✔ verified  ↻ stale  ✗ failed  ? claimed  · to do"
 BOARD_PROGRESS = "  progress {bar} {p}%"
 BOARD_STEP = "  {mark} {text}"
+BOARD_UNVERIFIED = "done without a check: {ids}"
+BOARD_CHANGED = "changed:"
 BOARD_ITEM = "{icon} {id} {title}"
 BOARD_FIELD = "  {label}: {text}"
-BOARD_FIELDS = {"quote": "you said", "done": "done", "evidence": "evidence", "harness": "harness", "next": "next"}
+BOARD_FIELDS = {"quote": "you said", "done": "done", "evidence": "evidence", "harness": "harness",
+                "waiting": "waiting on you", "next": "next"}
 BOARD_UNKNOWN = "No requirement {id} on the board."
+BOARD_VERIFY_LINE = "{mark} {id}  {check}"
+BOARD_VERIFY_DONE = "{passed}/{total} checks passed"

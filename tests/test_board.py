@@ -63,7 +63,7 @@ class BoardTests(unittest.TestCase):
             approvals.remember_transcript(root, "s", str(transcript))
             act = board.activity(root)
             text = board.render(root)
-        self.assertEqual(act["per"]["R1"], {"runs": 2, "writes": 1})
+        self.assertEqual(act["per"]["R1"], {"runs": 2, "writes": 1, "tokens": 0})
         self.assertIn("H 67% M 33%", text)
         self.assertIn(" 50%", text)
 
@@ -82,6 +82,45 @@ class BoardTests(unittest.TestCase):
         self.assertIn("forgemyspec board", missing["reason"])
         self.assertEqual(present, {})
         self.assertEqual(again, {})
+
+    def test_verified_only_by_a_passing_check(self) -> None:
+        import json
+
+        from forgemyspec import approvals
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_project(Path(tmp)).resolve()
+            (root / board.PROJECT_BOARD_FILE).write_text(
+                "- id: R1\n  status: doing\n  title: One\n  waiting: your go\n  steps:\n"
+                "  - {do: passes, check: 'cmd: true'}\n  - {do: fails, check: 'cmd: false'}\n"
+                "  - {do: said so, ok: true}\n  - {do: later}\n", encoding="utf-8")
+            board.start(root, "R1")
+            transcript = Path(tmp) / "t.jsonl"
+            usage = {"output_tokens": 1500, "input_tokens": 10, "cache_read_input_tokens": 120000}
+            transcript.write_text(json.dumps({"type": "assistant", "timestamp": approvals._now(),
+                                              "message": {"id": "m", "usage": usage, "content": []}}) + "\n")
+            approvals.remember_transcript(root, "s", str(transcript))
+            r1 = board.load(root)[0]
+            before = [board.step_state(x, board._checks(root), board.fingerprint(root)) for x in r1["steps"]]
+            ran = board.verify(root)
+            fp = board.fingerprint(root)
+            after = [board.step_state(x, board._checks(root), fp) for x in r1["steps"]]
+            text = board.render(root)
+            detail = board.detail(root, "R1")
+            (root / "app" / "main.py").write_text("print('changed')\n", encoding="utf-8")
+            stale = board.step_state(r1["steps"][0], board._checks(root), board.fingerprint(root))
+        self.assertEqual(before, ["todo", "todo", "claimed", "todo"])
+        self.assertEqual([ok for *_, ok in ran], [True, False])
+        self.assertEqual(after, ["verified", "failed", "claimed", "todo"])
+        self.assertEqual(stale, "stale")
+        self.assertIn("25%  ✔ verified by checks (1/4 steps)", text)
+        self.assertIn("25%  ? claimed, no check (1)", text)
+        self.assertIn("NOW       R1 One", text)
+        self.assertIn("WAITING   R1 your go", text)
+        self.assertIn("memory    context 120k tokens", text)
+        self.assertIn("✔1 ✗1 ?1 ·1", text)
+        self.assertIn("2k", text)
+        self.assertIn("✗ fails  [cmd: false]", detail)
 
 
 if __name__ == "__main__":

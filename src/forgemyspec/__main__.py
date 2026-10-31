@@ -143,6 +143,12 @@ def main(argv: Optional[List[str]] = None) -> int:
         from . import board as board_view, project
 
         root = project.find_root()
+        if args.detail[:1] == ["verify"]:
+            ran = board_view.verify(root, args.detail[1] if len(args.detail) > 1 else None)
+            for rid, check, passed in ran:
+                print(M.BOARD_VERIFY_LINE.format(mark="✔" if passed else "✗", id=rid, check=check))
+            print(M.BOARD_VERIFY_DONE.format(passed=sum(1 for *_, ok in ran if ok), total=len(ran)))
+            return 0 if all(ok for *_, ok in ran) else 1
         if args.detail[:1] == ["start"] and len(args.detail) == 2:
             board_view.start(root, args.detail[1])
             print(board_view.detail(root, args.detail[1]))
