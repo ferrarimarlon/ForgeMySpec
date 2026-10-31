@@ -10,7 +10,7 @@ You are implementing from spec-first constraints. Prioritize determinism, tracea
 
 ## Current Spec Snapshot
 - Title: Enforcement estrito e caixa de risco por prompt, instalados por `forgemyspec init`
-- Objective: Tornar o fluxo ForgeMySpec impossível de pular dentro do Claude Code e visível a cada prompt. O comando `forgemyspec init` instala em qualquer repositório uma cópia do harness, as skills e o agente, hooks estritos determinísticos, um gate no pre-commit do git e um gate no CI. A cada prompt aparece uma caixa de risco, em português, mostrando quais requisitos estão provados, só testados ou furando, onde o projeto está furando e quanto do código ainda deixa espaço para o LLM alucinar.
+- Objective: Tornar o fluxo ForgeMySpec impossível de pular dentro do Claude Code e visível a cada prompt. O comando `forgemyspec init` instala em qualquer repositório uma cópia do harness, as skills e o agente, hooks estritos determinísticos, um gate no pre-commit do git e um gate no CI. A cada prompt aparece uma caixa de risco, em português, mostrando quais requisitos estão provados, só testados ou furando, onde o projeto está furando e quanto do código ainda deixa espaço para o LLM alucinar. As decisões que sustentam essa confiança (cor de cada obrigação, status de cada requisito, decisão das travas e cobertura) vêm de um núcleo provado em Dafny, e a força de cada contrato também é medida contra erros plantados.
 
 ## Non-Negotiable Guardrails
 - Somente hooks `type: command`. Os tipos `prompt` e `agent` chamam um LLM e são proibidos.
@@ -23,6 +23,8 @@ You are implementing from spec-first constraints. Prioritize determinism, tracea
 - Dependências de execução continuam sendo Python >=3.9 com biblioteca padrão mais PyYAML, e Dafny 4.x como única ferramenta externa.
 - Os dados de auditoria (ledger, cache do gate, marcas de turno) ficam em `.forgemyspec/state/`, que o init adiciona ao .gitignore.
 - Commits ficam locais; nada vai para o remoto sem ordem explícita do usuário naquele momento.
+- Travas, gate e caixa de risco obtêm a cor da obrigação, o status do requisito, a decisão de edição e a cobertura somente pelo núcleo traduzido; o Python não reimplementa essas regras.
+- O Python do núcleo em src/forgemyspec/_nucleo/ é gerado por `dafny translate` a partir de forgemyspec-bundle/nucleo e nunca é editado à mão; o CI confere que ele bate com uma tradução nova.
 
 ## Decision Rules
 - Se uma trava não consegue decidir (entrada ilegível, ferramenta desconhecida), negar em modo estrito e dizer a causa; nunca liberar por padrão.
@@ -31,6 +33,8 @@ You are implementing from spec-first constraints. Prioritize determinism, tracea
 - Se uma trava bloquear trabalho legítimo, ampliar a regra pelo config.yaml ou pelo scope.paths de um bundle com aprovação do usuário; nunca criar uma flag de desvio que o Claude possa ligar.
 - Se um hook passar do tempo limite, guardar a parte cara (descoberta de bundles, hashes) em cache em .forgemyspec/state em vez de remover a checagem.
 - Se um texto de mensagem não tiver tradução no módulo de mensagens, o teste falha; nunca deixar texto em inglês escapar para o usuário.
+- Se uma propriedade do núcleo não puder ser provada como está escrita, parar e emendar com o usuário; nunca devolver a decisão para Python não provado.
+- Se um erro plantado sobreviver, fortalecer o contrato ou os testes com nova aprovação do usuário; nunca apagar o erro plantado para o gate passar.
 
 ## Success Criteria
 - `forgemyspec init <repo-git-temporário>` cria .forgemyspec/harness, .forgemyspec/config.yaml, .claude/skills, .claude/agents, um .claude/settings.json mesclado com `agent: forgemyspec-default` e os hooks, um bloco marcado no CLAUDE.md, .githooks/pre-commit com core.hooksPath configurado e .github/workflows/forgemyspec.yml; uma segunda execução informa que nada mudou; `init --check` sai com 0 numa instalação nova e com 1 depois que uma entrada de hook é removida.
@@ -46,6 +50,11 @@ You are implementing from spec-first constraints. Prioritize determinism, tracea
 - O hook de pre-commit roda o gate nos bundles com mudanças em stage e rejeita o commit quando algum falha; o workflow de CI roda a mesma checagem.
 - Este repositório é inicializado com o próprio `init` em modo estrito, e todo o trabalho da v0.2 a partir desse ponto passa pelas travas.
 - A caixa de risco aparece na sessão do Claude Code no VS Code do usuário depois de um turno real, confirmado pelo usuário.
+- `gate forgemyspec-bundle/nucleo` passa em todas as etapas, inclusive mutação e erros plantados, com as propriedades: Provado exige zero falhas, zero mutantes vivos e testes passando; requisito atendido exige bundle aprovado, gate atual e nenhuma obrigação furando; edição em caminho protegido nunca é liberada; implementação só é liberada com contrato travado; cobertura sem faltantes equivale a toda frase e hipótese coberta.
+- Uma etapa `erros-plantados` no gate exige, por padrão, pelo menos 3 implementações em erros/ e que todas sejam rejeitadas por dafny verify ou dafny test; examples/budget-core passa com seus erros plantados, e o gate falha nomeando o erro sobrevivente quando uma cláusula que o pegava é removida do contrato.
+- A caixa de risco mostra, por bundle formal, a força do contrato: mutantes mortos sobre válidos e erros plantados rejeitados sobre o total.
+- O CI falha quando src/forgemyspec/_nucleo/ diverge de uma tradução nova do núcleo.
+- O README tem uma seção 'Base de confiança' listando o que é provado, o que é só testado e o que continua sendo confiança (Dafny e Z3, Python, git e a aprovação do usuário).
 
 ## Assumptions
 - O modelo de ameaça é um agente que deriva sob pressão de contexto, não um adversário: as travas cobrem todas as ferramentas de arquivo e os caminhos comuns de escrita pelo shell, e o pre-commit e o CI pegam o que escapar por comando de shell.
@@ -58,6 +67,9 @@ You are implementing from spec-first constraints. Prioritize determinism, tracea
 - O uso de tokens por turno é lido do JSONL da transcrição da sessão (campos de usage das mensagens do assistente). O formato não é contrato documentado, então o leitor falha de forma suave e mostra 'tokens indisponíveis' em vez de estimar.
 - Os elementos de interface do próprio Claude Code (indicador de raciocínio, cronômetro) não podem ser alterados; a caixa de risco é o systemMessage do hook de Stop.
 - Specs são escritas no idioma do usuário; as frases de must_include aparecem na caixa exatamente como estão na spec.
+- As decisões de confiança cabem em funções puras sobre tipos simples (bool, nat, seq e set de strings), então formam um núcleo Dafny pequeno; leitura de arquivos, caminhos e montagem de texto continuam como cola Python coberta por testes de fronteira.
+- Os erros plantados (implementações erradas plausíveis em erros/) são escritos pelo Claude e aprovados pelo usuário junto com o contrato, por isso o lock passa a cobrir também a pasta erros/.
+- O próprio ForgeMySpec é medido pela própria caixa: o núcleo é um bundle formal (forgemyspec-bundle/nucleo) e este bundle, com scope.paths, cobre o resto de src/, tests/ e plugins/ como bundle só de spec.
 
 ## Implementation Protocol
 1. Read `spec.yaml` first and implement only traceable scope.

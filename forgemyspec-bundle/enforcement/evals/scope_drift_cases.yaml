@@ -22,4 +22,6 @@ checks:
   - "bundles s\xF3 de spec com scope.paths"
   - "sa\xEDda em portugu\xEAs"
   - "README e skills em portugu\xEAs"
+  - "n\xFAcleo de confian\xE7a provado em Dafny"
+  - erros plantados
 cases: []

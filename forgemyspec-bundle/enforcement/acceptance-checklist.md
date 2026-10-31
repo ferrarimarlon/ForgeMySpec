@@ -1,7 +1,7 @@
 # Acceptance Checklist
 
 ## Scope
-- [ ] Objective implemented exactly: Tornar o fluxo ForgeMySpec impossível de pular dentro do Claude Code e visível a cada prompt. O comando `forgemyspec init` instala em qualquer repositório uma cópia do harness, as skills e o agente, hooks estritos determinísticos, um gate no pre-commit do git e um gate no CI. A cada prompt aparece uma caixa de risco, em português, mostrando quais requisitos estão provados, só testados ou furando, onde o projeto está furando e quanto do código ainda deixa espaço para o LLM alucinar.
+- [ ] Objective implemented exactly: Tornar o fluxo ForgeMySpec impossível de pular dentro do Claude Code e visível a cada prompt. O comando `forgemyspec init` instala em qualquer repositório uma cópia do harness, as skills e o agente, hooks estritos determinísticos, um gate no pre-commit do git e um gate no CI. A cada prompt aparece uma caixa de risco, em português, mostrando quais requisitos estão provados, só testados ou furando, onde o projeto está furando e quanto do código ainda deixa espaço para o LLM alucinar. As decisões que sustentam essa confiança (cor de cada obrigação, status de cada requisito, decisão das travas e cobertura) vêm de um núcleo provado em Dafny, e a força de cada contrato também é medida contra erros plantados.
 - [ ] No unrequested features were introduced
 - [ ] All assumptions are explicit and justified
 
@@ -19,6 +19,11 @@
 - [ ] O hook de pre-commit roda o gate nos bundles com mudanças em stage e rejeita o commit quando algum falha; o workflow de CI roda a mesma checagem.
 - [ ] Este repositório é inicializado com o próprio `init` em modo estrito, e todo o trabalho da v0.2 a partir desse ponto passa pelas travas.
 - [ ] A caixa de risco aparece na sessão do Claude Code no VS Code do usuário depois de um turno real, confirmado pelo usuário.
+- [ ] `gate forgemyspec-bundle/nucleo` passa em todas as etapas, inclusive mutação e erros plantados, com as propriedades: Provado exige zero falhas, zero mutantes vivos e testes passando; requisito atendido exige bundle aprovado, gate atual e nenhuma obrigação furando; edição em caminho protegido nunca é liberada; implementação só é liberada com contrato travado; cobertura sem faltantes equivale a toda frase e hipótese coberta.
+- [ ] Uma etapa `erros-plantados` no gate exige, por padrão, pelo menos 3 implementações em erros/ e que todas sejam rejeitadas por dafny verify ou dafny test; examples/budget-core passa com seus erros plantados, e o gate falha nomeando o erro sobrevivente quando uma cláusula que o pegava é removida do contrato.
+- [ ] A caixa de risco mostra, por bundle formal, a força do contrato: mutantes mortos sobre válidos e erros plantados rejeitados sobre o total.
+- [ ] O CI falha quando src/forgemyspec/_nucleo/ diverge de uma tradução nova do núcleo.
+- [ ] O README tem uma seção 'Base de confiança' listando o que é provado, o que é só testado e o que continua sendo confiança (Dafny e Z3, Python, git e a aprovação do usuário).
 
 ## Required Evidence
 - [ ] Saída dos testes unitários do init (instalação nova, segunda execução idempotente, mescla com settings e CLAUDE.md já existentes, divergência no --check).
@@ -29,6 +34,9 @@
 - [ ] Uma tentativa de commit rejeitada pelo pre-commit com um bundle falhando, e aceita depois da correção.
 - [ ] Prova, dentro da sessão, de que um deny do PreToolUse disparou numa edição real neste repositório depois do init.
 - [ ] Confirmação do usuário de que a caixa de risco aparece na sessão dele no VS Code.
+- [ ] Relatório completo do gate de forgemyspec-bundle/nucleo, com mutação e erros plantados.
+- [ ] Saída do gate de examples/budget-core com os erros plantados rejeitados, e a falha nomeando o erro sobrevivente depois de remover uma cláusula.
+- [ ] Saída do CI (ou do mesmo comando local) rejeitando um _nucleo/ editado à mão.
 
 ## Decision Rules Compliance
 - [ ] Se uma trava não consegue decidir (entrada ilegível, ferramenta desconhecida), negar em modo estrito e dizer a causa; nunca liberar por padrão.
@@ -37,3 +45,5 @@
 - [ ] Se uma trava bloquear trabalho legítimo, ampliar a regra pelo config.yaml ou pelo scope.paths de um bundle com aprovação do usuário; nunca criar uma flag de desvio que o Claude possa ligar.
 - [ ] Se um hook passar do tempo limite, guardar a parte cara (descoberta de bundles, hashes) em cache em .forgemyspec/state em vez de remover a checagem.
 - [ ] Se um texto de mensagem não tiver tradução no módulo de mensagens, o teste falha; nunca deixar texto em inglês escapar para o usuário.
+- [ ] Se uma propriedade do núcleo não puder ser provada como está escrita, parar e emendar com o usuário; nunca devolver a decisão para Python não provado.
+- [ ] Se um erro plantado sobreviver, fortalecer o contrato ou os testes com nova aprovação do usuário; nunca apagar o erro plantado para o gate passar.

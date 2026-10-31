@@ -1,11 +1,13 @@
-version: "0.2"
+version: "0.3"
 title: "Enforcement estrito e caixa de risco por prompt, instalados por `forgemyspec init`"
 objective: >-
   Tornar o fluxo ForgeMySpec impossível de pular dentro do Claude Code e visível a cada prompt. O comando
   `forgemyspec init` instala em qualquer repositório uma cópia do harness, as skills e o agente, hooks estritos
   determinísticos, um gate no pre-commit do git e um gate no CI. A cada prompt aparece uma caixa de risco, em
   português, mostrando quais requisitos estão provados, só testados ou furando, onde o projeto está furando e
-  quanto do código ainda deixa espaço para o LLM alucinar.
+  quanto do código ainda deixa espaço para o LLM alucinar. As decisões que sustentam essa confiança (cor de cada
+  obrigação, status de cada requisito, decisão das travas e cobertura) vêm de um núcleo provado em Dafny, e a força
+  de cada contrato também é medida contra erros plantados.
 execution_mode: critical
 
 context:
@@ -32,6 +34,9 @@ context:
     - "O uso de tokens por turno é lido do JSONL da transcrição da sessão (campos de usage das mensagens do assistente). O formato não é contrato documentado, então o leitor falha de forma suave e mostra 'tokens indisponíveis' em vez de estimar."
     - "Os elementos de interface do próprio Claude Code (indicador de raciocínio, cronômetro) não podem ser alterados; a caixa de risco é o systemMessage do hook de Stop."
     - "Specs são escritas no idioma do usuário; as frases de must_include aparecem na caixa exatamente como estão na spec."
+    - "As decisões de confiança cabem em funções puras sobre tipos simples (bool, nat, seq e set de strings), então formam um núcleo Dafny pequeno; leitura de arquivos, caminhos e montagem de texto continuam como cola Python coberta por testes de fronteira."
+    - "Os erros plantados (implementações erradas plausíveis em erros/) são escritos pelo Claude e aprovados pelo usuário junto com o contrato, por isso o lock passa a cobrir também a pasta erros/."
+    - "O próprio ForgeMySpec é medido pela própria caixa: o núcleo é um bundle formal (forgemyspec-bundle/nucleo) e este bundle, com scope.paths, cobre o resto de src/, tests/ e plugins/ como bundle só de spec."
 
 constraints:
   - "Somente hooks `type: command`. Os tipos `prompt` e `agent` chamam um LLM e são proibidos."
@@ -44,6 +49,8 @@ constraints:
   - "Dependências de execução continuam sendo Python >=3.9 com biblioteca padrão mais PyYAML, e Dafny 4.x como única ferramenta externa."
   - "Os dados de auditoria (ledger, cache do gate, marcas de turno) ficam em `.forgemyspec/state/`, que o init adiciona ao .gitignore."
   - "Commits ficam locais; nada vai para o remoto sem ordem explícita do usuário naquele momento."
+  - "Travas, gate e caixa de risco obtêm a cor da obrigação, o status do requisito, a decisão de edição e a cobertura somente pelo núcleo traduzido; o Python não reimplementa essas regras."
+  - "O Python do núcleo em src/forgemyspec/_nucleo/ é gerado por `dafny translate` a partir de forgemyspec-bundle/nucleo e nunca é editado à mão; o CI confere que ele bate com uma tradução nova."
 
 success_criteria:
   - "`forgemyspec init <repo-git-temporário>` cria .forgemyspec/harness, .forgemyspec/config.yaml, .claude/skills, .claude/agents, um .claude/settings.json mesclado com `agent: forgemyspec-default` e os hooks, um bloco marcado no CLAUDE.md, .githooks/pre-commit com core.hooksPath configurado e .github/workflows/forgemyspec.yml; uma segunda execução informa que nada mudou; `init --check` sai com 0 numa instalação nova e com 1 depois que uma entrada de hook é removida."
@@ -59,6 +66,11 @@ success_criteria:
   - "O hook de pre-commit roda o gate nos bundles com mudanças em stage e rejeita o commit quando algum falha; o workflow de CI roda a mesma checagem."
   - "Este repositório é inicializado com o próprio `init` em modo estrito, e todo o trabalho da v0.2 a partir desse ponto passa pelas travas."
   - "A caixa de risco aparece na sessão do Claude Code no VS Code do usuário depois de um turno real, confirmado pelo usuário."
+  - "`gate forgemyspec-bundle/nucleo` passa em todas as etapas, inclusive mutação e erros plantados, com as propriedades: Provado exige zero falhas, zero mutantes vivos e testes passando; requisito atendido exige bundle aprovado, gate atual e nenhuma obrigação furando; edição em caminho protegido nunca é liberada; implementação só é liberada com contrato travado; cobertura sem faltantes equivale a toda frase e hipótese coberta."
+  - "Uma etapa `erros-plantados` no gate exige, por padrão, pelo menos 3 implementações em erros/ e que todas sejam rejeitadas por dafny verify ou dafny test; examples/budget-core passa com seus erros plantados, e o gate falha nomeando o erro sobrevivente quando uma cláusula que o pegava é removida do contrato."
+  - "A caixa de risco mostra, por bundle formal, a força do contrato: mutantes mortos sobre válidos e erros plantados rejeitados sobre o total."
+  - "O CI falha quando src/forgemyspec/_nucleo/ diverge de uma tradução nova do núcleo."
+  - "O README tem uma seção 'Base de confiança' listando o que é provado, o que é só testado e o que continua sendo confiança (Dafny e Z3, Python, git e a aprovação do usuário)."
 
 hypotheses:
   - id: h1
@@ -85,6 +97,12 @@ hypotheses:
   - id: h8
     description: "A injeção de estado no SessionStart e no UserPromptSubmit mantém a fase atual e o próximo passo no contexto do Claude a cada prompt."
     confidence: 0.9
+  - id: h10
+    description: "Um núcleo Dafny com as funções ClassificarObrigacao, StatusRequisito, DecidirEdicao e Cobertura, traduzido para Python e chamado pelas travas e pela caixa, torna essas quatro decisões provadas em vez de apenas testadas."
+    confidence: 0.75
+  - id: h11
+    description: "Erros plantados plausíveis, cobertos pelo lock e exigidos pelo gate, medem a força do contrato contra os enganos típicos de um LLM melhor do que a mutação sintática sozinha."
+    confidence: 0.75
   - id: h9
     description: "Um módulo único de mensagens em português do Brasil, uma lista de negações em português no lint e a tradução do README, das skills e do agente deixam o produto inteiro em português e mantêm a checagem de hipóteses afirmativas funcionando em specs escritas em português."
     confidence: 0.9
@@ -98,8 +116,26 @@ required_evidence:
   - "Uma tentativa de commit rejeitada pelo pre-commit com um bundle falhando, e aceita depois da correção."
   - "Prova, dentro da sessão, de que um deny do PreToolUse disparou numa edição real neste repositório depois do init."
   - "Confirmação do usuário de que a caixa de risco aparece na sessão dele no VS Code."
+  - "Relatório completo do gate de forgemyspec-bundle/nucleo, com mutação e erros plantados."
+  - "Saída do gate de examples/budget-core com os erros plantados rejeitados, e a falha nomeando o erro sobrevivente depois de remover uma cláusula."
+  - "Saída do CI (ou do mesmo comando local) rejeitando um _nucleo/ editado à mão."
 
 actions:
+  - id: a0
+    type: design
+    description: "Formalizar o núcleo de confiança em forgemyspec-bundle/nucleo: spec com obrigações dafny, contract.dfy, tests.dfy e erros/; mostrar ao usuário, que aprova rodando `lock` no próprio terminal."
+    requires_confirmation: true
+    supports: [h10]
+  - id: a0b
+    type: implement
+    description: "Implementar impl.dfy do núcleo até o gate passar, traduzir para src/forgemyspec/_nucleo/ com um carregador Python, e adicionar a checagem de divergência ao CI."
+    requires_confirmation: false
+    supports: [h10]
+  - id: a0c
+    type: implement
+    description: "Adicionar a etapa erros-plantados ao gate, levar o lock para a versão 2 cobrindo erros/, atualizar /forgemyspec-formalize para escrever os erros e criar pelo menos 3 erros plantados em examples/budget-core, que o usuário trava de novo."
+    requires_confirmation: true
+    supports: [h11]
   - id: a1
     type: design
     description: "Definir .forgemyspec/config.yaml (enforcement estrito, caminhos permitidos, raízes de bundles), scope.paths, verify_command e o lock de spec por approve para bundles só de spec, o formato de registro do ledger e o cache do gate indexado por um hash das entradas do bundle."
@@ -127,7 +163,7 @@ actions:
     supports: [h4, h6]
   - id: a6
     type: implement
-    description: "Implementar o hook de Stop: checagem do cache do gate com bloqueio ou liberação, e a caixa de risco a partir da evidência por obrigação, da classificação de linhas do projeto, do retrato do turno anterior e do uso de tokens da transcrição."
+    description: "Implementar o hook de Stop: checagem do cache do gate com bloqueio ou liberação, e a caixa de risco a partir da evidência por obrigação, da classificação de linhas do projeto, do retrato do turno anterior, da força de cada contrato e do uso de tokens da transcrição, com cores e status vindos do núcleo traduzido."
     requires_confirmation: false
     supports: [h5, h7]
   - id: a6b
@@ -147,19 +183,19 @@ actions:
     supports: [h9]
   - id: a7c
     type: implement
-    description: "Traduzir para português do Brasil o README.md, o CLAUDE.md da raiz, as skills e referências em plugins/forgemyspec e o agente padrão, mantendo comandos, códigos e caminhos como estão."
+    description: "Traduzir para português do Brasil o README.md, o CLAUDE.md da raiz, as skills e referências em plugins/forgemyspec e o agente padrão, mantendo comandos, códigos e caminhos como estão, e escrever no README a seção 'Base de confiança'."
     requires_confirmation: false
     supports: [h9]
   - id: a8
     type: implement
-    description: "Corrigir o .claude/settings.json deste repositório para a chave `agent`, rodar o init neste repositório, criar um bundle só de spec que cubra src/, tests/, plugins/ e docs para que o próprio código do framework fique coberto, e pedir a aprovação do usuário."
+    description: "Corrigir o .claude/settings.json deste repositório para a chave `agent`, dar a este bundle um scope com paths src/**, tests/** e plugins/**, tests: tests e pythonpath: [src], pedir ao usuário que rode o init e o approve deste bundle e o lock do núcleo, e confirmar que a caixa do próprio ForgeMySpec reflete a cobertura."
     requires_confirmation: true
     supports: [h1, h6]
   - id: a9
     type: validate
     description: "Rodar os testes unitários e de pipe, a checagem de rejeição do pre-commit e a prova de deny na sessão, pedir ao usuário que confirme a caixa de risco no VS Code e registrar as evidências."
     requires_confirmation: false
-    supports: [h1, h2, h3, h4, h5, h6, h7, h8, h9]
+    supports: [h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11]
 
 decision_rules:
   - "Se uma trava não consegue decidir (entrada ilegível, ferramenta desconhecida), negar em modo estrito e dizer a causa; nunca liberar por padrão."
@@ -168,6 +204,8 @@ decision_rules:
   - "Se uma trava bloquear trabalho legítimo, ampliar a regra pelo config.yaml ou pelo scope.paths de um bundle com aprovação do usuário; nunca criar uma flag de desvio que o Claude possa ligar."
   - "Se um hook passar do tempo limite, guardar a parte cara (descoberta de bundles, hashes) em cache em .forgemyspec/state em vez de remover a checagem."
   - "Se um texto de mensagem não tiver tradução no módulo de mensagens, o teste falha; nunca deixar texto em inglês escapar para o usuário."
+  - "Se uma propriedade do núcleo não puder ser provada como está escrita, parar e emendar com o usuário; nunca devolver a decisão para Python não provado."
+  - "Se um erro plantado sobreviver, fortalecer o contrato ou os testes com nova aprovação do usuário; nunca apagar o erro plantado para o gate passar."
 
 formal:
   module: EnforcementPolicy
@@ -214,6 +252,18 @@ formal:
       hypotheses: [h8]
       must_include: ["injeção de estado"]
       test: "test_hooks.StateTests.test_summary"
+    - id: kernel_used
+      kind: boundary
+      statement: "As travas, o gate e a caixa obtêm cor, status, decisão de edição e cobertura do núcleo traduzido em src/forgemyspec/_nucleo, que bate com uma tradução nova."
+      hypotheses: [h10]
+      must_include: ["núcleo de confiança provado em Dafny"]
+      test: "test_nucleo.NucleoTests.test_decisions_come_from_translated_kernel"
+    - id: planted_errors
+      kind: boundary
+      statement: "O gate exige pelo menos 3 erros plantados por bundle formal, todos rejeitados, cobertos pelo lock, e mostra a força do contrato na caixa."
+      hypotheses: [h11]
+      must_include: ["erros plantados"]
+      test: "test_gate.PlantedErrorsTests.test_stage"
     - id: portuguese_output
       kind: boundary
       statement: "Toda mensagem do harness sai do módulo de mensagens em português, e o lint acusa negação em hipóteses em português."
@@ -244,3 +294,5 @@ metadata:
       - "bundles só de spec com scope.paths"
       - "saída em português"
       - "README e skills em português"
+      - "núcleo de confiança provado em Dafny"
+      - "erros plantados"
