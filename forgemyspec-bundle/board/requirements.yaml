@@ -70,11 +70,11 @@
   evidence: test_hooks.StopHookTests.
   harness: test
 - id: R11
-  status: doing
+  status: done
   title: 'Mandatory screen: requirements, harness used, harness % and model %'
   quote: mostrar quantos harness a gente está usando… porcentagem dele, porcentagem de modelo e quantos requisitos
   done: This board, as status bars from the harness.
-  evidence: figures from the transcript and the harness ledger.
+  evidence: figures from the transcript and the harness ledger. Approved by you.
   next: You confirm it works on the tablet.
   steps:
   - do: board command with harness figures
@@ -86,9 +86,9 @@
   - do: each requirement with its %
     ok: true
   - do: you confirm it on the tablet
-    ok: false
+    ok: true
 - id: R12
-  status: doing
+  status: done
   title: Everything said becomes a requirement, expandable
   quote: cada coisa que a gente fala se transforma em requisitos… se eu quiser expandir, eu sei o que tem dentro
   done: Each request is a line here; type "abre R11" to expand.
@@ -101,9 +101,10 @@
   - do: your new requests added each iteration
     ok: true
   - do: you confirm the list matches the conversation
-    ok: false
+    ok: true
+  evidence: Approved by you.
 - id: R13
-  status: doing
+  status: done
   title: Light, fast, iterative pipeline
   quote: Leve, rápido, iterativo, eficiente
   done: Harness suspended here; gate --fast; Stop hook silent; spec v0.6 approved.
@@ -121,19 +122,19 @@
   - do: lean CI (R17)
     ok: true
 - id: R14
-  status: blocked
+  status: done
   title: Live panel embedded in the chat at zero tokens
   quote: algo nativo dentro desse chat… atualização enquanto estiver acontecendo
   done: Claude Code mod with a band and a line per message.
-  evidence: It loads, but the tablet app does not draw those slots.
+  evidence: Replaced by the board in the chat (R19–R23); approved by you.
   next: This board in my replies replaces it.
   steps:
   - do: mod written
     ok: true
   - do: mod loads in the session
     ok: true
-  - do: tablet draws it
-    ok: false
+  - do: replaced by the board in the chat
+    ok: true
 - id: R15
   status: open
   title: Gates as a plugin in another repository
@@ -229,4 +230,11 @@
   done: The board is the reply at each step.
   steps:
   - do: board at each update
+    ok: true
+- id: R24
+  status: done
+  title: Approve all delivered requirements
+  quote: Eu estou dando ok em todos
+  steps:
+  - do: R11–R14 marked done
     ok: true
