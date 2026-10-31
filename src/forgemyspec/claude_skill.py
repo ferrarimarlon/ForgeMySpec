@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 import shutil
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import yaml
 
@@ -41,7 +41,8 @@ def package_claude_skill(spec_path: str, output_dir: str) -> ClaudeSkillPackageR
     checklist_path = root / "acceptance-checklist.md"
     eval_template_path = evals_dir / "scope_drift_cases.yaml"
 
-    memory_path.write_text(render_claude_memory(spec_data), encoding="utf-8")
+    existing = memory_path.read_text(encoding="utf-8") if memory_path.exists() else None
+    memory_path.write_text(render_claude_memory(spec_data, existing), encoding="utf-8")
     command_path.write_text(render_implement_command(spec_data), encoding="utf-8")
     checklist_path.write_text(render_acceptance_checklist(spec_data), encoding="utf-8")
     eval_template_path.write_text(render_scope_eval_template(spec_data), encoding="utf-8")
@@ -56,7 +57,16 @@ def package_claude_skill(spec_path: str, output_dir: str) -> ClaudeSkillPackageR
     )
 
 
-def render_claude_memory(spec_data: Dict[str, Any]) -> str:
+def _kept_section(existing: Optional[str], title: str) -> Optional[str]:
+    """Body of a `## ...` section of an earlier CLAUDE.md: decisions and pitfalls are memory, not spec output."""
+    if not existing or title not in existing:
+        return None
+    body = existing.split(title, 1)[1]
+    body = body.split("\n## ", 1)[0].strip()
+    return body or None
+
+
+def render_claude_memory(spec_data: Dict[str, Any], existing: Optional[str] = None) -> str:
     T = M.TEMPLATE_CLAUDE
     context = spec_data.get("context") if isinstance(spec_data.get("context"), dict) else {}
     sections = [
@@ -69,8 +79,10 @@ def render_claude_memory(spec_data: Dict[str, Any]) -> str:
                        ("success_title", "success_criteria")):
         sections += ["", T[title]] + [f"- {item}" for item in _as_list(spec_data.get(key))]
     sections += ["", T["assumptions_title"]] + [f"- {item}" for item in _as_list(context.get("assumptions"))]
-    sections += ["", T["protocol_title"], *T["protocol"], "", T["decisions_title"], T["decisions"],
-                 "", T["pitfalls_title"], T["pitfalls"]]
+    decisions = _kept_section(existing, T["decisions_title"]) or T["decisions"]
+    pitfalls = _kept_section(existing, T["pitfalls_title"]) or T["pitfalls"]
+    sections += ["", T["protocol_title"], *T["protocol"], "", T["decisions_title"], decisions,
+                 "", T["pitfalls_title"], pitfalls]
     return "\n".join(sections).strip() + "\n"
 
 

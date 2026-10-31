@@ -1,8 +1,8 @@
-version: "0.1"
+version: "0.2"
 title: "ForgeMySpec trust kernel"
 objective: >-
-  Prove in Dafny the four decisions that trust in ForgeMySpec depends on: each obligation's color, each
-  requirement's status, the guards' decision about an edit, and the coverage of hypotheses and phrases. The Python of
+  Prove in Dafny the five decisions that trust in ForgeMySpec depends on: each obligation's color, each
+  requirement's status, the guards' decision about an edit, the coverage of hypotheses and phrases, and whether an approval counts. The Python of
   the guards, the gate and the risk box uses only the translation of this kernel for these decisions.
 execution_mode: critical
 
@@ -39,6 +39,9 @@ hypotheses:
   - id: h4
     description: "Coverage returns exactly the hypotheses and phrases absent from every obligation's references."
     confidence: 0.85
+  - id: h5
+    description: "DecideApproval accepts an approval exactly when it comes from the user's terminal, or from a code the user typed after the request, for unchanged content, on its first use."
+    confidence: 0.9
 
 required_evidence:
   - "Full gate report for the kernel, with mutation and planted errors."
@@ -49,17 +52,17 @@ actions:
     type: design
     description: "Write contract.dfy, tests.dfy and planted/ and show them to the user, who approves by running `lock` in their own terminal."
     requires_confirmation: true
-    supports: [h1, h2, h3, h4]
+    supports: [h1, h2, h3, h4, h5]
   - id: a2
     type: implement
     description: "Write impl.dfy refining the contract until verification, tests, audit, mutation and planted errors pass."
     requires_confirmation: false
-    supports: [h1, h2, h3, h4]
+    supports: [h1, h2, h3, h4, h5]
   - id: a3
     type: validate
     description: "Run the kernel's gate and record the report."
     requires_confirmation: false
-    supports: [h1, h2, h3, h4]
+    supports: [h1, h2, h3, h4, h5]
 
 decision_rules:
   - "If a property cannot be proven as written, stop and amend the contract with the user; never weaken the clause to make the proof pass."
@@ -123,6 +126,21 @@ formal:
       statement: "Implementation is only allowed with the bundle locked and the lock matching."
       hypotheses: [h3]
       must_include: ["implementation requires a lock"]
+    - id: approval_requires_typed_code
+      kind: dafny
+      statement: "Outside the user's terminal, an approval needs a code found in a human-origin message after the request."
+      hypotheses: [h5]
+      must_include: ["approval requires a code the user typed"]
+    - id: approval_bound_to_content
+      kind: dafny
+      statement: "An approval is refused when the approved content changed after the request."
+      hypotheses: [h5]
+      must_include: ["approval bound to the content"]
+    - id: approval_used_once
+      kind: dafny
+      statement: "An approval is refused once it was used."
+      hypotheses: [h5]
+      must_include: ["approval used once"]
     - id: exact_coverage
       kind: dafny
       statement: "A hypothesis or phrase is missing if and only if no obligation references it."
@@ -148,3 +166,6 @@ metadata:
       - "locked contract protected"
       - "implementation requires a lock"
       - "exact coverage"
+      - "approval requires a code the user typed"
+      - "approval bound to the content"
+      - "approval used once"

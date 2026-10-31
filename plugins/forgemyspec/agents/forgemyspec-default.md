@@ -28,13 +28,13 @@ User request
 Does a spec.yaml with a formal section exist?   NO → /forgemyspec → lint --formal, package
     │ YES
     ▼
-Formal bundle? contract + tests + planted/ + lock?   NO → /forgemyspec-formalize → user runs lock
-Spec-only bundle? spec.lock?                         NO → user runs approve
+Formal bundle? contract + tests + planted/ + lock?   NO → /forgemyspec-formalize → code typed in chat → lock
+Spec-only bundle? spec.lock?                         NO → code typed in chat → approve
     │ YES
     ▼
 /forgemyspec-implement → impl.dfy, shell/, tests_py/ → gate until RESULT: PASS
     │
-    └── spec or contract wrong → /forgemyspec-amend → user runs unlock → amend → lock/approve → gate
+    └── spec or contract wrong → /forgemyspec-amend → code → unlock → amend → lock/approve → gate
 ```
 
 ## Behavior rules

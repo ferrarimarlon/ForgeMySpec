@@ -51,10 +51,22 @@ CONTRACT_FILES = {"contract.dfy", "tests.dfy"}
 IMPL_FILES = {"impl.dfy"}
 
 
+def user_protected(path: Path) -> bool:
+    """Session transcripts hold the user's typed approvals, and user settings hold the hooks: never Claude's to edit."""
+    claude = (Path.home() / ".claude").resolve()
+    try:
+        inner = path.resolve().relative_to(claude).as_posix()
+    except ValueError:
+        return False
+    return inner.startswith("projects/") or project.matches(inner, ["settings.json", "settings.local.json", "settings*.json"])
+
+
 def categorize(
     root: Path, config: Dict[str, Any], bundles: List[project.Bundle], path: Path
 ) -> Tuple[str, Optional[project.Bundle], bool]:
     """Returns (kernel category, relevant bundle, whether a bundle covering the path is approved)."""
+    if user_protected(path):
+        return "Protected", None, False
     r = project.rel(root, path)
     if r is None:
         return "OutsideProject", None, False
@@ -254,26 +266,52 @@ def _git_skips_hooks(group: List[str]) -> bool:
     return False
 
 
-def _human_command(group: List[str]) -> Optional[str]:
+def _human_command(group: List[str]) -> Optional[Tuple[str, str]]:
+    """(action, target) of an approval command (`lock`, `unlock`, `approve`, `init`), or None."""
     if "forgemyspec" not in group:
         return None
     rest = group[group.index("forgemyspec") + 1:]
-    action = next((t for t in rest if not t.startswith("-")), "")
-    if action in _HUMAN_COMMANDS and "--check" not in rest:
-        return f"forgemyspec {action}"
-    return None
+    words = [t for t in rest if not t.startswith("-")]
+    action = words[0] if words else ""
+    if action not in _HUMAN_COMMANDS or "--check" in rest:
+        return None
+    if action == "init":
+        # --python takes a value; the target is the first other word.
+        values = {rest[i + 1] for i, t in enumerate(rest[:-1]) if t == "--python"}
+        words = [w for w in words if w not in values]
+    return action, (words[1] if len(words) > 1 else ".")
+
+
+def _human_decision(root: Path, cwd: Path, action: str, target: str) -> Tuple[bool, str]:
+    from . import approvals
+
+    path = Path(target).expanduser()
+    path = (path if path.is_absolute() else cwd / path).resolve()
+    command = f"forgemyspec {action} {target}"
+    try:
+        verdict = approvals.check(root, action, str(path), terminal=False)
+    except Exception as exc:  # cannot compute what is approved: strict mode denies
+        return False, M.GUARD_HUMAN_COMMAND.format(command=command, reason=M.APPROVAL_UNREADABLE.format(item=f"{action}:{target}", error=exc))
+    if verdict.approved:
+        return True, ""
+    reason = M.APPROVAL_REFUSED[verdict.reason].format(action=action, target=target, code=verdict.code)
+    step = M.GUARD_HUMAN_COMMAND_STEP.format(command=harness_command(root, "request-approval", f"{action}:{target}"))
+    return False, M.GUARD_HUMAN_COMMAND.format(command=command, reason=reason) + M.GUARD_NEXT.format(step=step)
 
 
 def decide_bash(root: Path, config: Dict[str, Any], bundles: List[project.Bundle], command: str, cwd: Path) -> Tuple[bool, str]:
     line, bodies = _split_heredocs(command)
     if re.search(r"\bwrite_(spec_)?lock\s*\(", command):
-        return False, M.GUARD_HUMAN_COMMAND.format(command="write_lock(...)") + M.GUARD_NEXT.format(step=M.GUARD_HUMAN_COMMAND_STEP)
+        step = M.GUARD_HUMAN_COMMAND_STEP.format(command=harness_command(root, "request-approval", "<action>:<target>"))
+        return False, M.GUARD_HUMAN_COMMAND.format(command="write_lock(...)", reason="") + M.GUARD_NEXT.format(step=step)
 
     targets: List[str] = []
     for group in _simple_commands(_tokens(line)):
         human = _human_command(group)
         if human:
-            return False, M.GUARD_HUMAN_COMMAND.format(command=human) + M.GUARD_NEXT.format(step=M.GUARD_HUMAN_COMMAND_STEP)
+            allow, message = _human_decision(root, cwd, *human)
+            if not allow:
+                return False, message
         if _git_skips_hooks(group):
             return False, M.GUARD_NO_VERIFY + M.GUARD_NEXT.format(step=M.GUARD_NO_VERIFY_STEP)
         targets += _write_targets(group)
@@ -301,8 +339,15 @@ def _deny(reason: str) -> Dict[str, Any]:
     return {"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "deny", "permissionDecisionReason": reason}}
 
 
+def _remember(root: Path, event: Dict[str, Any]) -> None:
+    from . import approvals
+
+    approvals.remember_transcript(root, event.get("session_id"), event.get("transcript_path"))
+
+
 def pre_tool_use(event: Dict[str, Any]) -> Dict[str, Any]:
     root = project.find_root(event.get("cwd"))
+    _remember(root, event)
     config = project.load_config(root)
     tool = event.get("tool_name", "")
     data = event.get("tool_input") or {}
@@ -359,11 +404,13 @@ def _state_text(root: Path) -> str:
 
 def session_start(event: Dict[str, Any]) -> Dict[str, Any]:
     root = project.find_root(event.get("cwd"))
+    _remember(root, event)
     return {"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": _state_text(root)}}
 
 
 def user_prompt_submit(event: Dict[str, Any]) -> Dict[str, Any]:
     root = project.find_root(event.get("cwd"))
+    _remember(root, event)
     project.append_ledger(root, {"event": "turn-start", "session": event.get("session_id"), "ts": _now()})
     _write_blocks(root, event.get("session_id"), 0)
     return {"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": _state_text(root)}}

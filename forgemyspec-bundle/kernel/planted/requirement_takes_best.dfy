@@ -93,6 +93,22 @@ module KernelImpl refines TrustKernel {
     }
   }
 
+  method DecideApproval(terminal: bool, typedCode: bool, contentMatches: bool, used: bool)
+    returns (a: ApprovalDecision)
+  {
+    if terminal {
+      a := Approved;
+    } else if !typedCode {
+      a := Refused(RNoTypedCode);
+    } else if !contentMatches {
+      a := Refused(RContentChanged);
+    } else if used {
+      a := Refused(RAlreadyUsed);
+    } else {
+      a := Approved;
+    }
+  }
+
   method Coverage(hypotheses: seq<string>, phrases: seq<string>, refsH: seq<seq<string>>, refsP: seq<seq<string>>)
     returns (missingH: seq<string>, missingP: seq<string>)
   {

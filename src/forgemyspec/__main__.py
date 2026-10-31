@@ -44,6 +44,9 @@ def build_parser() -> argparse.ArgumentParser:
     unlock = sub.add_parser("unlock", help=M.CLI_HELP["unlock"])
     unlock.add_argument("bundle")
 
+    request = sub.add_parser("request-approval", help=M.CLI_HELP["request-approval"])
+    request.add_argument("items", nargs="+", help=M.CLI_HELP["items"])
+
     gate = sub.add_parser("gate", help=M.CLI_HELP["gate"])
     gate.add_argument("bundle", nargs="?")
     gate.add_argument("--all", action="store_true", help=M.CLI_HELP["all"])
@@ -71,8 +74,57 @@ def _print_stages(stages) -> None:
             print(f"              {detail}")
 
 
+def _approval(action: str, target: str) -> Optional[dict]:
+    """The user's approval for `action target`, or None after printing why it is missing.
+
+    In the user's own terminal running the command is the approval. Anywhere else (Claude's Bash tool)
+    the user must have typed the code of a matching request in the chat; TrustKernel.DecideApproval decides.
+    """
+    from . import approvals, project
+
+    root = project.find_root()
+    terminal = approvals.is_terminal()
+    try:
+        verdict = approvals.check(root, action, target, terminal)
+    except (OSError, ValueError, yaml.YAMLError) as exc:
+        print(M.APPROVAL_UNREADABLE.format(item=f"{action}:{target}", error=exc), file=sys.stderr)
+        return None
+    if not verdict.approved:
+        print(M.APPROVAL_REFUSED[verdict.reason].format(action=action, target=target, code=verdict.code), file=sys.stderr)
+        return None
+    approvals.consume(root, action, target, verdict)
+    print(M.APPROVAL_TERMINAL if terminal else M.APPROVAL_USED.format(code=verdict.code))
+    return {"approved_via": verdict.how, "approval_code": verdict.code} if verdict.code else {"approved_via": verdict.how}
+
+
+def _request_approval(items: List[str]) -> int:
+    from . import approvals, project
+
+    parsed = []
+    for item in items:
+        action, sep, target = item.partition(":")
+        if not sep or action not in approvals.ACTIONS:
+            print(M.APPROVAL_BAD_ITEM.format(item=item, actions=", ".join(approvals.ACTIONS)), file=sys.stderr)
+            return 1
+        parsed.append((action, str(Path(target or ".").resolve())))
+    root = project.find_root()
+    try:
+        code, records = approvals.request(root, parsed)
+    except (OSError, ValueError, yaml.YAMLError) as exc:
+        print(M.APPROVAL_UNREADABLE.format(item=" ".join(items), error=exc), file=sys.stderr)
+        return 1
+    print(M.APPROVAL_REQUESTED.format(code=code))
+    for r in records:
+        print(M.APPROVAL_ITEM.format(action=r["action"], target=r["target"], sha=r["content_sha"][:12]))
+    print(M.APPROVAL_ASK.format(code=code))
+    return 0
+
+
 def main(argv: Optional[List[str]] = None) -> int:
     args = build_parser().parse_args(argv)
+
+    if args.command == "request-approval":
+        return _request_approval(args.items)
 
     if args.command == "hook":
         from .hooks import main as hook_main
@@ -101,6 +153,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     if args.command == "init":
         from .install import install
 
+        if not args.check and _approval("init", str(Path(args.target).resolve())) is None:
+            return 1
         return install(Path(args.target), check=args.check, python=args.python)
 
     try:
@@ -141,11 +195,14 @@ def main(argv: Optional[List[str]] = None) -> int:
         if args.check:
             print(M.CLI_LOCK_CHECKED)
             return 0
+        approval = _approval(args.command, str(layout.root))
+        if approval is None:
+            return 1
         if args.command == "lock":
-            lock = write_lock(layout, spec_data)
+            lock = write_lock(layout, spec_data, approval)
             print(M.CLI_LOCK_WRITTEN.format(path=layout.lock, version=lock["spec_version"]))
         else:
-            lock = write_spec_lock(layout.root, spec_data)
+            lock = write_spec_lock(layout.root, spec_data, approval)
             print(M.CLI_APPROVE_WRITTEN.format(path=layout.root / "spec.lock", version=lock["spec_version"]))
         return 0
 
@@ -156,6 +213,8 @@ def main(argv: Optional[List[str]] = None) -> int:
         targets = [p for p in (layout.lock, layout.root / "spec.lock") if p.exists()]
         if not targets:
             print(M.CLI_UNLOCK_NO_LOCK.format(bundle=args.bundle), file=sys.stderr)
+            return 1
+        if _approval("unlock", str(layout.root)) is None:
             return 1
         keep = project.state_dir(project.find_root(str(layout.root))) / "removed-locks"
         keep.mkdir(exist_ok=True)

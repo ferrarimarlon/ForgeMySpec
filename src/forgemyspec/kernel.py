@@ -162,3 +162,13 @@ def check(bundle: Path) -> List[str]:
         elif not filecmp.cmp(a, b, shallow=False):
             differing.append(name)
     return differing
+
+
+APPROVAL_REASON = {"RNoTypedCode": "no-typed-code", "RContentChanged": "content-changed", "RAlreadyUsed": "already-used"}
+
+
+def decide_approval(terminal: bool, typed_code: bool, content_matches: bool, used: bool) -> Tuple[bool, Optional[str]]:
+    """Returns (approved, reason) from TrustKernel.DecideApproval."""
+    k, _ = _load()
+    a = k.default__.DecideApproval(bool(terminal), bool(typed_code), bool(content_matches), bool(used))
+    return (True, None) if a.is_Approved else (False, APPROVAL_REASON[_name(a.why)])

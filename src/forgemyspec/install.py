@@ -50,8 +50,9 @@ This repository uses ForgeMySpec. The guards are deterministic hooks: they deny 
 3. `/forgemyspec-implement`: implement and run the gate until it passes.
 4. `/forgemyspec-amend`: amendments always with the user's approval.
 
-Harness commands (Claude may run `lint`, `package`, `gate`, `risk` and `lock --check`; `lock`, `approve`,
-`unlock` and `init` belong to the user, in their own terminal):
+Harness commands (Claude may run `lint`, `package`, `gate`, `risk`, `lock --check` and `request-approval`;
+`lock`, `approve`, `unlock` and `init` need the user's approval: the code from `request-approval`, typed by the
+user in the chat, or the user running the command in their own terminal):
 
 ```bash
 PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec lint <spec.yaml> --formal

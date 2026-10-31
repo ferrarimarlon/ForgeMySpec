@@ -10,7 +10,7 @@ You are implementing from spec-first constraints. Prioritize determinism, tracea
 
 ## Current Spec Snapshot
 - Title: ForgeMySpec trust kernel
-- Objective: Prove in Dafny the four decisions that trust in ForgeMySpec depends on: each obligation's color, each requirement's status, the guards' decision about an edit, and the coverage of hypotheses and phrases. The Python of the guards, the gate and the risk box uses only the translation of this kernel for these decisions.
+- Objective: Prove in Dafny the five decisions that trust in ForgeMySpec depends on: each obligation's color, each requirement's status, the guards' decision about an edit, the coverage of hypotheses and phrases, and whether an approval counts. The Python of the guards, the gate and the risk box uses only the translation of this kernel for these decisions.
 
 ## Non-Negotiable Guardrails
 - The kernel is pure: no I/O, no state, no {:extern}.

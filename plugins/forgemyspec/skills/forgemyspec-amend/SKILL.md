@@ -54,8 +54,10 @@ bundles) the whole spec. To amend:
 
 1. Propose the spec and contract delta the same way: minimal, as a diff.
 2. Never weaken a clause just so the implementation verifies. If the clause is wrong, say why with evidence (a counterexample, a requirement the user stated).
-3. After the yes, **the user** runs `unlock <bundle>` in their terminal; you apply the change.
-4. **The user** runs `lock <bundle>` (formal) or `approve <bundle>` (spec-only) to approve again.
+3. Request the unlock with `request-approval unlock:<bundle>`; after **the user types the code** in the
+   chat, run `unlock <bundle>` and apply the change.
+4. Request the new approval with `request-approval lock:<bundle>` (formal) or `approve:<bundle>`
+   (spec-only), show the diff next to the code, and run `lock`/`approve` after the user types it.
 5. Run `gate <bundle>`.
 
 ## What not to do

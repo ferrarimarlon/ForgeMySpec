@@ -17,4 +17,7 @@ checks:
   - locked contract protected
   - implementation requires a lock
   - exact coverage
+  - approval requires a code the user typed
+  - approval bound to the content
+  - approval used once
 cases: []

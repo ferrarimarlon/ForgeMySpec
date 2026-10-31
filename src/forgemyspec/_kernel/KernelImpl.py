@@ -178,6 +178,21 @@ class default__:
         return d
 
     @staticmethod
+    def DecideApproval(terminal, typedCode, contentMatches, used):
+        a: ApprovalDecision = ApprovalDecision.default()()
+        if terminal:
+            a = ApprovalDecision_Approved()
+        elif not(typedCode):
+            a = ApprovalDecision_Refused(ApprovalReason_RNoTypedCode())
+        elif not(contentMatches):
+            a = ApprovalDecision_Refused(ApprovalReason_RContentChanged())
+        elif used:
+            a = ApprovalDecision_Refused(ApprovalReason_RAlreadyUsed())
+        elif True:
+            a = ApprovalDecision_Approved()
+        return a
+
+    @staticmethod
     def Coverage(hypotheses, phrases, refsH, refsP):
         missingH: _dafny.Seq = _dafny.Seq({})
         missingP: _dafny.Seq = _dafny.Seq({})
@@ -781,6 +796,80 @@ class Decision_Deny(Decision, NamedTuple('Deny', [('reason', Any)])):
         return f'KernelImpl.Decision.Deny({_dafny.string_of(self.reason)})'
     def __eq__(self, __o: object) -> bool:
         return isinstance(__o, Decision_Deny) and self.reason == __o.reason
+    def __hash__(self) -> int:
+        return super().__hash__()
+
+
+class ApprovalReason:
+    @_dafny.classproperty
+    def AllSingletonConstructors(cls):
+        return [ApprovalReason_RNoTypedCode(), ApprovalReason_RContentChanged(), ApprovalReason_RAlreadyUsed()]
+    @classmethod
+    def default(cls, ):
+        return lambda: ApprovalReason_RNoTypedCode()
+    def __ne__(self, __o: object) -> bool:
+        return not self.__eq__(__o)
+    @property
+    def is_RNoTypedCode(self) -> bool:
+        return isinstance(self, ApprovalReason_RNoTypedCode)
+    @property
+    def is_RContentChanged(self) -> bool:
+        return isinstance(self, ApprovalReason_RContentChanged)
+    @property
+    def is_RAlreadyUsed(self) -> bool:
+        return isinstance(self, ApprovalReason_RAlreadyUsed)
+
+class ApprovalReason_RNoTypedCode(ApprovalReason, NamedTuple('RNoTypedCode', [])):
+    def __dafnystr__(self) -> str:
+        return f'KernelImpl.ApprovalReason.RNoTypedCode'
+    def __eq__(self, __o: object) -> bool:
+        return isinstance(__o, ApprovalReason_RNoTypedCode)
+    def __hash__(self) -> int:
+        return super().__hash__()
+
+class ApprovalReason_RContentChanged(ApprovalReason, NamedTuple('RContentChanged', [])):
+    def __dafnystr__(self) -> str:
+        return f'KernelImpl.ApprovalReason.RContentChanged'
+    def __eq__(self, __o: object) -> bool:
+        return isinstance(__o, ApprovalReason_RContentChanged)
+    def __hash__(self) -> int:
+        return super().__hash__()
+
+class ApprovalReason_RAlreadyUsed(ApprovalReason, NamedTuple('RAlreadyUsed', [])):
+    def __dafnystr__(self) -> str:
+        return f'KernelImpl.ApprovalReason.RAlreadyUsed'
+    def __eq__(self, __o: object) -> bool:
+        return isinstance(__o, ApprovalReason_RAlreadyUsed)
+    def __hash__(self) -> int:
+        return super().__hash__()
+
+
+class ApprovalDecision:
+    @classmethod
+    def default(cls, ):
+        return lambda: ApprovalDecision_Approved()
+    def __ne__(self, __o: object) -> bool:
+        return not self.__eq__(__o)
+    @property
+    def is_Approved(self) -> bool:
+        return isinstance(self, ApprovalDecision_Approved)
+    @property
+    def is_Refused(self) -> bool:
+        return isinstance(self, ApprovalDecision_Refused)
+
+class ApprovalDecision_Approved(ApprovalDecision, NamedTuple('Approved', [])):
+    def __dafnystr__(self) -> str:
+        return f'KernelImpl.ApprovalDecision.Approved'
+    def __eq__(self, __o: object) -> bool:
+        return isinstance(__o, ApprovalDecision_Approved)
+    def __hash__(self) -> int:
+        return super().__hash__()
+
+class ApprovalDecision_Refused(ApprovalDecision, NamedTuple('Refused', [('why', Any)])):
+    def __dafnystr__(self) -> str:
+        return f'KernelImpl.ApprovalDecision.Refused({_dafny.string_of(self.why)})'
+    def __eq__(self, __o: object) -> bool:
+        return isinstance(__o, ApprovalDecision_Refused) and self.why == __o.why
     def __hash__(self) -> int:
         return super().__hash__()
 

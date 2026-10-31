@@ -211,16 +211,18 @@ CLI_HELP = {
     "formal": "Require the formal section (as the gate does).",
     "package": "Lint a spec.yaml and write the bundle files next to it.",
     "output-dir": "Defaults to the spec's directory.",
-    "lock": "Record the user-approved contract.dfy, tests.dfy, planted/ and formal section (human only).",
+    "lock": "Record the user-approved contract.dfy, tests.dfy, planted/ and formal section (needs the user's approval).",
     "check-lock": "Run the lock checks without writing anything.",
-    "approve": "Approve a spec-only bundle by writing spec.lock (human only).",
-    "unlock": "Remove a bundle's lock to allow an amendment (human only).",
+    "approve": "Approve a spec-only bundle by writing spec.lock (needs the user's approval).",
+    "unlock": "Remove a bundle's lock to allow an amendment (needs the user's approval).",
+    "request-approval": "Ask the user to approve actions in the chat: prints a code the user types back.",
+    "items": "Items as action:target, for example lock:examples/budget-core or init:.",
     "gate": "Run every gate stage on a bundle.",
     "all": "Run the gate on every approved bundle in the project.",
     "hook": "Entry point for the Claude Code hooks (internal).",
     "risk": "Print the project's risk box.",
     "kernel": "Generate src/forgemyspec/_kernel from the Dafny kernel, or compare with --check.",
-    "init": "Install ForgeMySpec into a repository (human only).",
+    "init": "Install ForgeMySpec into a repository (needs the user's approval).",
     "check-init": "Only compare the installation; exit 1 when something differs.",
     "python": "Python interpreter the hooks will use.",
 }
@@ -235,6 +237,18 @@ CLI_UNLOCK_DONE = "Lock removed: {path}. After the amendment, approve again."
 CLI_UNLOCK_NO_LOCK = "{bundle} has no lock."
 CLI_NO_BUNDLES = "No approved bundles found."
 CLI_NOT_A_BUNDLE = "{path} has no spec.yaml."
+APPROVAL_BAD_ITEM = "Not an approvable item: {item}. Use action:target with action one of {actions}."
+APPROVAL_UNREADABLE = "Cannot compute what {item} covers: {error}"
+APPROVAL_REQUESTED = "Approval requested. Code: {code}"
+APPROVAL_ITEM = "  {action} {target}  (content {sha})"
+APPROVAL_ASK = "Show the user exactly what each item approves, then ask them to type the code {code} in the chat. Nothing else counts as approval."
+APPROVAL_REFUSED = {
+    "no-typed-code": "Not approved: no message typed by the user contains the code of a request for `{action} {target}`. Run `request-approval {action}:{target}` and ask the user to type the code.",
+    "content-changed": "Not approved: `{action} {target}` changed after the user approved it (code {code}). Request a new approval.",
+    "already-used": "Not approved: the approval {code} for `{action} {target}` was already used. Request a new approval.",
+}
+APPROVAL_USED = "Approved by the user in the chat (code {code})."
+APPROVAL_TERMINAL = "Approved by the user in their terminal."
 KERNEL_DIFFERS = "differs: _kernel/{item}"
 KERNEL_MATCHES = "_kernel/ matches a fresh translation."
 KERNEL_DIVERGED = "_kernel/ differs from the translation; run `python -m forgemyspec kernel` and commit the result."
@@ -255,20 +269,20 @@ GUARD_OUTSIDE_SPEC_STEP = (
     "or ask them to add the path to allow_paths in .forgemyspec/config.yaml"
 )
 GUARD_NOT_APPROVED = "Blocked by ForgeMySpec: bundle {bundle}, which covers {path}, has not been approved yet."
-GUARD_NOT_APPROVED_STEP = "show the spec (and the contract, if any) to the user; they approve by running in their own terminal: {command}"
+GUARD_NOT_APPROVED_STEP = "show the spec (and the contract, if any) to the user and ask for approval: `request-approval` prints a code; the user types it in the chat, then run {command}"
 GUARD_CONTRACT_LOCKED = "Blocked by ForgeMySpec: {path} is locked; the user approved this version."
-GUARD_CONTRACT_LOCKED_STEP = "use /forgemyspec-amend to propose the change; the user runs `{command}` before the edit and approves again afterwards"
+GUARD_CONTRACT_LOCKED_STEP = "use /forgemyspec-amend to propose the change; with the user's approval (`request-approval` prints a code; the user types it in the chat) run `{command}` before the edit, and ask for approval again afterwards"
 GUARD_FORMAL_LOCKED = "Blocked by ForgeMySpec: this edit changes the formal section or the version of {path}, which are locked."
 GUARD_SPEC_LOCKED = "Blocked by ForgeMySpec: {path} was approved by the user and is locked."
 GUARD_IMPL_WITHOUT_LOCK = "Blocked by ForgeMySpec: {path} is implementation, but the contract of bundle {bundle} has not been approved yet."
-GUARD_IMPL_WITHOUT_LOCK_STEP = "finish /forgemyspec-formalize and ask the user to run in their terminal: {command}"
+GUARD_IMPL_WITHOUT_LOCK_STEP = "finish /forgemyspec-formalize and ask for approval: `request-approval` prints a code; the user types it in the chat, then run {command}"
 GUARD_LOCK_INVALID = "Blocked by ForgeMySpec: the lock of bundle {bundle} does not match; the contract or the spec changed without new approval."
-GUARD_LOCK_INVALID_STEP = "ask the user to review the change and approve again: {command}"
+GUARD_LOCK_INVALID_STEP = "ask the user to review the change and approve again (`request-approval` prints a code; the user types it in the chat), then run {command}"
 GUARD_SPEC_INVALID = "Blocked by ForgeMySpec: the spec.yaml of {bundle} cannot be read ({error})."
 GUARD_SPEC_INVALID_STEP = "fix the bundle's spec.yaml"
 GUARD_UNDECIDABLE = "Blocked by ForgeMySpec (strict mode): could not decide on this action ({cause})."
-GUARD_HUMAN_COMMAND = "Blocked by ForgeMySpec: `{command}` is an approval or an installation change, and only the user does that, in their own terminal."
-GUARD_HUMAN_COMMAND_STEP = "show the user what they are approving and ask them to run the command"
+GUARD_HUMAN_COMMAND = "Blocked by ForgeMySpec: `{command}` is an approval or an installation change and needs the user's approval. {reason}"
+GUARD_HUMAN_COMMAND_STEP = "run `{command}`, show the user what each item approves and ask them to type the code in the chat"
 GUARD_NO_VERIFY = "Blocked by ForgeMySpec: skipping the git hooks (--no-verify, -n or core.hooksPath) turns off the pre-commit gate."
 GUARD_NO_VERIFY_STEP = "commit without skipping the hooks; if the gate fails, fix what it reports"
 GUARD_SHELL_WRITE = "Blocked by ForgeMySpec: this shell command writes to {path}. {reason}"
@@ -299,15 +313,15 @@ PHASES = {
 }
 GATE_STATE = {"pass": "gate PASS", "fail": "gate FAIL", "stale": "gate stale", "none": "gate never ran"}
 STEPS = {
-    "draft": "finish the spec (and the contract, if formal) and ask the user to run `{command}`",
+    "draft": "finish the spec (and the contract, if formal), ask for approval with `request-approval` (the user types the code in the chat), then run `{command}`",
     "locked-ok": "nothing pending; changes go through the guards",
     "locked-pending": "run `{command}` until it passes",
-    "lock-invalid": "ask the user to review and approve again: `{command}`",
+    "lock-invalid": "show the user the change and ask for approval again with `request-approval` (the user types the code in the chat), then run `{command}`",
     "spec-invalid": "fix the spec.yaml",
 }
 STATE_RULES = (
     "Rules: edits only in paths covered by an approved bundle; contract, locks, config and generated/ belong to the "
-    "user; approval (lock, approve, unlock, init) is always run by the user."
+    "user; lock, approve, unlock and init need the user's approval: a `request-approval` code the user types in the chat, never Claude's reading of plain words."
 )
 
 # ---------------------------------------------------------------------------
@@ -333,6 +347,7 @@ BOX_HUMAN = "WHAT ONLY YOU GUARANTEE"
 BOX_HUMAN_CONTRACT = "does the contract of {bundle} say what you meant?"
 BOX_HUMAN_SPEC = "does the spec of {bundle} say what you meant?"
 BOX_HUMAN_APPROVED = "approved by you on {when}"
+BOX_HUMAN_APPROVED_CHAT = "approved by you in chat on {when} ({code})"
 BOX_HUMAN_PENDING = "not approved by you yet"
 BOX_HUMAN_LOCK_STALE = "the lock no longer matches; approve again"
 BOX_HUMAN_ASSUMPTIONS = "{n} spec assumptions, approved in the same lock"

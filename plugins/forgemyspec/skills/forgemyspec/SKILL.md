@@ -64,4 +64,4 @@ next to the spec. Generated bundles never go in `.claude/skills/`.
 ## 4. Hand off
 
 Show the user the obligations table (id, kind, statement) and the assumptions. A formal bundle continues with
-`/forgemyspec-formalize`; a spec-only bundle is approved by the user running `approve <bundle>` in their terminal.
+`/forgemyspec-formalize`; a spec-only bundle is approved with `request-approval approve:<bundle>`: the user types the code in the chat, then you run `approve <bundle>`.

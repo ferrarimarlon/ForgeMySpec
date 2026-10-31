@@ -19,10 +19,10 @@ The `forgemyspec-default` agent (`plugins/forgemyspec/agents/forgemyspec-default
 | Situation | Action |
 |---|---|
 | No spec exists for the task | `/forgemyspec` |
-| Formal spec exists, no locked contract | `/forgemyspec-formalize` (the user approves by running `lock`) |
-| Spec-only bundle not approved | the user runs `approve` |
+| Formal spec exists, no locked contract | `/forgemyspec-formalize` (the user approves by typing the `request-approval` code in the chat; then `lock`) |
+| Spec-only bundle not approved | `request-approval approve:<bundle>`; the user types the code; then `approve` |
 | Contract locked | `/forgemyspec-implement` (until the gate passes) |
-| Spec or contract needs a targeted update | `/forgemyspec-amend`: propose the delta only, lint, get approval; the user runs `unlock` and `lock`/`approve` |
+| Spec or contract needs a targeted update | `/forgemyspec-amend`: propose the delta only, lint, get approval as a typed code; then `unlock` and `lock`/`approve` |
 
 ## Claude is the only LLM
 
@@ -38,7 +38,9 @@ PYTHONPATH=src python3 -m forgemyspec kernel --check
 PYTHONPATH=src python3 -m unittest discover -s tests
 ```
 
-`lock`, `approve`, `unlock` and `init` are run by the user only.
+`lock`, `approve`, `unlock` and `init` need the user's approval: `request-approval <action>:<target>` prints a code, the
+user types it in the chat, and only then the command runs (or the user runs it in their own terminal). A plain "yes"
+is not an approval.
 
 ## Project Layout
 
@@ -48,7 +50,7 @@ src/forgemyspec/_kernel/ trust kernel translated from Dafny (generated; never ed
 plugins/forgemyspec/     canonical skills + default agent (symlinked into .claude/)
 .claude/                 settings.json, symlinks to plugins/forgemyspec
 examples/budget-core/    end-to-end formal bundle; the gate must pass on it
-forgemyspec-bundle/      specs this harness was built from: v0.1 (root), enforcement (v0.4), kernel
+forgemyspec-bundle/      specs this harness was built from: v0.1 (root), enforcement (v0.5), kernel
 experiments/             historical benchmark data and the mini-os case study (pre-Dafny)
 tests/                   harness tests
 ```

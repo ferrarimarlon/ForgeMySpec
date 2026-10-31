@@ -121,6 +121,28 @@ module KernelTests {
     expect d4 == Deny(RLockInvalid);
   }
 
+  // @obligation approval_requires_typed_code
+  method {:test} ApprovalRequiresTypedCode() {
+    var a := DecideApproval(false, false, true, false);
+    expect a == Refused(RNoTypedCode);
+    var b := DecideApproval(true, false, false, true);
+    expect b == Approved;
+    var c := DecideApproval(false, true, true, false);
+    expect c == Approved;
+  }
+
+  // @obligation approval_bound_to_content
+  method {:test} ApprovalBoundToContent() {
+    var a := DecideApproval(false, true, false, false);
+    expect a == Refused(RContentChanged);
+  }
+
+  // @obligation approval_used_once
+  method {:test} ApprovalUsedOnce() {
+    var a := DecideApproval(false, true, true, true);
+    expect a == Refused(RAlreadyUsed);
+  }
+
   // @obligation exact_coverage
   method {:test} ExactCoverage() {
     var mh, mp := Coverage(["h1", "h2"], ["a", "b"], [["h1"]], [["a", "b"]]);

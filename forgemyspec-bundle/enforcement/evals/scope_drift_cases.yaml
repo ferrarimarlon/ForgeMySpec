@@ -24,4 +24,5 @@ checks:
   - English documentation
   - trust kernel proven in Dafny
   - planted errors
+  - approval in the chat bound to the content
 cases: []

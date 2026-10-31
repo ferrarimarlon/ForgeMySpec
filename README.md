@@ -44,7 +44,7 @@ Full data: [`experiments/COMPARATIVE_REPORT.md`](experiments/COMPARATIVE_REPORT.
 /forgemyspec            Claude writes spec.yaml                          harness: lint, coverage
         │
 /forgemyspec-formalize  Claude writes contract.dfy, tests.dfy, planted/
-        │               ── YOU approve by running `lock` in your terminal ── harness: lock (SHA-256)
+        │               ── YOU approve by typing a code in the chat ──────── harness: lock (SHA-256)
         │
 /forgemyspec-implement  Claude writes impl.dfy and the Python shell      harness: gate
                                                                           → generated/core-py (verified Python)
@@ -109,15 +109,32 @@ What you need to know to decide how much to trust it:
 
 | Layer | How it is guaranteed |
 |---|---|
-| The four trust decisions: each obligation's color, each requirement's status, the guards' edit decision and coverage | **Proven in Dafny** in the kernel [`forgemyspec-bundle/kernel`](forgemyspec-bundle/kernel): 25 proof obligations, 12 Dafny tests and 6 planted errors. Python uses only the translation, and CI checks that it matches a fresh translation |
+| The five trust decisions: each obligation's color, each requirement's status, the guards' edit decision, coverage and whether an approval counts | **Proven in Dafny** in the kernel [`forgemyspec-bundle/kernel`](forgemyspec-bundle/kernel): 29 proof obligations, 15 Dafny tests and 9 planted errors. Python uses only the translation, and CI checks that it matches a fresh translation |
 | The logic of each of your projects (whatever is `kind: dafny`) | **Proven in Dafny** against the contract you approved, and attacked with mutants and planted errors |
-| The Python glue: reading files, path categories, parsing shell commands, building the box | **Tested**, not proven (`tests/`, more than 60 tests, including the guards' decision tables and fault injection) |
+| The Python glue: reading files, path categories, parsing shell commands, building the box | **Tested**, not proven (`tests/`, more than 70 tests, including the guards' decision tables and fault injection) |
 | Your code that is `kind: boundary` or in a spec-only bundle | **Tested with examples**: it shows as "examples only" in the box |
-| What you still trust | the Dafny verifier and Z3, Python, git, and **your approval of each contract** |
+| What you still trust | the Dafny verifier and Z3, Python, git, Claude Code's session transcript, and **your approval of each contract** |
 
 The residual risk no harness removes: **the contract may not say what you meant.** Dafny proves the code meets
 the clauses, not that the clauses are your intent. That is why the contract is short, comes with concrete
 examples and planted errors, only you lock it, and the box reminds you on every prompt.
+
+## Approval in the chat
+
+You approve where you already are: in the chat. Plain words are not enough, because Claude could misread
+them, so every approval is a short code bound to exactly what you approve:
+
+1. Claude runs `request-approval lock:<bundle> ...`. The harness hashes each item (the contract, the tests,
+   `planted/` and the `formal` section for `lock`; the spec for `approve`; the lock for `unlock`; the harness
+   and the target for `init`) and prints a six-character code derived from those hashes.
+2. Claude shows you what each item approves, next to the code. You **type the code** in the chat.
+3. `lock`, `approve`, `unlock` and `init` run only when the session transcript holds a message **you typed**
+   after the request that contains the code, the content still has the approved hash, and the approval was not
+   used before. That decision is `DecideApproval` in the proven kernel. The lock records `approved_via: chat`
+   and the code, and the box shows "approved by you in chat (CODE)".
+
+The code in Claude's own messages, in tool results or in skill loads does not count. The transcripts and your
+Claude Code settings are protected paths. Running the command yourself in a terminal is an approval too.
 
 The guards cover an **agent that drifts**, not an adversary: a shell command built to escape them can get
 through, and pre-commit and CI are the safety net for that.

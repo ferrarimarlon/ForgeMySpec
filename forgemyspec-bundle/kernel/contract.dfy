@@ -1,6 +1,6 @@
 // Contract of the ForgeMySpec trust kernel.
 // Approved by the user and locked in contract.lock: impl.dfy refines this module and cannot weaken it.
-// The guards, the gate and the risk box use only the Python translation of this kernel for these decisions.
+// The guards, the gate, the approvals and the risk box use only the Python translation of this kernel for these decisions.
 abstract module TrustKernel {
   datatype Status = Leaking | Fragile | Proven
   datatype Kind = DafnyObligation | BoundaryObligation
@@ -15,6 +15,8 @@ abstract module TrustKernel {
     RProtected | ROutsideSpec | RNotApproved | RContractLocked | RFormalLocked | RSpecLocked
     | RImplWithoutLock | RLockInvalid | RSpecInvalid
   datatype Decision = Allow | Deny(reason: Reason)
+  datatype ApprovalReason = RNoTypedCode | RContentChanged | RAlreadyUsed
+  datatype ApprovalDecision = Approved | Refused(why: ApprovalReason)
 
   // Severity order: Leaking is the worst.
   function Rank(s: Status): nat
@@ -79,6 +81,17 @@ abstract module TrustKernel {
     ensures c == BundleImpl && phase == Draft && !formal ==> d == Deny(RNotApproved)
     ensures c == BundleImpl && phase == LockInvalid ==> d == Deny(RLockInvalid)
     ensures c == BundleImpl && phase == SpecInvalid ==> d == Deny(RSpecInvalid)
+
+  method DecideApproval(terminal: bool, typedCode: bool, contentMatches: bool, used: bool)
+    returns (a: ApprovalDecision)
+    // @obligation approval_requires_typed_code
+    ensures terminal ==> a == Approved
+    ensures !terminal && !typedCode ==> a == Refused(RNoTypedCode)
+    // @obligation approval_bound_to_content
+    ensures !terminal && typedCode && !contentMatches ==> a == Refused(RContentChanged)
+    // @obligation approval_used_once
+    ensures !terminal && typedCode && contentMatches && used ==> a == Refused(RAlreadyUsed)
+    ensures a == Approved <==> (terminal || (typedCode && contentMatches && !used))
 
   method Coverage(hypotheses: seq<string>, phrases: seq<string>, refsH: seq<seq<string>>, refsP: seq<seq<string>>)
     returns (missingH: seq<string>, missingP: seq<string>)

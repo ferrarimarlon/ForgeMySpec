@@ -14,7 +14,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from . import messages as M
 from . import project
-from .contract_lock import approved_at
+from .contract_lock import approval_code, approved_at
 from .dafny_lint import outline
 
 WIDTH = 60
@@ -235,7 +235,11 @@ def _human(bundle: project.Bundle) -> List[str]:
     if bundle.phase == "lock-invalid":
         lines.append("  " + M.BOX_HUMAN_LOCK_STALE)
     else:
-        lines.append("  " + (M.BOX_HUMAN_APPROVED.format(when=_date(when)) if when else M.BOX_HUMAN_PENDING))
+        code = approval_code(bundle.lock_path) if when else ""
+        if code:
+            lines.append("  " + M.BOX_HUMAN_APPROVED_CHAT.format(when=_date(when), code=code))
+        else:
+            lines.append("  " + (M.BOX_HUMAN_APPROVED.format(when=_date(when)) if when else M.BOX_HUMAN_PENDING))
     context = bundle.spec.get("context") if isinstance(bundle.spec.get("context"), dict) else {}
     assumptions = [a for a in context.get("assumptions") or [] if isinstance(a, str)]
     if assumptions and when:

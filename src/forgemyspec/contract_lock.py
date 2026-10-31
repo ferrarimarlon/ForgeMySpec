@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import yaml
 
@@ -50,9 +50,10 @@ def compute_lock(layout: BundleLayout, spec_data: Dict[str, Any]) -> Dict[str, A
     }
 
 
-def write_lock(layout: BundleLayout, spec_data: Dict[str, Any]) -> Dict[str, Any]:
+def write_lock(layout: BundleLayout, spec_data: Dict[str, Any], approval: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
     lock = compute_lock(layout, spec_data)
     lock["locked_at"] = _now()
+    lock.update(approval or {})
     layout.lock.write_text(yaml.safe_dump(lock, sort_keys=False), encoding="utf-8")
     return lock
 
@@ -101,9 +102,10 @@ def compute_spec_lock(bundle_dir, spec_data: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def write_spec_lock(bundle_dir, spec_data: Dict[str, Any]) -> Dict[str, Any]:
+def write_spec_lock(bundle_dir, spec_data: Dict[str, Any], approval: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
     lock = compute_spec_lock(bundle_dir, spec_data)
     lock["approved_at"] = _now()
+    lock.update(approval or {})
     _spec_lock_path(bundle_dir).write_text(yaml.safe_dump(lock, sort_keys=False), encoding="utf-8")
     return lock
 
@@ -124,12 +126,21 @@ def check_spec_lock(bundle_dir, spec_data: Dict[str, Any]) -> List[LintIssue]:
     return []
 
 
-def approved_at(lock_path) -> str:
-    """Approval time recorded in the lock, for the risk box."""
+def _lock_data(lock_path) -> Dict[str, Any]:
     try:
         data = yaml.safe_load(Path(lock_path).read_text(encoding="utf-8"))
     except (OSError, yaml.YAMLError):
-        return ""
-    if not isinstance(data, dict):
-        return ""
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def approved_at(lock_path) -> str:
+    """Approval time recorded in the lock, for the risk box."""
+    data = _lock_data(lock_path)
     return str(data.get("approved_at") or data.get("locked_at") or "")
+
+
+def approval_code(lock_path) -> str:
+    """The chat code the user typed to approve this lock, or "" (terminal approval or an older lock)."""
+    data = _lock_data(lock_path)
+    return str(data.get("approval_code") or "") if data.get("approved_via") == "chat" else ""

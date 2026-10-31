@@ -72,12 +72,23 @@ PYTHONPATH=src python3 -m forgemyspec lock <bundle> --check           # coverage
 ## 5. Ask for approval
 
 Show the user `contract.dfy`, `tests.dfy` and the list of planted errors next to the obligations table, and
-say in one line what each clause guarantees. Ask explicitly: **"Approve this contract?"** Approval is the
-user running, **in their own terminal**:
+say in one line what each clause guarantees. Then ask for approval in the chat:
+
+```bash
+PYTHONPATH=src python3 -m forgemyspec request-approval lock:<bundle>
+```
+
+It prints a six-character code bound to the hash of exactly what is approved. Show the user each item and
+ask them to **type the code** in the chat. A plain "yes" is not an approval, and the code in your own message
+does not count: the harness reads the session transcript and accepts only a message the user typed after
+the request. Once they have typed it, run:
 
 ```bash
 PYTHONPATH=src python3 -m forgemyspec lock <bundle>
 ```
+
+The approval is used once. If the contract, the tests or `planted/` change after the code was typed, `lock`
+refuses and you request again. The user can also run `lock` in their own terminal; that is an approval too.
 
 `lock` refuses when the lint, coverage or the Dafny lint fail. It records SHA-256 hashes of `contract.dfy`,
 `tests.dfy`, `planted/` and the `formal` section, plus the spec version. Any later change to those makes the

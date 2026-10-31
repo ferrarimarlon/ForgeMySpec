@@ -6,7 +6,7 @@ ends only when the deterministic gate passes.
 ## Order
 
 1. `/forgemyspec`: `spec.yaml` with a `formal` section; run `lint --formal` and `package`.
-2. `/forgemyspec-formalize`: `contract.dfy`, `tests.dfy` and `planted/`; run `lock --check`; the user runs `lock`.
+2. `/forgemyspec-formalize`: `contract.dfy`, `tests.dfy` and `planted/`; run `lock --check`; `request-approval lock:<bundle>`; after the user types the code in the chat, run `lock`.
 3. `/forgemyspec-implement`: `impl.dfy`, `shell/`, `tests_py/`; run `gate` until every stage passes.
 4. `/forgemyspec-amend`: whenever implementation shows the spec or contract is wrong. Minimal delta, approval, `unlock`/`lock` by the user.
 
