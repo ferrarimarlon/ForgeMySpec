@@ -28,7 +28,7 @@ SPEC_LOCK_NAME = "spec.lock"
 DEFAULT_CONFIG: Dict[str, Any] = {
     "enforcement": "strict",
     # Free text that is not code: allowed, and listed in the box as unverified text.
-    "allow_paths": ["**/*.md", "docs/**", "LICENSE*"],
+    "allow_paths": ["**/*.md", "docs/**", "LICENSE*", "forgemyspec-board.yaml"],
     "code_extensions": [
         ".py", ".dfy", ".js", ".jsx", ".ts", ".tsx", ".go", ".rs", ".java", ".kt", ".rb", ".php",
         ".c", ".h", ".cc", ".cpp", ".hpp", ".cs", ".swift", ".scala", ".sh", ".sql", ".lua", ".dart",

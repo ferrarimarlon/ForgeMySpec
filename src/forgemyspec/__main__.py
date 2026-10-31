@@ -56,7 +56,7 @@ def build_parser() -> argparse.ArgumentParser:
     hook.add_argument("event")
 
     board = sub.add_parser("board", help=M.CLI_HELP["board"])
-    board.add_argument("detail", nargs="?", help=M.CLI_HELP["detail"])
+    board.add_argument("detail", nargs="*", help=M.CLI_HELP["detail"])
 
     risk_cmd = sub.add_parser("risk", help=M.CLI_HELP["risk"])
     risk_cmd.add_argument("--json", action="store_true", help=M.CLI_HELP["json"])
@@ -143,7 +143,11 @@ def main(argv: Optional[List[str]] = None) -> int:
         from . import board as board_view, project
 
         root = project.find_root()
-        print(board_view.detail(root, args.detail) if args.detail else board_view.render(root))
+        if args.detail[:1] == ["start"] and len(args.detail) == 2:
+            board_view.start(root, args.detail[1])
+            print(board_view.detail(root, args.detail[1]))
+        else:
+            print(board_view.detail(root, args.detail[0]) if args.detail else board_view.render(root))
         return 0
 
     if args.command == "risk":

@@ -136,15 +136,19 @@
   - do: replaced by the board in the chat
     ok: true
 - id: R15
-  status: open
+  status: doing
   title: Gates as a plugin in another repository
   quote: constrói os gates para um plugin que a gente vai colocar em outro repositório
   steps:
-  - do: plugin repository created
-    ok: false
-  - do: gates moved to the plugin
-    ok: false
-  - do: guards fixed (R16)
+  - do: plugin repository created (local)
+    ok: true
+  - do: harness, skills, agent and hooks exported
+    ok: true
+  - do: smoke test and plugin validate pass
+    ok: true
+  - do: committed
+    ok: true
+  - do: pushed to GitHub (your order)
     ok: false
 - id: R16
   status: done
@@ -238,3 +242,39 @@
   steps:
   - do: R11–R14 marked done
     ok: true
+- id: R25
+  status: done
+  title: The board ships with every install (plugin and init)
+  quote: essa tela de requerimentos e interatividade tem que estar presente sempre quando a gente instala
+  steps:
+  - do: rule in the per-prompt state summary
+    ok: true
+  - do: section in the CLAUDE.md block init writes
+    ok: true
+  - do: /forgemyspec-board skill
+    ok: true
+  - do: board file allowed by the guard
+    ok: true
+  - do: test_board covers it
+    ok: true
+  - do: plugin rebuilt with it
+    ok: true
+  - do: committed
+    ok: true
+  evidence: state rules, init CLAUDE block, /forgemyspec-board skill, plugin rebuilt; 78+ tests OK.
+- id: R26
+  status: done
+  title: 'Each requirement: contract, status, LLM vs harness effort, live'
+  quote: você destrincha ele, cria um contrato, coloca ele aqui… seta o esforço de LLM harness… mostrando aqui em tempo real
+  steps:
+  - do: steps shown as the requirement's contract
+    ok: true
+  - do: 'focus marker: work is attributed to one requirement'
+    ok: true
+  - do: per-requirement harness % and model %
+    ok: true
+  - do: board shown after every step
+    ok: true
+  - do: test
+    ok: true
+  evidence: board start R<n>; per-requirement H%/M%; test_board effort test passes.

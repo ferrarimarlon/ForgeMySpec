@@ -39,7 +39,9 @@ def _read_input(stdin: TextIO) -> Dict[str, Any]:
 
 def harness_command(root: Path, action: str, target: str = "") -> str:
     """The command the user runs in their own terminal, with this installation's harness."""
-    base = "PYTHONPATH=.forgemyspec/harness" if (root / ".forgemyspec" / "harness").is_dir() else "PYTHONPATH=src"
+    plugin = os.environ.get("FORGEMYSPEC_HARNESS")  # set by the plugin's hooks
+    base = (f'PYTHONPATH="{plugin}"' if plugin else
+            "PYTHONPATH=.forgemyspec/harness" if (root / ".forgemyspec" / "harness").is_dir() else "PYTHONPATH=src")
     return f"{base} python3 -m forgemyspec {action} {target}".strip()
 
 

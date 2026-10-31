@@ -17,7 +17,12 @@ import yaml
 from . import messages as M
 from . import project
 
-BOARD_FILE = Path("forgemyspec-bundle") / "board" / "requirements.yaml"
+BOARD_FILE = Path("forgemyspec-bundle") / "board" / "requirements.yaml"  # this repository
+PROJECT_BOARD_FILE = Path("forgemyspec-board.yaml")  # any project with ForgeMySpec installed
+
+
+def board_file(root: Path) -> Path:
+    return root / BOARD_FILE if (root / BOARD_FILE).exists() else root / PROJECT_BOARD_FILE
 STATUSES = ("done", "doing", "open", "blocked")
 WIDTH = 20
 _HARNESS_COMMAND = re.compile(
@@ -32,17 +37,41 @@ def bar(part: float, total: float, width: int = WIDTH) -> str:
 
 def load(root: Path) -> List[Dict[str, Any]]:
     try:
-        data = yaml.safe_load((root / BOARD_FILE).read_text(encoding="utf-8")) or []
+        data = yaml.safe_load(board_file(root).read_text(encoding="utf-8")) or []
     except OSError:
         return []
     return [r for r in data if isinstance(r, dict) and r.get("id")]
 
 
+def start(root: Path, rid: str) -> None:
+    """Marks the requirement now being worked on: actions from here on count toward it."""
+    from datetime import datetime, timezone
+
+    project.append_ledger(root, {"event": "board-focus", "id": rid.upper(),
+                                 "ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")})
+
+
+def _focus_at(focuses: List[tuple], stamp: str) -> Optional[str]:
+    current = None
+    for ts, rid in focuses:
+        if ts <= stamp:
+            current = rid
+        else:
+            break
+    return current
+
+
 def activity(root: Path) -> Dict[str, int]:
-    """Harness actions (harness commands run, guard checks) against model writes (Write/Edit), plus model tokens."""
+    """Harness actions (harness commands run, guard checks) against model writes (Write/Edit), plus model tokens.
+
+    `per` splits runs and writes by the requirement in focus (`board start R<n>`) when the action happened.
+    """
     from .approvals import _transcripts
 
     runs = writes = tokens = 0
+    per: Dict[str, Dict[str, int]] = {}
+    ledger = project.read_ledger(root)
+    focuses = sorted((str(e.get("ts", "")), e["id"]) for e in ledger if e.get("event") == "board-focus" and e.get("id"))
     seen = set()
     transcripts = _transcripts(root)
     if transcripts:
@@ -57,16 +86,31 @@ def activity(root: Path) -> Dict[str, int]:
             if message.get("id") not in seen:
                 seen.add(message.get("id"))
                 tokens += int((message.get("usage") or {}).get("output_tokens") or 0)
+            rid = _focus_at(focuses, str(entry.get("timestamp") or ""))
             for block in message.get("content") or []:
                 if not isinstance(block, dict) or block.get("type") != "tool_use":
                     continue
                 command = (block.get("input") or {}).get("command") or ""
+                kind = None
                 if block.get("name") == "Bash" and _HARNESS_COMMAND.search(command):
                     runs += 1
+                    kind = "runs"
                 elif block.get("name") in ("Write", "Edit", "MultiEdit", "NotebookEdit"):
                     writes += 1
-    checks = sum(1 for e in project.read_ledger(root) if e.get("event") == "pre-tool-use")
-    return {"runs": runs, "checks": checks, "writes": writes, "tokens": tokens}
+                    kind = "writes"
+                if kind and rid:
+                    bucket = per.setdefault(rid, {"runs": 0, "writes": 0})
+                    bucket[kind] += 1
+    checks = sum(1 for e in ledger if e.get("event") == "pre-tool-use")
+    return {"runs": runs, "checks": checks, "writes": writes, "tokens": tokens, "per": per}
+
+
+def effort(act: Dict[str, Any], rid: str) -> str:
+    bucket = act.get("per", {}).get(rid)
+    if not bucket or not (bucket["runs"] + bucket["writes"]):
+        return M.BOARD_EFFORT_NONE
+    h = round(100 * bucket["runs"] / (bucket["runs"] + bucket["writes"]))
+    return M.BOARD_EFFORT.format(h=h, m=100 - h)
 
 
 def _changed(root: Path, reqs: List[Dict[str, Any]]) -> List[str]:
@@ -126,7 +170,8 @@ def render(root: Path) -> str:
         for r in active:
             p = progress(r)
             lines.append(M.BOARD_ACTIVE.format(icon=M.BOARD_ICON[r.get("status", "open")], id=r["id"],
-                                               bar=bar(p, 100, 10), p=p, title=_short(str(r.get("title", "")))))
+                                               bar=bar(p, 100, 10), p=p, effort=effort(act, r["id"]),
+                                               title=_short(str(r.get("title", "")), 30)))
     changed = _changed(root, reqs)
     by_id = {r["id"]: r for r in reqs}
     if changed:
@@ -144,6 +189,9 @@ def detail(root: Path, rid: str) -> str:
         return M.BOARD_UNKNOWN.format(id=rid)
     out = [M.BOARD_ITEM.format(icon=M.BOARD_ICON[r.get("status", "open")], id=r["id"], title=r.get("title", ""))]
     out.append(M.BOARD_PROGRESS.format(bar=bar(progress(r), 100, 10), p=progress(r)))
+    out.append(M.BOARD_EFFORT_LINE.format(effort=effort(activity(root), r["id"])))
+    if r.get("steps"):
+        out.append(M.BOARD_CONTRACT)
     for step in r.get("steps") or []:
         if isinstance(step, dict):
             out.append(M.BOARD_STEP.format(mark="✓" if step.get("ok") else "·", text=step.get("do", "")))

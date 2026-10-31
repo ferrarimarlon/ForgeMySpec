@@ -60,6 +60,12 @@ PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec lint <spec.yaml> --formal
 PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec gate <bundle>
 PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec risk
 ```
+
+### Requirements board
+
+Every user request becomes a requirement in `forgemyspec-board.yaml` (status, the user's words, checkable steps).
+The reply is the board: `PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec board`, in a code block, plus at
+most one line. Explain only when the user asks for a requirement (`board R<n>`). See `/forgemyspec-board`.
 {end}"""
 
 PRE_COMMIT = """#!/bin/sh

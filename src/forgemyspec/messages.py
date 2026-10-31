@@ -223,7 +223,7 @@ CLI_HELP = {
     "risk": "Print the project's risk box.",
     "json": "Print the live panel's data as JSON instead of the box.",
     "board": "Print the conversation board: each request as a requirement, with status bars.",
-    "detail": "Print one requirement in full (for example R11).",
+    "detail": "Print one requirement in full (for example R11), or `start R11` to mark the requirement being worked on.",
     "fast": "In-session tier: skip mutation and planted errors; a spec-only bundle runs only its obligations' tests.",
     "kernel": "Generate src/forgemyspec/_kernel from the Dafny kernel, or compare with --check.",
     "init": "Install ForgeMySpec into a repository (needs the user's approval).",
@@ -329,7 +329,9 @@ STEPS = {
 }
 STATE_RULES = (
     "Rules: edits only in paths covered by an approved bundle; contract, locks, config and generated/ belong to the "
-    "user; lock, approve, unlock and init need the user's approval: a `request-approval` code the user types in the chat, never Claude's reading of plain words."
+    "user; lock, approve, unlock and init need the user's approval: a `request-approval` code the user types in the chat, never Claude's reading of plain words. "
+    "Board: every user request is a requirement in forgemyspec-board.yaml (the user's words, checkable steps); "
+    "the reply is the output of `forgemyspec board`; explain only when asked (`board R<n>`)."
 )
 
 # ---------------------------------------------------------------------------
@@ -480,7 +482,11 @@ BOARD_HARNESS_VALUE = "{p}%  {runs} runs + {checks} checks"
 BOARD_MODEL = "model"
 BOARD_MODEL_VALUE = "{p}%  {writes} writes · {tokens} tokens"
 BOARD_CHANGED = "changed:"
-BOARD_ACTIVE = "{icon} {id} {bar} {p:>3}%  {title}"
+BOARD_ACTIVE = "{icon} {id} {bar} {p:>3}%  {effort}  {title}"
+BOARD_EFFORT = "H{h:>3}% M{m:>3}%"
+BOARD_EFFORT_NONE = "H   –  M   – "
+BOARD_EFFORT_LINE = "  effort {effort}  (H = harness runs, M = model writes)"
+BOARD_CONTRACT = "  contract:"
 BOARD_PROGRESS = "  progress {bar} {p}%"
 BOARD_STEP = "  {mark} {text}"
 BOARD_ITEM = "{icon} {id} {title}"
