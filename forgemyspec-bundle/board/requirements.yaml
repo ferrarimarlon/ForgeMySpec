@@ -350,3 +350,44 @@
   - do: board tests
     check: 'test: test_board'
   evidence: 'board verify: 59/59 checks passed; test_board passes.'
+- id: R31
+  status: done
+  title: Push the board work to GitHub
+  quote: faz o push.
+  steps:
+  - do: HEAD 0d3d99c is on origin/main
+    check: 'cmd: git fetch -q origin && git merge-base --is-ancestor 0d3d99c origin/main'
+- id: R32
+  status: done
+  title: Is the framework reducing tokens? (measured answer)
+  quote: Esse nosso framework está de fato conseguindo diminuir a quantidade de tokens?
+  steps:
+  - do: experiments measure bugs/quality, not tokens
+    check: 'cmd: test -z "$(grep -il token experiments/COMPARATIVE_REPORT.md)"'
+  - do: per-session token usage read from transcripts
+  - do: fixed context overhead of CLAUDE.md + skills + agent measured (~27 KB)
+  evidence: no with/without token comparison exists; previous session 1238 calls, 2.6M output, avg context 392k.
+- id: R33
+  status: done
+  title: How to use the framework at maximum strictness in my own project
+  quote: se eu quiser usar esse framework com o crivo máximo em um projeto meu, como eu faço?
+  steps:
+  - do: init installs hooks, pre-commit and CI
+    check: 'cmd: grep -q "# 8. CI" src/forgemyspec/install.py && grep -q "# 7. pre-commit" src/forgemyspec/install.py'
+  - do: Dafny 4.x and PyYAML present on this machine
+    check: 'cmd: dafny --version && python3 -c "import yaml"'
+  evidence: README Quick start + install.py steps 1-8; gate full tier = mutation + planted errors.
+- id: R34
+  status: done
+  title: Rewrite the README for the v0.6 way of working
+  quote: tá faltando você reescrever o README para essa nova forma de funcionamento… bem claro, bem impactante e simples e visual… inclusive de cada um dos parâmetros… mantenha no README as evidências, os estudos dos experimentos
+  steps:
+  - do: flow diagram for spec-only and formal paths
+    check: 'cmd: grep -q "spec-only" README.md && grep -q "formal" README.md'
+  - do: every CLI command and flag documented
+    check: 'cmd: for f in lint package request-approval approve lock unlock gate board risk kernel suspend init -- --formal --output-dir --check --all --fast --json --python --bundle; do grep -q -- "$f" README.md || exit 1; done'
+  - do: board, risk box, spec, scope and config fields explained
+    check: 'cmd: grep -q "verify_command" README.md && grep -q "allow_paths" README.md && grep -q "must_include" README.md'
+  - do: experiments kept (17-project benchmark, mini-os case study)
+    check: 'cmd: grep -q "10 / 17" README.md && grep -q "mini-os" README.md && grep -q "COMPARATIVE_REPORT" README.md'
+  evidence: 'board verify R34: 4/4 checks passed.'
