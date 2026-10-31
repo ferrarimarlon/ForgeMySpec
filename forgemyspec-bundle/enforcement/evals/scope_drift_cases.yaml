@@ -6,7 +6,10 @@ source_prompt: 'How to make the flow part of everything the user does: a strict 
   what is met, what is leaking and how much room the LLM has to hallucinate, with
   line breaks so it does not get truncated. ForgeMySpec was built with an LLM''s help,
   so the decisions behind trust must be proven, not only tested. Everything in English:
-  code, documentation and screens.'
+  code, documentation and screens. The flow is too heavy: keep it light by default
+  and show a live panel inside the chat, updated by the harness while work happens,
+  with contracts, requirements, memory, the LLM and harness shares in percent, and
+  each requirement clickable for its details.'
 checks:
   must_include:
   - forgemyspec init
@@ -25,4 +28,6 @@ checks:
   - trust kernel proven in Dafny
   - planted errors
   - approval in the chat bound to the content
+  - live panel in the chat
+  - fast gate in the session
 cases: []

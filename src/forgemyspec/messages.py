@@ -221,8 +221,13 @@ CLI_HELP = {
     "all": "Run the gate on every approved bundle in the project.",
     "hook": "Entry point for the Claude Code hooks (internal).",
     "risk": "Print the project's risk box.",
+    "json": "Print the live panel's data as JSON instead of the box.",
+    "board": "Print the conversation board: each request as a requirement, with status bars.",
+    "detail": "Print one requirement in full (for example R11).",
+    "fast": "In-session tier: skip mutation and planted errors; a spec-only bundle runs only its obligations' tests.",
     "kernel": "Generate src/forgemyspec/_kernel from the Dafny kernel, or compare with --check.",
     "init": "Install ForgeMySpec into a repository (needs the user's approval).",
+    "suspend": "Turn the guards off in a repository, keeping bundles and locks (needs the user's approval).",
     "check-init": "Only compare the installation; exit 1 when something differs.",
     "python": "Python interpreter the hooks will use.",
 }
@@ -237,6 +242,9 @@ CLI_UNLOCK_DONE = "Lock removed: {path}. After the amendment, approve again."
 CLI_UNLOCK_NO_LOCK = "{bundle} has no lock."
 CLI_NO_BUNDLES = "No approved bundles found."
 CLI_NOT_A_BUNDLE = "{path} has no spec.yaml."
+SUSPEND_CHANGED = "removed  {item}"
+SUSPEND_DONE = "ForgeMySpec guards suspended. Bundles, locks and the harness copy are unchanged; `init` turns the guards back on."
+SUSPEND_NOTHING = "Nothing to suspend: no ForgeMySpec hooks are installed."
 APPROVAL_BAD_ITEM = "Not an approvable item: {item}. Use action:target with action one of {actions}."
 APPROVAL_UNREADABLE = "Cannot compute what {item} covers: {error}"
 APPROVAL_REQUESTED = "Approval requested. Code: {code}"
@@ -457,3 +465,25 @@ TEMPLATE_CHECKLIST = {
     "rules_title": "## Decision Rules Compliance",
 }
 TEMPLATE_EVAL_PURPOSE = "Manual eval seeds to detect scope drift in Claude implementations"
+
+# ---------------------------------------------------------------------------
+# Conversation board (`board`)
+# ---------------------------------------------------------------------------
+
+BOARD_TITLE = "ForgeMySpec · {n} requirements"
+BOARD_ROW = "{label:<9} {bar} {value}"
+BOARD_DONE_LABEL = "done"
+BOARD_STATUS = {"done": "done", "doing": "doing", "open": "open", "blocked": "blocked"}
+BOARD_ICON = {"done": "✅", "doing": "🔵", "open": "⚪", "blocked": "🔴"}
+BOARD_HARNESS = "harness"
+BOARD_HARNESS_VALUE = "{p}%  {runs} runs + {checks} checks"
+BOARD_MODEL = "model"
+BOARD_MODEL_VALUE = "{p}%  {writes} writes · {tokens} tokens"
+BOARD_CHANGED = "changed:"
+BOARD_ACTIVE = "{icon} {id} {bar} {p:>3}%  {title}"
+BOARD_PROGRESS = "  progress {bar} {p}%"
+BOARD_STEP = "  {mark} {text}"
+BOARD_ITEM = "{icon} {id} {title}"
+BOARD_FIELD = "  {label}: {text}"
+BOARD_FIELDS = {"quote": "you said", "done": "done", "evidence": "evidence", "harness": "harness", "next": "next"}
+BOARD_UNKNOWN = "No requirement {id} on the board."

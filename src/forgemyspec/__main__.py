@@ -50,15 +50,23 @@ def build_parser() -> argparse.ArgumentParser:
     gate = sub.add_parser("gate", help=M.CLI_HELP["gate"])
     gate.add_argument("bundle", nargs="?")
     gate.add_argument("--all", action="store_true", help=M.CLI_HELP["all"])
+    gate.add_argument("--fast", action="store_true", help=M.CLI_HELP["fast"])
 
     hook = sub.add_parser("hook", help=M.CLI_HELP["hook"])
     hook.add_argument("event")
 
-    sub.add_parser("risk", help=M.CLI_HELP["risk"])
+    board = sub.add_parser("board", help=M.CLI_HELP["board"])
+    board.add_argument("detail", nargs="?", help=M.CLI_HELP["detail"])
+
+    risk_cmd = sub.add_parser("risk", help=M.CLI_HELP["risk"])
+    risk_cmd.add_argument("--json", action="store_true", help=M.CLI_HELP["json"])
 
     kernel = sub.add_parser("kernel", help=M.CLI_HELP["kernel"])
     kernel.add_argument("--check", action="store_true")
     kernel.add_argument("--bundle", default="forgemyspec-bundle/kernel")
+
+    suspend = sub.add_parser("suspend", help=M.CLI_HELP["suspend"])
+    suspend.add_argument("target", nargs="?", default=".")
 
     init = sub.add_parser("init", help=M.CLI_HELP["init"])
     init.add_argument("target", nargs="?", default=".")
@@ -131,10 +139,22 @@ def main(argv: Optional[List[str]] = None) -> int:
 
         return hook_main(args.event)
 
+    if args.command == "board":
+        from . import board as board_view, project
+
+        root = project.find_root()
+        print(board_view.detail(root, args.detail) if args.detail else board_view.render(root))
+        return 0
+
     if args.command == "risk":
         from . import project, risk
 
-        print(risk.render(risk.build(project.find_root())))
+        if args.json:
+            import json
+
+            print(json.dumps(risk.panel(project.find_root()), ensure_ascii=False))
+        else:
+            print(risk.render(risk.build(project.find_root())))
         return 0
 
     if args.command == "kernel":
@@ -149,6 +169,14 @@ def main(argv: Optional[List[str]] = None) -> int:
         kernel.generate(Path(args.bundle))
         print(M.KERNEL_GENERATED.format(path=kernel.KERNEL_DIR))
         return 0
+
+    if args.command == "suspend":
+        from .install import suspend as suspend_guards
+
+        target = str(Path(args.target).resolve())
+        if _approval("suspend", target) is None:
+            return 1
+        return suspend_guards(Path(target))
 
     if args.command == "init":
         from .install import install
@@ -236,12 +264,12 @@ def main(argv: Optional[List[str]] = None) -> int:
             return 0
         failed = False
         for bundle in targets:
-            report = run_gate(str(bundle.dir), policy=policy, progress=lambda name: print(f"  … {name}", file=sys.stderr))
+            report = run_gate(str(bundle.dir), policy=policy, progress=lambda name: print(f"  … {name}", file=sys.stderr), fast=args.fast)
             print(format_gate_report(report))
             print()
             failed = failed or not report.passed
         return 1 if failed else 0
-    report = run_gate(args.bundle, policy=policy, progress=lambda name: print(f"  … {name}", file=sys.stderr))
+    report = run_gate(args.bundle, policy=policy, progress=lambda name: print(f"  … {name}", file=sys.stderr), fast=args.fast)
     print(format_gate_report(report))
     return 0 if report.passed else 1
 

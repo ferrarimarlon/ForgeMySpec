@@ -119,6 +119,29 @@ class GateEndToEndTests(unittest.TestCase):
             path.write_text(text.replace(old, new, 1), encoding="utf-8")
 
 
+
+class FastGateTests(unittest.TestCase):
+    def test_fast_tier(self) -> None:
+        from support import make_project
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_project(Path(tmp))
+            tests_py = root / "app-spec" / "tests_py"
+            tests_py.mkdir()
+            (tests_py / "test_x.py").write_text(
+                "import unittest\nclass T(unittest.TestCase):\n    def test_x(self):\n        pass\n", encoding="utf-8")
+            (tests_py / "test_slow.py").write_text(
+                "import unittest\nclass S(unittest.TestCase):\n    def test_other(self):\n        self.fail('x')\n",
+                encoding="utf-8")
+            fast = run_gate(str(root / "app-spec"), write_cache=False, fast=True)
+            full = run_gate(str(root / "app-spec"), write_cache=False)
+
+        self.assertTrue(fast.passed, [(s.name, s.status, s.details) for s in fast.stages])
+        self.assertEqual((fast.tier, fast.to_record()["tier"]), ("fast", "fast"))
+        self.assertFalse(full.passed)
+        self.assertEqual(full.tier, "full")
+
+
 if __name__ == "__main__":
     unittest.main()
 

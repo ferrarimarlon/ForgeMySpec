@@ -87,5 +87,27 @@ class InitTests(unittest.TestCase):
             self.assertEqual(run(Path(tmp))[0], 1)
 
 
+
+class SuspendTests(unittest.TestCase):
+    def test_suspend_keeps_user_hooks(self) -> None:
+        import json as _json
+        import subprocess as _sp
+
+        from forgemyspec.install import install, suspend
+
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp).resolve()
+            _sp.run(["git", "init", "-q"], cwd=repo, check=True)
+            (repo / ".claude").mkdir()
+            mine = {"matcher": "Bash", "hooks": [{"type": "command", "command": "echo mine"}]}
+            (repo / ".claude" / "settings.json").write_text(_json.dumps({"hooks": {"PreToolUse": [mine]}}), encoding="utf-8")
+            install(repo)
+            self.assertEqual(suspend(repo), 0)
+            data = _json.loads((repo / ".claude" / "settings.json").read_text(encoding="utf-8"))
+            hooks_path = _sp.run(["git", "-C", str(repo), "config", "--get", "core.hooksPath"], capture_output=True, text=True).stdout
+        self.assertEqual(data["hooks"], {"PreToolUse": [mine]})
+        self.assertEqual(hooks_path.strip(), "")
+
+
 if __name__ == "__main__":
     unittest.main()

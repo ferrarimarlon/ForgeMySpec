@@ -90,7 +90,7 @@ class MessagesTests(unittest.TestCase):
                                    ("Bash", {"command": "echo x > lib/new.py"})):
                     answer = hooks.pre_tool_use({"tool_name": name, "cwd": str(root), "tool_input": data})
                     self.assertEnglish(answer["hookSpecificOutput"]["permissionDecisionReason"], f"guard {name}")
-                self.assertEnglish(hooks.stop({"cwd": str(root), "session_id": "s"})["reason"], "stop")
+                self.assertEqual(hooks.stop({"cwd": str(root), "session_id": "s"}), {})
                 self.assertEnglish(hooks.session_start({"cwd": str(root)})["hookSpecificOutput"]["additionalContext"], "state")
                 self.assertEnglish(risk.render(risk.build(root)), "risk box")
 

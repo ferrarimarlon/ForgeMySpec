@@ -43,6 +43,7 @@ class GateReport:
     stages: List[StageResult]
     evidence: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     strength: Dict[str, List[int]] = field(default_factory=dict)
+    tier: str = "full"  # "fast": no mutation, no planted errors, only the obligations' tests
 
     @property
     def passed(self) -> bool:
@@ -58,6 +59,7 @@ class GateReport:
             "stages": [{"name": s.name, "status": s.status, "details": s.details} for s in self.stages],
             "evidence": self.evidence,
             "strength": self.strength,
+            "tier": self.tier,
         }
 
 
@@ -236,11 +238,16 @@ def run_gate(
     policy: Optional[CompilerPolicy] = None,
     progress: Callable[[str], None] = lambda _: None,
     write_cache: bool = True,
+    fast: bool = False,
 ) -> GateReport:
+    """The full gate, or with `fast` the in-session tier: mutation and planted errors are skipped and a spec-only
+    bundle runs only the tests its obligations name. Pre-commit and CI run the full gate."""
     policy = policy or load_compiler_policy()
     layout = BundleLayout.at(bundle_dir)
     formal = layout.contract.exists() or (layout.spec.exists() and _spec_is_formal(layout))
-    report = _formal_gate(layout, policy, progress) if formal else _spec_only_gate(layout, policy, progress)
+    gate = _formal_gate if formal else _spec_only_gate
+    report = gate(layout, policy, progress, fast)
+    report.tier = "fast" if fast else "full"
     if write_cache:
         _write_cache(layout, report)
     return report
@@ -269,7 +276,7 @@ def _write_cache(layout: BundleLayout, report: GateReport) -> None:
                                  "ts": datetime.now(timezone.utc).isoformat()})
 
 
-def _formal_gate(layout: BundleLayout, policy: CompilerPolicy, progress: Callable[[str], None]) -> GateReport:
+def _formal_gate(layout: BundleLayout, policy: CompilerPolicy, progress: Callable[[str], None], fast: bool = False) -> GateReport:
     spec_data, stages = static_checks(layout, policy)
     ev = _Evidence(spec_data or {})
 
@@ -333,6 +340,8 @@ def _formal_gate(layout: BundleLayout, policy: CompilerPolicy, progress: Callabl
         stages.append(StageResult("python-boundary-tests", BLOCKED, [M.GATE_BLOCKED_BY.format(stages=M.STAGES["translate"])]))
 
     strength: Dict[str, List[int]] = {}
+    if fast:
+        return GateReport(str(layout.root), stages, ev.finish(), strength)
     if all(stage.status == PASS for stage in stages):
         progress("mutation")
         stages.append(_mutation(layout, dafny, policy, ev, strength))
@@ -346,7 +355,7 @@ def _formal_gate(layout: BundleLayout, policy: CompilerPolicy, progress: Callabl
     return GateReport(str(layout.root), stages, ev.finish(), strength)
 
 
-def _spec_only_gate(layout: BundleLayout, policy: CompilerPolicy, progress: Callable[[str], None]) -> GateReport:
+def _spec_only_gate(layout: BundleLayout, policy: CompilerPolicy, progress: Callable[[str], None], fast: bool = False) -> GateReport:
     from . import project
 
     spec_data, stages = static_checks(layout, policy)
@@ -366,8 +375,12 @@ def _spec_only_gate(layout: BundleLayout, policy: CompilerPolicy, progress: Call
     if tests_dir:
         progress("python-boundary-tests")
         pythonpath = [root / p for p in scope.get("pythonpath") or []] + [layout.root]
-        stages.append(_python_tests(root / tests_dir, pythonpath, root, spec_data, ev))
-    if command:
+        only = None
+        if fast:
+            obligations = (spec_data.get("formal") or {}).get("obligations") or []
+            only = [o["test"] for o in obligations if isinstance(o, dict) and o.get("test")]
+        stages.append(_python_tests(root / tests_dir, pythonpath, root, spec_data, ev, only))
+    if command and not fast:
         progress("verify-command")
         result = dafny_runner.run_command(["/bin/sh", "-c", command], cwd=root, timeout=max(600, policy.dafny_timeout_seconds))
         details = [M.GATE_COMMAND.format(command=command, code=result.returncode)] + _tool_lines(result.tail(8))
@@ -399,6 +412,7 @@ def _translate(dafny: str, workdir: Path, layout: BundleLayout, timeout: int) ->
 _RUNNER = r"""
 import json, sys, unittest
 start = sys.argv[1]
+only = set(json.loads(sys.argv[2])) if len(sys.argv) > 2 else None
 loader = unittest.TestLoader()
 suite = loader.discover(start_dir=start, top_level_dir=start)
 def flatten(s):
@@ -407,7 +421,10 @@ def flatten(s):
             yield from flatten(item)
         else:
             yield item
-ids = [t.id() for t in flatten(suite)]
+tests = list(flatten(suite))
+ids = [t.id() for t in tests]
+if only is not None:
+    suite = unittest.TestSuite([t for t in tests if t.id() in only])
 result = unittest.TextTestRunner(stream=sys.stderr, verbosity=2).run(suite)
 bad = sorted({t.id() for t, _ in result.failures + result.errors})
 skipped = sorted({t.id() for t, _ in result.skipped})
@@ -416,7 +433,8 @@ print("@@FORGEMYSPEC@@" + json.dumps({"ids": ids, "failed": bad, "skipped": skip
 
 
 def _python_tests(
-    tests_dir: Path, pythonpath: List[Path], cwd: Path, spec_data: Dict[str, Any], ev: _Evidence
+    tests_dir: Path, pythonpath: List[Path], cwd: Path, spec_data: Dict[str, Any], ev: _Evidence,
+    only: Optional[List[str]] = None,
 ) -> StageResult:
     if not tests_dir.is_dir():
         for obligation_id in ev.ids("boundary"):
@@ -426,7 +444,7 @@ def _python_tests(
     env["PYTHONPATH"] = os.pathsep.join(str(p) for p in pythonpath)
     env["PYTHONDONTWRITEBYTECODE"] = "1"
     completed = subprocess.run(
-        [sys.executable, "-c", _RUNNER, str(tests_dir)],
+        [sys.executable, "-c", _RUNNER, str(tests_dir)] + ([json.dumps(only)] if only is not None else []),
         cwd=str(cwd), env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=1200,
     )
     marker = [line for line in completed.stdout.splitlines() if line.startswith("@@FORGEMYSPEC@@")]

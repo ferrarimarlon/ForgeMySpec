@@ -20,7 +20,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from . import project
 
-ACTIONS = ("lock", "approve", "unlock", "init")
+ACTIONS = ("lock", "approve", "unlock", "init", "suspend")
 APPROVALS_FILE = "approvals.json"
 SESSIONS_FILE = "sessions.json"
 
@@ -46,6 +46,9 @@ def content_sha(root: Path, action: str, target: str) -> str:
     from .spec_io import load_spec
 
     path = (root / target).resolve()
+    if action == "suspend":
+        settings = [path / ".claude" / n for n in ("settings.json", "settings.local.json")]
+        return _sha(str(path).encode("utf-8") + b"".join(p.read_bytes() for p in settings if p.exists()))
     if action == "init":
         from .install import PACKAGE
 

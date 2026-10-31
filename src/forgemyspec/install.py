@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 import json
 import os
+import shutil
 import stat
 import subprocess
 from pathlib import Path
@@ -314,4 +315,45 @@ def install(target: Path, check: bool = False, python: str = "python3") -> int:
     print()
     print(M.INIT_DONE)
     print(M.INIT_BRANCH_PROTECTION)
+    return 0
+
+
+def suspend(target: Path) -> int:
+    """Turns the guards off in a repository and keeps everything else as it is (bundles, locks, harness copy).
+
+    Removes the ForgeMySpec hook entries from .claude/settings.json and settings.local.json (with a backup) and
+    unsets core.hooksPath when it points at .githooks. `init` turns them back on.
+    """
+    root = _git_root(target) or target.resolve()
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    changed = []
+    for name in ("settings.json", "settings.local.json"):
+        path = root / ".claude" / name
+        if not path.exists():
+            continue
+        data = json.loads(path.read_text(encoding="utf-8") or "{}")
+        hooks = data.get("hooks") or {}
+        kept = {}
+        for event, entries in hooks.items():
+            left = [e for e in entries if not any(HOOK_MARK in (h.get("command") or "") for h in e.get("hooks", []))]
+            if left:
+                kept[event] = left
+        if kept == hooks:
+            continue
+        backup = root / ".forgemyspec" / "backups" / stamp / ".claude" / name
+        backup.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(path, backup)
+        if kept:
+            data["hooks"] = kept
+        else:
+            data.pop("hooks", None)
+        path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        changed.append(f".claude/{name}")
+    hooks_path = subprocess.run(["git", "-C", str(root), "config", "--get", "core.hooksPath"], capture_output=True, text=True).stdout.strip()
+    if hooks_path == ".githooks":
+        subprocess.run(["git", "-C", str(root), "config", "--unset", "core.hooksPath"], check=False)
+        changed.append("core.hooksPath")
+    for item in changed:
+        print(M.SUSPEND_CHANGED.format(item=item))
+    print(M.SUSPEND_DONE if changed else M.SUSPEND_NOTHING)
     return 0

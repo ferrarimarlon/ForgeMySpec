@@ -436,3 +436,62 @@ def render(s: Snapshot) -> str:
     else:
         out.append(M.BOX_TOKENS_UNAVAILABLE)
     return "\n".join(out)
+
+
+# ---------------------------------------------------------------------------
+# Panel data (`risk --json`): what the live panel in the chat draws
+# ---------------------------------------------------------------------------
+
+
+def panel(root: Path, session: Optional[str] = None) -> Dict[str, Any]:
+    config = project.load_config(root)
+    bundles = project.discover_bundles(root, config)
+    snap = build(root, session=session)
+
+    details: Dict[Tuple[str, str], List[Dict[str, Any]]] = {}
+    for b in bundles:
+        formal = b.spec.get("formal") if isinstance(b.spec.get("formal"), dict) else {}
+        for ob in formal.get("obligations") or []:
+            if isinstance(ob, dict):
+                for phrase in ob.get("must_include") or []:
+                    details.setdefault((b.name, phrase), []).append(
+                        {k: ob.get(k) for k in ("id", "kind", "statement", "test")})
+
+    out_bundles = []
+    for b in bundles:
+        if not (b.formal or b.scope_paths):
+            continue
+        st = project.gate_status(b, config)
+        gate = "pass" if st.cached and st.fresh and st.passed else (
+            "stale" if st.cached and not st.fresh else ("fail" if st.cached else "none"))
+        out_bundles.append({"name": b.name, "formal": bool(b.formal), "phase": b.phase, "gate": gate,
+                            "tier": (st.cached or {}).get("tier", "full") if st.cached else None,
+                            "failed_stages": st.failed_stages, "strength": snap.strength.get(b.name)})
+
+    ledger = _turn_ledger(root, session)
+    writes = sorted({e["target"] for e in ledger if e.get("event") == "pre-tool-use" and e.get("decision") == "allow"
+                     and e.get("tool") in ("Write", "Edit", "MultiEdit", "NotebookEdit")
+                     and not str(e.get("target", "")).startswith("/")})
+    free_by_file = dict(snap.free_by_file)
+    total = free = 0
+    for rel_path in writes:
+        try:
+            n = sum(1 for line in (root / rel_path).read_text(encoding="utf-8").splitlines() if line.strip())
+        except (OSError, UnicodeDecodeError):
+            continue
+        total += n
+        free += min(n, free_by_file.get(rel_path, 0))
+    guard = [e for e in ledger if e.get("event") == "pre-tool-use"]
+
+    return {
+        "requirements": [{"bundle": r.bundle, "phrase": r.phrase, "status": r.status, "reason": r.reason,
+                          "obligations": details.get((r.bundle, r.phrase), [])} for r in snap.requirements],
+        "met": sum(1 for r in snap.requirements if r.status != "leaking"),
+        "bundles": out_bundles,
+        "lines": snap.lines,
+        "leaks": snap.leaks[:8],
+        "leak_count": len(snap.leaks),
+        "human": snap.human,
+        "turn": {"files": writes, "lines": total, "free": free, "guard_checks": len(guard),
+                 "blocked": sum(1 for e in guard if e.get("decision") == "deny"), "gates": snap.gates},
+    }

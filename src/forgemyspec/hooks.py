@@ -180,7 +180,7 @@ _SEPARATORS = {";", "&&", "||", "|", "&", "\n", "(", ")"}
 _REDIRECTS = {">", ">>", ">|", "&>", "&>>"}
 _CODE_WRITES = re.compile(r"open\([^)]*['\"][wax]\+?b?['\"]|\.write_text\(|\.write_bytes\(|shutil\.(copy|move|rmtree)|os\.(remove|rename|replace|unlink)")
 _LITERAL = re.compile(r"""['"]([^'"\s]+\.[A-Za-z0-9]+|[^'"\s]*/[^'"\s]+)['"]""")
-_HUMAN_COMMANDS = {"lock", "unlock", "approve", "init"}
+_HUMAN_COMMANDS = {"lock", "unlock", "approve", "init", "suspend"}
 
 
 def _split_heredocs(command: str) -> Tuple[str, List[str]]:
@@ -275,7 +275,7 @@ def _human_command(group: List[str]) -> Optional[Tuple[str, str]]:
     action = words[0] if words else ""
     if action not in _HUMAN_COMMANDS or "--check" in rest:
         return None
-    if action == "init":
+    if action in {"init", "suspend"}:
         # --python takes a value; the target is the first other word.
         values = {rest[i + 1] for i, t in enumerate(rest[:-1]) if t == "--python"}
         words = [w for w in words if w not in values]
@@ -458,26 +458,13 @@ def pending_gates(root: Path) -> List[Tuple[project.Bundle, str]]:
 
 
 def stop(event: Dict[str, Any]) -> Dict[str, Any]:
-    from . import risk
-
+    """Never blocks and writes nothing in the chat: the panel shows the state; pre-commit and CI refuse unverified work."""
     root = project.find_root(event.get("cwd"))
-    session = event.get("session_id")
-    pending = pending_gates(root)
-    blocks = _read_blocks(root, session)
-    if pending and blocks < MAX_STOP_BLOCKS:
-        _write_blocks(root, session, blocks + 1)
-        reasons = "\n".join(
-            M.STOP_BLOCK.format(bundle=b.name, reason=r, command=harness_command(root, "gate", b.name)) for b, r in pending
-        )
-        return {"decision": "block", "reason": reasons}
-    _write_blocks(root, session, 0)
-    try:
-        box = risk.render(risk.build(root, event.get("transcript_path"), session))
-    except Exception as exc:  # the box must never disappear silently
-        box = M.STOP_BOX_ERROR.format(error=f"{type(exc).__name__}: {exc}")
-    if pending:
-        box = M.STOP_RELEASED_UNVERIFIED.format(bundles=", ".join(b.name for b, _ in pending)) + "\n\n" + box
-    return {"systemMessage": box}
+    project.append_ledger(root, {
+        "event": "turn-end", "session": event.get("session_id"),
+        "pending": [b.name for b, _ in pending_gates(root)], "ts": _now(),
+    })
+    return {}
 
 
 def pre_commit() -> int:

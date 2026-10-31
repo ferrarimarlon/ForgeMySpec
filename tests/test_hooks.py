@@ -127,28 +127,17 @@ class StopHookTests(_Project):
     def test_gate_states(self) -> None:
         config = project.load_config(self.root)
         bundles = {b.name: b for b in project.discover_bundles(self.root, config)}
-
-        answer = self.stop()
-        self.assertEqual(answer.get("decision"), "block")
-        self.assertIn("budget-core", answer["reason"])
-        self.assertIn("never ran", answer["reason"])
-
+        # Pending, passed, changed and repeated: the Stop hook never blocks and writes nothing in the chat.
+        self.assertEqual(self.stop(), {})
         for name in ("budget-core", "app-spec"):
             project.write_gate_cache(bundles[name], config, {"passed": True, "stages": [], "evidence": {}})
-        hooks.user_prompt_submit({"cwd": str(self.root), "session_id": "s"})
-        answer = self.stop()
-        self.assertNotIn("decision", answer)
-        self.assertIn("ForgeMySpec · project risk", answer["systemMessage"])
-
+        self.assertEqual(self.stop(), {})
         impl = self.root / "budget-core" / "impl.dfy"
         impl.write_text(impl.read_text(encoding="utf-8") + "\n", encoding="utf-8")
-        for _ in range(hooks.MAX_STOP_BLOCKS):
-            answer = self.stop(active=True)
-            self.assertEqual(answer.get("decision"), "block")
-            self.assertIn("files changed since the last run", answer["reason"])
-        answer = self.stop(active=True)
-        self.assertNotIn("decision", answer)
-        self.assertIn("WORK NOT VERIFIED", answer["systemMessage"])
+        for _ in range(5):
+            self.assertEqual(self.stop(active=True), {})
+        ends = [e for e in project.read_ledger(self.root) if e.get("event") == "turn-end"]
+        self.assertEqual(ends[-1]["pending"], ["budget-core"])
 
 
 class RiskBoxTests(_Project):

@@ -24,6 +24,13 @@ The `forgemyspec-default` agent (`plugins/forgemyspec/agents/forgemyspec-default
 | Contract locked | `/forgemyspec-implement` (until the gate passes) |
 | Spec or contract needs a targeted update | `/forgemyspec-amend`: propose the delta only, lint, get approval as a typed code; then `unlock` and `lock`/`approve` |
 
+## Conversation board
+
+The reply is the board. For each user request: add a requirement to `forgemyspec-bundle/board/requirements.yaml`
+(status, the user's words, checkable steps), work on it, and answer with the output of
+`PYTHONPATH=src python3 -m forgemyspec board` in a code block, plus at most one line of text. Explain only when the
+user asks ("abre R<n>" → `board R<n>`).
+
 ## Claude is the only LLM
 
 Never call an external LLM API. Claude writes `spec.yaml`, `contract.dfy`, `tests.dfy`, `planted/` and `impl.dfy`

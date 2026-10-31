@@ -1,0 +1,221 @@
+# Every request the user makes in the conversation, as a requirement. Status: done | doing | open | blocked.
+# `quote` keeps the user's own words; a requirement's % is its done steps over all steps.
+- id: R01
+  status: done
+  title: Solid, tested specs before an AI touches code
+  quote: criar especificações sólidas e já testadas antes de uma IA tocar… harness máximo e alucinação mínima
+  done: Spec → contract → implementation flow with a deterministic lint and gate.
+  evidence: 3 bundles gate PASS; enforcement spec lint 100.
+  harness: spec lint, gate
+- id: R02
+  status: done
+  title: Dafny formal layer (option A)
+  quote: introduzir a Daphne… implementação em Dafny, verificada, traduzida para Python
+  done: Dafny contract, verified implementation, translated to Python.
+  evidence: 'kernel: 29 proofs, 30/30 mutants, 9/9 planted errors; budget-core: 14/14, 4/4.'
+  harness: Dafny kernel, mutation, planted errors
+- id: R03
+  status: done
+  title: Everything inside Claude Code, no external LLM
+  quote: vai gerar tudo dentro do Claude Code. Isso será uma skill com harness
+  done: External-LLM CLI path removed; skills and agent in the repo.
+  evidence: API grep empty in src, plugins, .github.
+  harness: CI API grep
+- id: R04
+  status: done
+  title: Strict hooks installed by a command, no plugin
+  quote: eu quero um padrão de hooks estrito… prefiro um comando… não dependo de plugin
+  done: '`forgemyspec init` installs guards, pre-commit and CI; suspended in this repo by your decision.'
+  evidence: 'init --check: Installation matches.'
+  harness: guards (suspended here)
+- id: R05
+  status: done
+  title: Proven trust kernel (the machine that builds the machine)
+  quote: garantir que ela esteja de fato construindo specs de qualidade com harness e com auditabilidade
+  done: Trust decisions come from a Dafny-proven kernel.
+  evidence: kernel --check matches; 15 obligations proven.
+  harness: Dafny kernel
+- id: R06
+  status: done
+  title: Whole product in English
+  quote: tem que ser tudo em inglês, pô. Código, documentação, telas
+  done: Code, messages, specs and docs in English.
+  evidence: test_messages passes.
+  harness: test
+- id: R07
+  status: done
+  title: Approval here in the chat, turned into a guarantee
+  quote: você precisa de me passar o que eu preciso de aprovar e eu aprovo por aqui
+  done: Short code bound to the content hash, accepted only from your message, used once.
+  evidence: test_chat_approval_flow; locks record approved_via chat.
+  harness: approval code, kernel DecideApproval
+- id: R08
+  status: done
+  title: Local commits; push only on your order
+  quote: faça commit e push
+  done: Pushed once, when you said so.
+  evidence: main at d7a9cba on GitHub.
+- id: R09
+  status: done
+  title: Suspend the harness in this repo, keep everything locked
+  quote: suspende o harness pra isso… deixa tudo travado
+  done: Hooks and pre-commit removed; bundles, locks and contracts unchanged.
+  evidence: suspend with code XE76KP.
+  harness: approval code
+- id: R10
+  status: done
+  title: Remove the "Stop says" messages
+  quote: tira essa porcaria de stop ses… zero utilidade
+  done: Stop hook neither blocks nor writes in the chat; hooks suspended here.
+  evidence: test_hooks.StopHookTests.
+  harness: test
+- id: R11
+  status: doing
+  title: 'Mandatory screen: requirements, harness used, harness % and model %'
+  quote: mostrar quantos harness a gente está usando… porcentagem dele, porcentagem de modelo e quantos requisitos
+  done: This board, as status bars from the harness.
+  evidence: figures from the transcript and the harness ledger.
+  next: You confirm it works on the tablet.
+  steps:
+  - do: board command with harness figures
+    ok: true
+  - do: harness % and model % bars
+    ok: true
+  - do: requirement count
+    ok: true
+  - do: each requirement with its %
+    ok: true
+  - do: you confirm it on the tablet
+    ok: false
+- id: R12
+  status: doing
+  title: Everything said becomes a requirement, expandable
+  quote: cada coisa que a gente fala se transforma em requisitos… se eu quiser expandir, eu sei o que tem dentro
+  done: Each request is a line here; type "abre R11" to expand.
+  next: I add new requests on every iteration.
+  steps:
+  - do: requirements file in the repo
+    ok: true
+  - do: detail on request (abre Rnn)
+    ok: true
+  - do: your new requests added each iteration
+    ok: true
+  - do: you confirm the list matches the conversation
+    ok: false
+- id: R13
+  status: doing
+  title: Light, fast, iterative pipeline
+  quote: Leve, rápido, iterativo, eficiente
+  done: Harness suspended here; gate --fast; Stop hook silent; spec v0.6 approved.
+  evidence: 75 tests OK; enforcement gate PASS.
+  next: v0.6 changes not committed yet.
+  steps:
+  - do: harness suspended here
+    ok: true
+  - do: Stop hook silent
+    ok: true
+  - do: gate --fast
+    ok: true
+  - do: v0.6 committed
+    ok: true
+  - do: lean CI (R17)
+    ok: false
+- id: R14
+  status: blocked
+  title: Live panel embedded in the chat at zero tokens
+  quote: algo nativo dentro desse chat… atualização enquanto estiver acontecendo
+  done: Claude Code mod with a band and a line per message.
+  evidence: It loads, but the tablet app does not draw those slots.
+  next: This board in my replies replaces it.
+  steps:
+  - do: mod written
+    ok: true
+  - do: mod loads in the session
+    ok: true
+  - do: tablet draws it
+    ok: false
+- id: R15
+  status: open
+  title: Gates as a plugin in another repository
+  quote: constrói os gates para um plugin que a gente vai colocar em outro repositório
+  steps:
+  - do: plugin repository created
+    ok: false
+  - do: gates moved to the plugin
+    ok: false
+  - do: guards fixed (R16)
+    ok: false
+- id: R16
+  status: open
+  title: Fix the guard's false blocks
+  quote: tá burocrático demais
+  done: 'Logged: script literals, sed -i, cd, reading hooksPath, init hash.'
+  next: Fix in the plugin.
+  steps:
+  - do: defects logged
+    ok: true
+  - do: defects fixed with tests
+    ok: false
+- id: R17
+  status: open
+  title: 'Lean CI: one job'
+  quote: cancela aquele workflow e eu quero mais performance
+  done: No workflow running now.
+  next: Remove spec-lint.yml and merge the jobs.
+  steps:
+  - do: no workflow running
+    ok: true
+  - do: spec-lint.yml removed
+    ok: false
+  - do: one CI job
+    ok: false
+- id: R18
+  status: open
+  title: Dafny only for critical logic; spec-only by default
+  quote: Tem que achar um trade-off
+  done: Approved in spec v0.6.
+  next: Update the /forgemyspec skill text.
+  steps:
+  - do: approved in spec v0.6
+    ok: true
+  - do: /forgemyspec skill text updated
+    ok: false
+- id: R19
+  status: done
+  title: Status bars in the chat
+  quote: eu quero em barras, barras de status
+  done: '`forgemyspec board` prints the bars; I paste them at the end of each reply.'
+  next: You tell me what to adjust.
+  steps:
+  - do: status bars
+    ok: true
+  - do: bars in every reply
+    ok: true
+  - do: you approve the format
+    ok: true
+  evidence: approved by you ("Beleza"); test_board passes.
+- id: R20
+  status: done
+  title: List the requirements in progress, each with its %
+  quote: falta listar os requisitos que nós estamos fazendo… as porcentagens de cada um, de forma bem clara e sucinta
+  steps:
+  - do: one line per open requirement with a bar and %
+    ok: true
+  - do: '% from checkable steps, shown in the detail'
+    ok: true
+  - do: you approve it
+    ok: true
+  evidence: approved by you ("Beleza"); test_board passes.
+- id: R21
+  status: done
+  title: 'The board is permanent: every reply ends with it'
+  quote: a gente coloca isso permanente
+  done: Rule in CLAUDE.md and in my memory.
+  evidence: CLAUDE.md 'Conversation board' section.
+- id: R22
+  status: done
+  title: 'The reply is the board: open an R, work it, explain only on request'
+  quote: a sua resposta deveria ser esse quadro… abrir um novo desse, um R desse, trabalhar em cima dele… se eu pedir detalhe
+    é que você explica
+  done: Rule in CLAUDE.md and in my memory.
+  evidence: CLAUDE.md 'Conversation board' section.
