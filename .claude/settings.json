@@ -1,3 +1,52 @@
 {
-  "agent": "forgemyspec-default"
+  "agent": "forgemyspec-default",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PYTHONPATH=\"$CLAUDE_PROJECT_DIR/.forgemyspec/harness\" python3 -m forgemyspec hook pre-tool-use",
+            "timeout": 15,
+            "onFailure": "block"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PYTHONPATH=\"$CLAUDE_PROJECT_DIR/.forgemyspec/harness\" python3 -m forgemyspec hook stop",
+            "timeout": 120,
+            "statusMessage": "ForgeMySpec: building the risk box"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PYTHONPATH=\"$CLAUDE_PROJECT_DIR/.forgemyspec/harness\" python3 -m forgemyspec hook session-start",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PYTHONPATH=\"$CLAUDE_PROJECT_DIR/.forgemyspec/harness\" python3 -m forgemyspec hook user-prompt-submit",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
 }

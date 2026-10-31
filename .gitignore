@@ -13,3 +13,6 @@ generated/
 
 # Estado local do harness (cache do gate, ledger, retratos de turno).
 .forgemyspec/state/
+
+# ForgeMySpec local state.
+.forgemyspec/backups/
