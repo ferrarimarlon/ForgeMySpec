@@ -437,4 +437,5 @@
   - do: per requirement/obligation, record LLM tokens and cost (input, cache, output)
   - do: per requirement/obligation, record harness cost (runs, gate time, guard checks)
   - do: show it in the spec/board and in the risk box
+    check: 'test: test_board.BoardTests.test_cost_per_requirement'
   next: backlog; design after the v0.6 experiment results (R37)
