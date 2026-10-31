@@ -1,0 +1,62 @@
+Run started:2026-10-31 21:42:12.812224
+
+Test results:
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: ./tests/test_vault.py:6:0
+5	import site
+6	import subprocess
+7	import sys
+
+--------------------------------------------------
+>> Issue: [B105:hardcoded_password_string] Possible hardcoded password: 's3cr3tVALUE-xyz'
+   Severity: Low   Confidence: Medium
+   CWE: CWE-259 (https://cwe.mitre.org/data/definitions/259.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/plugins/b105_hardcoded_password_string.html
+   Location: ./tests/test_vault.py:19:9
+18	PW = "correct horse"
+19	SECRET = "s3cr3tVALUE-xyz"
+20	
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./tests/test_vault.py:34:15
+33	            env["VAULT_MASTER_KEY"] = pw
+34	        return subprocess.run([sys.executable, VAULT, *args], env=env,
+35	                              input=stdin, capture_output=True, text=True)
+36	
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./tests/test_vault.py:75:8
+74	               "PYTHONUSERBASE": site.getuserbase()}
+75	        subprocess.run([sys.executable, VAULT, "set", "a", "v"], env=env, check=True)
+76	        with open(os.path.join(other.name, ".vault", "vault.enc"), "rb") as f:
+
+--------------------------------------------------
+
+Code scanned:
+	Total lines of code: 398
+	Total lines skipped (#nosec): 0
+	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 0
+
+Run metrics:
+	Total issues (by severity):
+		Undefined: 0
+		Low: 4
+		Medium: 0
+		High: 0
+	Total issues (by confidence):
+		Undefined: 0
+		Low: 0
+		Medium: 1
+		High: 3
+Files skipped (0):

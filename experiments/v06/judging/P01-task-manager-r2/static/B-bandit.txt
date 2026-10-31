@@ -1,0 +1,52 @@
+Run started:2026-10-31 21:23:57.112920
+
+Test results:
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html
+   Location: ./task_manager.py:111:17
+110	    assignments = ", ".join("%s = ?" % k for k in fields)
+111	    conn.execute("UPDATE tasks SET " + assignments + " WHERE id = ?",
+112	                 list(fields.values()) + [task_id])
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: ./tests/test_task_manager.py:4:0
+3	import sqlite3
+4	import subprocess
+5	import sys
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./tests/test_task_manager.py:23:15
+22	        env = {k: v for k, v in os.environ.items() if k != "TASK_DB"}
+23	        return subprocess.run([sys.executable, SCRIPT, "--db", self.db, *args],
+24	                              capture_output=True, text=True, env=env)
+25	
+
+--------------------------------------------------
+
+Code scanned:
+	Total lines of code: 267
+	Total lines skipped (#nosec): 0
+	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 0
+
+Run metrics:
+	Total issues (by severity):
+		Undefined: 0
+		Low: 2
+		Medium: 1
+		High: 0
+	Total issues (by confidence):
+		Undefined: 0
+		Low: 0
+		Medium: 1
+		High: 2
+Files skipped (0):

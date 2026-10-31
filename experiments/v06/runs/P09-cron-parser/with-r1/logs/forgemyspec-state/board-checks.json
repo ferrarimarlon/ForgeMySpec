@@ -1,0 +1,20 @@
+{
+ "cmd: python3 -m unittest discover -s tests -t . -v": {
+  "passed": false,
+  "fingerprint": "c1ae50f8e38e648f80057b4dd4f741349584bf7f7350d7ec9fb8ab4b36ebfe09",
+  "ran_at": "2026-10-31T20:33:25.004Z",
+  "seconds": 0.0
+ },
+ "cmd: PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec gate forgemyspec-bundle/cron": {
+  "passed": true,
+  "fingerprint": "c1ae50f8e38e648f80057b4dd4f741349584bf7f7350d7ec9fb8ab4b36ebfe09",
+  "ran_at": "2026-10-31T20:33:29.313Z",
+  "seconds": 0.2
+ },
+ "cmd: PYTHONPATH=. python3 -m unittest discover -s tests": {
+  "passed": true,
+  "fingerprint": "c1ae50f8e38e648f80057b4dd4f741349584bf7f7350d7ec9fb8ab4b36ebfe09",
+  "ran_at": "2026-10-31T20:33:29.161Z",
+  "seconds": 0.0
+ }
+}

@@ -1,0 +1,11 @@
+[
+ {"id":"R1","text":"Targets x86 bare metal (no host OS dependency at runtime)"},
+ {"id":"R2","text":"Includes a bootloader (own boot sector / boot stage that loads the kernel)"},
+ {"id":"R3","text":"Includes a kernel that the bootloader transfers control to"},
+ {"id":"R4","text":"Kernel produces output via VGA text mode (0xB8000 buffer)"},
+ {"id":"R5","text":"No external libraries (freestanding, no libc/third-party deps)"},
+ {"id":"R6","text":"Builds to a bootable image from the repo with a documented build"},
+ {"id":"R7","text":"Runnable in QEMU (boots and shows kernel output)"},
+ {"id":"R8","text":"Minimalist resources (small image, simple code)"},
+ {"id":"R9","text":"Files placed in the current directory (self-contained project)"}
+]

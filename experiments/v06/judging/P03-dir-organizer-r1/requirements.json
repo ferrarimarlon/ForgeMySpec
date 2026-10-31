@@ -1,0 +1,15 @@
+[
+ {"id":"R1","text":"Implemented in Python"},
+ {"id":"R2","text":"Single file named organizer.py"},
+ {"id":"R3","text":"Uses only the Python standard library"},
+ {"id":"R4","text":"Takes a target directory to organize"},
+ {"id":"R5","text":"Moves files into subdirectories named by file extension"},
+ {"id":"R6","text":"--once mode: organize once and exit"},
+ {"id":"R7","text":"--watch mode: keep watching the directory and organize newly appearing files"},
+ {"id":"R8","text":"Log each move to organizer.log"},
+ {"id":"R9","text":"Skip files already in subdirectories (non-recursive, top-level only)"},
+ {"id":"R10","text":"Skip hidden files (dotfiles)"},
+ {"id":"R11","text":"Does not move its own log file organizer.log (implied: log must not be organized away / break logging)"},
+ {"id":"R12","text":"Handles files without extension sensibly (no crash, deterministic destination or skip)"},
+ {"id":"R13","text":"Does not overwrite/lose data on name collision in destination (implied by safe file moving)"}
+]

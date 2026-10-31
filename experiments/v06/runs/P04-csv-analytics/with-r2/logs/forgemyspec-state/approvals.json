@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "MZCHAN",
+   "nonce": "8ce75865655324e9036a9725d7a05126",
+   "created_at": "2026-10-31T20:24:21.770Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/csv-analytics",
+     "content_sha": "2fa452e81faa76d83f420677c20a4b2dd76eda55e37c7ba79e287d4bfd3dd28d",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

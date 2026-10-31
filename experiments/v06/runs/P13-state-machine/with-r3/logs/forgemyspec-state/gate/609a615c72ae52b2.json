@@ -1,0 +1,142 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T21:01:16Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "[LINT-HY-007] hypotheses[3].description: Hypothesis appears to describe what will NOT be built; hypotheses must be affirmative and testable",
+    "score 95/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "8 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "load_json": {
+   "kind": "boundary",
+   "statement": "A valid JSON definition loads; malformed JSON or wrong shape exits 2.",
+   "must_include": [
+    "load definition from JSON"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "unknown_states": {
+   "kind": "boundary",
+   "statement": "States referenced by initial, finals or transitions but not declared are reported and exit 2.",
+   "must_include": [
+    "unknown states rejected"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "unreachable_states": {
+   "kind": "boundary",
+   "statement": "Declared states not reachable from the initial state are reported and exit 2.",
+   "must_include": [
+    "unreachable states reported"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "missing_initial": {
+   "kind": "boundary",
+   "statement": "A definition without an initial state is reported and exits 2.",
+   "must_include": [
+    "missing initial state reported"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "guards": {
+   "kind": "boundary",
+   "statement": "A guarded transition is taken only when its guard holds on the context; the first enabled transition wins; a missing key is false.",
+   "must_include": [
+    "guards evaluated on context"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "run_events": {
+   "kind": "boundary",
+   "statement": "Events are applied in order; an event with no enabled transition stops the run with exit 1.",
+   "must_include": [
+    "event sequence run"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "history": {
+   "kind": "boundary",
+   "statement": "Each taken transition is recorded and the CLI prints the history as from, event, to lines.",
+   "must_include": [
+    "transition history printed"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "single_file": {
+   "kind": "boundary",
+   "statement": "state_machine.py imports only standard library modules.",
+   "must_include": [
+    "single file stdlib only"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/state-machine",
+ "inputs_sha": "e070a63645fea5460e0b359acd2b28fefb908e5b3a15f4d8ede134da5fc35122",
+ "schema": 2
+}

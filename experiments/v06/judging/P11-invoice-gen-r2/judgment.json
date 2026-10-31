@@ -1,0 +1,27 @@
+{
+ "requirements_total": 19,
+ "probes_total": 28,
+ "A": {"probes_passed": 26,
+       "scores": {"functional": 4, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 0},
+       "requirements_met": 17, "requirements_partial": 2, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "functional", "requirement": "R18", "evidence": "probe customer_extra_float_json: customer {\"credit\":1.5} with --format json -> TypeError: Object of type Decimal is not JSON serializable (A/invoice_gen.py:260,310)", "summary": "JSON export crashes with a traceback when the customer object holds any non-integer number, because customer is passed through unvalidated with Decimal values."},
+        {"severity": "low", "category": "quality", "requirement": "R10", "evidence": "probe huge_number: unit_price 1e30 -> decimal.InvalidOperation traceback (A/invoice_gen.py:42)", "summary": "Very large amounts exceed Decimal precision on quantize and crash with an uncaught traceback instead of a validation error."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt: F401 unused InvalidOperation, C901 validate complexity 35, E731 lambdas, E741", "summary": "Lint issues: unused import, very complex validate(), lambda assignments, ambiguous names."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 324},
+ "B": {"probes_passed": 27,
+       "scores": {"functional": 4, "coverage": 5, "security": 5, "robustness": 4, "quality": 4, "tests": 4},
+       "requirements_met": 18, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "quality", "requirement": "R10", "evidence": "probe huge_number: unit_price 1e30 -> decimal.InvalidOperation traceback (B/invoice_gen.py:17)", "summary": "Very large amounts exceed Decimal precision on quantize and crash with an uncaught traceback instead of a validation error."},
+        {"severity": "low", "category": "silent", "requirement": "R18", "evidence": "customer {\"credit\":1.5} with --format json exits 0 and the output has no credit field (B/invoice_gen.py:148)", "summary": "JSON export silently drops non-string customer fields."},
+        {"severity": "low", "category": "silent", "requirement": "R17", "evidence": "B/invoice_gen.py:134 l[\"description\"][:28]; fixed %10s/%11s columns", "summary": "Text output truncates descriptions to 28 chars without notice and uses fixed column widths that misalign on large amounts."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt: F401 unused InvalidOperation, C901 validate complexity 20, UP031 percent-formatting, E741", "summary": "Lint issues: unused import, complex validate(), old-style % formatting, ambiguous names."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 8, "failed": 0},
+       "loc": 195},
+ "blinding_guess": {"spec_framework_side": "B", "confidence": 0.4, "why": "B ships a unit test suite and documents exit codes in its header, which suggests a more process-driven workflow, but the evidence is weak."},
+ "notes": "The two CLIs share an interface (positional input, --format text|json, --output), so the probes ran unchanged on both. Both parse JSON numbers as Decimal and round half-up correctly; the money probes (0.125->0.13, 1.005*2->2.01, 0.1+0.2->0.30) pass on both. Bandit reports are empty for both, and neither uses eval, subprocess or shell. B's tests need PYTHONPATH=. (8 pass via unittest; pytest isn't installed). A treats tax_rate as optional (default 0); B requires it, and the task allows either reading."
+}

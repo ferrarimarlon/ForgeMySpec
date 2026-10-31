@@ -1,0 +1,19 @@
+[
+ {"id":"R1","text":"Python CLI implemented as single file cron_parser.py"},
+ {"id":"R2","text":"Stdlib only (no third-party imports)"},
+ {"id":"R3","text":"Parse standard 5-field cron expressions (minute hour dom month dow); reject wrong field count"},
+ {"id":"R4","text":"Support * wildcard"},
+ {"id":"R5","text":"Support lists (a,b,c)"},
+ {"id":"R6","text":"Support ranges (a-b)"},
+ {"id":"R7","text":"Support steps (*/n, a-b/n)"},
+ {"id":"R8","text":"Support month names (JAN-DEC)"},
+ {"id":"R9","text":"Support day-of-week names (SUN-SAT)"},
+ {"id":"R10","text":"Reject out-of-range values per field"},
+ {"id":"R11","text":"validate <expr> subcommand explains each field for valid expressions"},
+ {"id":"R12","text":"validate <expr> reports the error for invalid expressions (non-zero exit, message, no traceback)"},
+ {"id":"R13","text":"next <expr> prints next run time(s) from now, default count"},
+ {"id":"R14","text":"next <expr> -n N prints exactly the next N run times, strictly after now, in order"},
+ {"id":"R15","text":"Next times correct (matching all fields; standard DOM/DOW OR semantics when both restricted)"},
+ {"id":"R16","text":"Handle invalid dates like February 30: never produce impossible dates; impossible-only schedules reported cleanly rather than hanging/crashing"},
+ {"id":"R17","text":"Invalid -n values (0, negative, non-integer) handled gracefully"}
+]

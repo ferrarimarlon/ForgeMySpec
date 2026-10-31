@@ -1,0 +1,20 @@
+{
+ "cmd: PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec lint forgemyspec-bundle/invoice-gen/spec.yaml --formal": {
+  "passed": true,
+  "fingerprint": "6982ea06bf23d6bc627d0a1d8bab25daf9d010113ae350f3d22b621623978984",
+  "ran_at": "2026-10-31T20:39:32.060Z",
+  "seconds": 0.1
+ },
+ "cmd: python3 -m unittest discover -s tests": {
+  "passed": true,
+  "fingerprint": "6982ea06bf23d6bc627d0a1d8bab25daf9d010113ae350f3d22b621623978984",
+  "ran_at": "2026-10-31T20:39:32.098Z",
+  "seconds": 0.0
+ },
+ "cmd: PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec gate forgemyspec-bundle/invoice-gen": {
+  "passed": true,
+  "fingerprint": "6982ea06bf23d6bc627d0a1d8bab25daf9d010113ae350f3d22b621623978984",
+  "ran_at": "2026-10-31T20:39:32.229Z",
+  "seconds": 0.1
+ }
+}

@@ -1,0 +1,9 @@
+ .../.claude/commands/implement-from-spec.md        |   8 +
+ forgemyspec-bundle/job-scheduler/CLAUDE.md         |  50 ++++
+ .../job-scheduler/acceptance-checklist.md          |  18 ++
+ .../job-scheduler/evals/scope_drift_cases.yaml     |  28 +++
+ forgemyspec-bundle/job-scheduler/spec.lock         |   5 +
+ forgemyspec-bundle/job-scheduler/spec.yaml         | 132 ++++++++++
+ scheduler.py                                       | 268 +++++++++++++++++++++
+ tests/test_scheduler.py                            | 199 +++++++++++++++
+ 8 files changed, 708 insertions(+)

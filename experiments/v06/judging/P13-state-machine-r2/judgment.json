@@ -1,0 +1,32 @@
+{
+ "requirements_total": 17,
+ "probes_total": 18,
+ "A": {"probes_passed": 17,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 0},
+       "requirements_met": 16, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "functional", "requirement": "R16",
+         "evidence": "P17_malformed_def_no_traceback; 'final':[{\"x\":1}] -> A/state_machine.py:98 TypeError: unhashable type: 'dict'; list-valued 'to' -> state_machine.py:115 TypeError: unhashable type: 'list'",
+         "summary": "validate() crashes with a traceback on non-hashable state references instead of reporting a validation error."},
+        {"severity": "low", "category": "silent", "requirement": "R12",
+         "evidence": "run m.json nope -> prints 'final state: a', exit=0, no message unless --history is given",
+         "summary": "Unhandled or guard-blocked events are only visible in the history table; the run otherwise exits 0 with no warning."},
+        {"severity": "low", "category": "quality", "requirement": null,
+         "evidence": "static/A-ruff.txt: C901 validate complexity 26; B904 x3 at lines 216, 218, 245",
+         "summary": "validate() is a single highly complex function and re-raised exceptions drop their cause chain."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 263},
+ "B": {"probes_passed": 0,
+       "scores": {"functional": 0, "coverage": 0, "security": 0, "robustness": 0, "quality": 0, "tests": 0},
+       "requirements_met": 0, "requirements_partial": 0, "requirements_missing": 17,
+       "issues": [
+        {"severity": "critical", "category": "scope", "requirement": "R2",
+         "evidence": "ls -la B -> empty directory; static/B-ruff.txt 'No Python files found'; all 18 probes fail",
+         "summary": "B contains no implementation at all; state_machine.py is absent."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 0},
+ "blinding_guess": {"spec_framework_side": "unsure", "confidence": 0.1, "why": "B is empty and A shows no spec-framework artifacts, so there is no basis for a guess."},
+ "notes": "B/ is an empty directory, so it scores 0 everywhere. A is one stdlib-only file whose guards are a declarative operator DSL (no eval), and it meets every requirement in the probes except graceful handling of some malformed definitions. A has no tests of its own. Probes ran on Python 3.9.6; the P1 stdlib check uses an explicit allowlist because sys.stdlib_module_names doesn't exist before Python 3.10. A's bandit report is empty."
+}

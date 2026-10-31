@@ -1,0 +1,15 @@
+invoice_gen.py:28:30: F401 [*] `decimal.InvalidOperation` imported but unused
+invoice_gen.py:55:5: C901 `validate` is too complex (35 > 10)
+invoice_gen.py:131:89: E501 Line too long (89 > 88)
+invoice_gen.py:180:41: E741 Ambiguous variable name: `l`
+invoice_gen.py:191:89: E501 Line too long (90 > 88)
+invoice_gen.py:213:89: E501 Line too long (90 > 88)
+invoice_gen.py:227:17: E741 Ambiguous variable name: `l`
+invoice_gen.py:230:5: E731 Do not assign a `lambda` expression, use a `def`
+invoice_gen.py:252:5: E731 Do not assign a `lambda` expression, use a `def`
+invoice_gen.py:262:89: E501 Line too long (92 > 88)
+invoice_gen.py:263:23: E741 Ambiguous variable name: `l`
+invoice_gen.py:292:89: E501 Line too long (92 > 88)
+invoice_gen.py:316:89: E501 Line too long (91 > 88)
+Found 13 errors.
+[*] 1 fixable with the `--fix` option (2 hidden fixes can be enabled with the `--unsafe-fixes` option).

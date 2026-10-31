@@ -1,0 +1,8 @@
+grade_calc.py:47:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+grade_calc.py:82:13: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+grade_calc.py:101:5: C901 `load_scores` is too complex (13 > 10)
+grade_calc.py:106:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+grade_calc.py:124:26: B905 `zip()` without an explicit `strict=` parameter
+grade_calc.py:176:5: C901 `main` is too complex (11 > 10)
+Found 6 errors.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).

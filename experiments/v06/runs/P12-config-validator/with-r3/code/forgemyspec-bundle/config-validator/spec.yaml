@@ -1,0 +1,149 @@
+version: "0.1"
+title: Config validator CLI
+objective: >
+  A single-file, stdlib-only Python CLI (config_validator.py) that validates a JSON config file against a
+  JSON schema file and reports every violation at once, with nested fields addressed in dot notation.
+execution_mode: critical
+context:
+  system: >
+    Empty Python repository (ForgeMySpec strict mode). Deliverable is config_validator.py at the repository
+    root plus unittest tests in tests/. Python 3, standard library only.
+  assumptions:
+    - "The schema uses a JSON-Schema-style subset: top-level and nested objects use type, properties and required; leaf fields use type, enum, minimum, maximum, minLength, maxLength and pattern."
+    - "CLI usage is python3 config_validator.py <schema.json> <config.json>; exit 0 when valid, 1 when validation errors exist, 2 for usage, unreadable file or malformed JSON."
+    - "Patterns use re.search semantics (unanchored), like JSON Schema."
+    - "Booleans are rejected as integer or number; integer accepts only int values, number accepts int and float."
+    - "Properties present in the config but absent from the schema are allowed and ignored."
+    - "A constraint keyword is checked only when the value has the matching type; a type mismatch yields one type error for that field and skips its other constraints."
+constraints:
+  - "Single file config_validator.py; Python standard library only, no third-party packages."
+  - "No support for $ref, oneOf/anyOf/allOf, additionalProperties, array items, format or schema-draft keywords; unknown keywords are ignored."
+  - "Never stop at the first error; never raise a traceback for invalid configs."
+success_criteria:
+  - "A config violating several rules yields one error line per violation in a single run."
+  - "A valid config exits 0 and an invalid one exits 1."
+hypotheses:
+  - id: h1
+    description: "Missing required fields are reported, using the dotted path of the missing field."
+    confidence: 0.95
+  - id: h2
+    description: "Values whose type differs from the schema type (string, integer, number, boolean, array, object) are reported, and booleans are rejected as integers or numbers."
+    confidence: 0.9
+  - id: h3
+    description: "Enum, numeric minimum/maximum, string minLength/maxLength and regex pattern violations are each reported."
+    confidence: 0.9
+  - id: h4
+    description: "Errors in nested objects are reported with a dot-notation path such as db.port."
+    confidence: 0.9
+  - id: h5
+    description: "All errors are collected and printed in one run, and the exit code reflects validity."
+    confidence: 0.9
+  - id: h6
+    description: "Unreadable files, malformed JSON and bad usage exit 2 with a one-line error message."
+    confidence: 0.85
+required_evidence:
+  - "unittest run of tests/ passing, covering each rule and the CLI exit codes"
+  - "forgemyspec gate output ending in RESULT: PASS"
+actions:
+  - id: a1
+    description: "Design the schema subset and error message format."
+    type: design
+    requires_confirmation: false
+    supports: [h1, h2, h3, h4]
+  - id: a2
+    description: "Implement the validate function (required, types, constraints, dotted paths) in config_validator.py."
+    type: implement
+    requires_confirmation: false
+    supports: [h1, h2, h3, h4]
+  - id: a2b
+    description: "Implement the CLI: error collection, output, exit codes."
+    type: implement
+    requires_confirmation: false
+    supports: [h5, h6]
+  - id: a3
+    description: "Run the unittest suite and the gate."
+    type: validate
+    requires_confirmation: false
+    supports: [h1, h2, h3, h4, h5, h6]
+decision_rules:
+  - "If a schema keyword outside the listed subset is needed, stop and amend the spec."
+  - "If the gate fails, fix the implementation, never the approved spec."
+metadata:
+  source_prompt: >
+    Build a config validator CLI in Python. Validate a JSON config file against a JSON schema file supporting:
+    required fields, types (string, integer, number, boolean, array, object), enums, min/max for numbers,
+    min/max length for strings, regex patterns, and nested objects addressed with dot notation in error
+    messages. Report all errors at once, not only the first. Single file config_validator.py, stdlib only.
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "required fields"
+      - "types string integer number boolean array object"
+      - "enums"
+      - "min/max for numbers"
+      - "min/max length for strings"
+      - "regex patterns"
+      - "dot notation nested errors"
+      - "report all errors at once"
+      - "single file config_validator.py stdlib only"
+formal:
+  module: ConfigValidator
+  obligations:
+    - id: required_fields
+      kind: boundary
+      statement: "A required field absent from the config yields an error naming its dotted path."
+      hypotheses: [h1]
+      must_include: ["required fields"]
+      test: "test_config_validator.ValidatorTests.test_required_missing"
+    - id: types_checked
+      kind: boundary
+      statement: "Each of string, integer, number, boolean, array, object is checked; booleans are rejected as integer and number."
+      hypotheses: [h2]
+      must_include: ["types string integer number boolean array object"]
+      test: "test_config_validator.ValidatorTests.test_types"
+    - id: enum_checked
+      kind: boundary
+      statement: "A value not in the enum list yields an error."
+      hypotheses: [h3]
+      must_include: ["enums"]
+      test: "test_config_validator.ValidatorTests.test_enum"
+    - id: number_bounds
+      kind: boundary
+      statement: "A number below minimum or above maximum yields an error; boundary values are accepted."
+      hypotheses: [h3]
+      must_include: ["min/max for numbers"]
+      test: "test_config_validator.ValidatorTests.test_number_bounds"
+    - id: string_length
+      kind: boundary
+      statement: "A string shorter than minLength or longer than maxLength yields an error; boundary lengths are accepted."
+      hypotheses: [h3]
+      must_include: ["min/max length for strings"]
+      test: "test_config_validator.ValidatorTests.test_string_length"
+    - id: pattern_checked
+      kind: boundary
+      statement: "A string not matching the regex pattern (re.search) yields an error."
+      hypotheses: [h3]
+      must_include: ["regex patterns"]
+      test: "test_config_validator.ValidatorTests.test_pattern"
+    - id: nested_dot_paths
+      kind: boundary
+      statement: "Errors inside nested objects are prefixed with the dotted path, for example db.port."
+      hypotheses: [h4]
+      must_include: ["dot notation nested errors"]
+      test: "test_config_validator.ValidatorTests.test_nested_paths"
+    - id: all_errors_reported
+      kind: boundary
+      statement: "A config with several violations yields every error in one run; CLI exits 0 when valid and 1 when invalid."
+      hypotheses: [h5]
+      must_include: ["report all errors at once"]
+      test: "test_config_validator.CliTests.test_all_errors_at_once"
+    - id: io_errors
+      kind: boundary
+      statement: "Missing file, malformed JSON or wrong argument count exits 2 with a message and no traceback."
+      hypotheses: [h6]
+      must_include: ["single file config_validator.py stdlib only"]
+      test: "test_config_validator.CliTests.test_io_errors"
+scope:
+  paths: ["config_validator.py", "tests/**"]
+  tests: tests
+  pythonpath: ["."]

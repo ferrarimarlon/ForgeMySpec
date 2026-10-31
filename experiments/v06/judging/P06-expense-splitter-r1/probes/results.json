@@ -1,0 +1,34 @@
+{
+ "A": {
+  "P01_file_exists_single_stdlib": "fail",
+  "P02_add_and_persist": "fail",
+  "P03_balances_equal_split": "fail",
+  "P04_persist_across_runs": "fail",
+  "P05_settle_greedy_min": "fail",
+  "P06_rounding_exact": "fail",
+  "P07_payer_not_participant": "fail",
+  "P08_reject_negative_amount": "fail",
+  "P09_reject_nonnumeric_amount": "fail",
+  "P10_reject_nan_inf": "fail",
+  "P11_corrupt_json_clean_error": "fail",
+  "P12_malformed_record_clean_error": "fail",
+  "P13_empty_state": "fail",
+  "P14_settled_after_settlement": "fail"
+ },
+ "B": {
+  "P01_file_exists_single_stdlib": "pass",
+  "P02_add_and_persist": "pass",
+  "P03_balances_equal_split": "pass",
+  "P04_persist_across_runs": "pass",
+  "P05_settle_greedy_min": "pass",
+  "P06_rounding_exact": "pass",
+  "P07_payer_not_participant": "pass",
+  "P08_reject_negative_amount": "pass",
+  "P09_reject_nonnumeric_amount": "pass",
+  "P10_reject_nan_inf": "pass",
+  "P11_corrupt_json_clean_error": "pass",
+  "P12_malformed_record_clean_error": "fail",
+  "P13_empty_state": "pass",
+  "P14_settled_after_settlement": "pass"
+ }
+}

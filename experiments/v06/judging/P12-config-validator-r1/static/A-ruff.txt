@@ -1,0 +1,24 @@
+config_validator.py:37:12: UP031 Use format specifiers instead of percent format
+config_validator.py:40:5: C901 `_validate_value` is too complex (19 > 10)
+config_validator.py:48:27: UP031 Use format specifiers instead of percent format
+config_validator.py:52:23: UP031 Use format specifiers instead of percent format
+config_validator.py:55:27: UP031 Use format specifiers instead of percent format
+config_validator.py:58:27: UP031 Use format specifiers instead of percent format
+config_validator.py:62:27: UP031 Use format specifiers instead of percent format
+config_validator.py:65:27: UP031 Use format specifiers instead of percent format
+config_validator.py:71:31: UP031 Use format specifiers instead of percent format
+config_validator.py:71:89: E501 Line too long (94 > 88)
+config_validator.py:74:31: UP031 Use format specifiers instead of percent format
+config_validator.py:79:31: UP031 Use format specifiers instead of percent format
+config_validator.py:113:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+config_validator.py:113:30: UP031 Use format specifiers instead of percent format
+config_validator.py:113:89: E501 Line too long (94 > 88)
+config_validator.py:115:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+config_validator.py:115:30: UP031 Use format specifiers instead of percent format
+config_validator.py:115:89: E501 Line too long (89 > 88)
+tests/test_config_validator.py:6:8: F401 [*] `sys` imported but unused
+tests/test_config_validator.py:92:89: E501 Line too long (90 > 88)
+tests/test_config_validator.py:111:58: E741 Ambiguous variable name: `l`
+tests/test_config_validator.py:119:89: E501 Line too long (97 > 88)
+Found 22 errors.
+[*] 1 fixable with the `--fix` option (10 hidden fixes can be enabled with the `--unsafe-fixes` option).

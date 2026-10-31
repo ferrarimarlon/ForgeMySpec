@@ -1,0 +1,129 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:38:22Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "[LINT-HY-007] hypotheses[5].description: Hypothesis appears to describe what will NOT be built; hypotheses must be affirmative and testable",
+    "score 95/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "9 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "syntax_lists_ranges_steps": {
+   "kind": "boundary",
+   "statement": "Fields accept *, comma lists, ranges a-b, and steps */n, a-b/n, a/n, expanding to the correct value sets.",
+   "must_include": [
+    "lists, ranges and steps"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "names_case_insensitive": {
+   "kind": "boundary",
+   "statement": "Month and day names parse case-insensitively alone, in lists and in ranges; 0 and 7 are both Sunday.",
+   "must_include": [
+    "month and day names"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "validate_explains": {
+   "kind": "boundary",
+   "statement": "validate on a valid expression prints one explanation line per field and exits 0.",
+   "must_include": [
+    "validate explains each field"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "validate_errors": {
+   "kind": "boundary",
+   "statement": "Out-of-range values, bad tokens, reversed ranges, zero steps and wrong field counts make validate exit 2 naming the field and reason.",
+   "must_include": [
+    "validate reports the error"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "next_runs": {
+   "kind": "boundary",
+   "statement": "next -n N prints N ascending run times strictly after the start, each matching the expression; N defaults to 5.",
+   "must_include": [
+    "next prints the next N run times"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "impossible_dates": {
+   "kind": "boundary",
+   "statement": "0 0 30 2 * and 0 0 31 4 * are reported as never matching; next prints no times, exits 2 and terminates.",
+   "must_include": [
+    "invalid dates such as February 30"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "dom_dow_leap": {
+   "kind": "boundary",
+   "statement": "With both day fields restricted a date matches if either matches; 0 0 29 2 * runs only in leap years.",
+   "must_include": [
+    "invalid dates such as February 30"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/cron-parser",
+ "inputs_sha": "478a4bdf45dccca5d7f2071ee87dfce6452d417b4b08f0cc18656c99049e02d6",
+ "schema": 2
+}

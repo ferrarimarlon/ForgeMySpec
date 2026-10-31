@@ -1,0 +1,16 @@
+note_taker.py:2:89: E501 Line too long (96 > 88)
+note_taker.py:32:89: E501 Line too long (91 > 88)
+note_taker.py:39:89: E501 Line too long (91 > 88)
+note_taker.py:50:22: E702 Multiple statements on one line (semicolon)
+note_taker.py:52:22: E702 Multiple statements on one line (semicolon)
+note_taker.py:54:22: E702 Multiple statements on one line (semicolon)
+note_taker.py:56:30: E702 Multiple statements on one line (semicolon)
+note_taker.py:112:89: E501 Line too long (96 > 88)
+note_taker.py:134:9: S603 `subprocess` call: check for execution of untrusted input
+note_taker.py:164:89: E501 Line too long (90 > 88)
+note_taker.py:166:89: E501 Line too long (111 > 88)
+note_taker.py:176:89: E501 Line too long (90 > 88)
+note_taker.py:224:89: E501 Line too long (89 > 88)
+note_taker.py:226:89: E501 Line too long (94 > 88)
+note_taker.py:232:89: E501 Line too long (89 > 88)
+Found 15 errors.

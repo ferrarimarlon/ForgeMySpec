@@ -1,0 +1,6 @@
+cron_parser.py:10:43: F401 [*] `datetime.date` imported but unused
+cron_parser.py:81:46: B905 `zip()` without an explicit `strict=` parameter
+cron_parser.py:148:39: B905 `zip()` without an explicit `strict=` parameter
+cron_parser.py:178:89: E501 Line too long (95 > 88)
+Found 4 errors.
+[*] 1 fixable with the `--fix` option (2 hidden fixes can be enabled with the `--unsafe-fixes` option).

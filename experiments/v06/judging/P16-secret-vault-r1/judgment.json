@@ -1,0 +1,28 @@
+{
+ "requirements_total": 24,
+ "probes_total": 25,
+ "A": {"probes_passed": 24,
+       "scores": {"functional": 5, "coverage": 5, "security": 4, "robustness": 5, "quality": 4, "tests": 0},
+       "requirements_met": 23, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "security", "requirement": "R19", "evidence": "P19_no_values_in_audit_or_stderr; `vault get b SuperSecretValue123` -> stderr 'vault: error: unrecognized arguments: SuperSecretValue123' (A/vault.py:304-305)", "summary": "Custom argparse error handler echoes raw argv text to stderr, so a value passed as a stray argument is printed to stderr."},
+        {"severity": "low", "category": "scope", "requirement": "R13", "evidence": "A/vault.py:236-237", "summary": "list shows only '***' for values of 4 chars or fewer and '[EXPIRED]' for expired entries instead of value[:4]***; defensible to avoid full disclosure but deviates from literal spec."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt (B904 x3, E501 x2)", "summary": "Exceptions re-raised in except blocks without 'from', minor lint findings."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 361},
+ "B": {"probes_passed": 24,
+       "scores": {"functional": 5, "coverage": 5, "security": 4, "robustness": 3, "quality": 4, "tests": 4},
+       "requirements_met": 23, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "silent", "requirement": null, "evidence": "probes/concurrency.py: 8 concurrent `set` of distinct keys -> only 1 persisted, all exit 0 (no file locking around read-modify-write, shared vault.enc.tmp at B/vault.py:65-71)", "summary": "Concurrent invocations silently lose updates because there is no locking around load/save."},
+        {"severity": "low", "category": "functional", "requirement": "R22", "evidence": "`env -u VAULT_MASTER_KEY vault.py list` -> 'VAULT_MASTER_KEY is not set' rc=1 (B/vault.py:113-116)", "summary": "Missing master password is reported as a user error (exit 1) rather than auth error (exit 2)."},
+        {"severity": "low", "category": "silent", "requirement": null, "evidence": "printf 'abc\\n\\n\\n' | vault.py set k; get k -> 'abc\\n' (B/vault.py:189 rstrip)", "summary": "Value read from stdin has all trailing newlines stripped, silently altering values."},
+        {"severity": "low", "category": "security", "requirement": "R13", "evidence": "B/vault.py:180-183", "summary": "list masking of short values reveals all but the last character (e.g. 'abcd' -> 'abc***')."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt (C901 run complexity 17, B904 x3, UP031)", "summary": "Single monolithic run() dispatcher with high complexity and minor lint findings."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 14, "failed": 0},
+       "loc": 280},
+ "blinding_guess": {"spec_framework_side": "unsure", "confidence": 0.3, "why": "B ships a test suite which hints at a more process-driven workflow, but both implementations are similarly structured and spec-aware."},
+ "notes": "Of the 24 spec probes, B passes all and A fails only P19; expiry probes rewrite the encrypted vault (salt located by scanning small header offsets, so A's 4-byte magic prefix and B's bare salt are treated identically). Extra robustness probe P25 shows B loses concurrent writes while A serializes via flock. A has no tests; B's 14 subprocess-based tests all pass. Probes need PYTHONUSERBASE set because HOME is redirected to temp dirs."
+}

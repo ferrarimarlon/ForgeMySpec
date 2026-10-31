@@ -1,0 +1,93 @@
+version: "0.1"
+title: "Mini OS: x86 bare-metal bootloader and kernel with VGA text output"
+objective: "A minimal 32-bit x86 OS in the repository root: a 512-byte boot sector loads a freestanding C kernel, enters protected mode and prints text through VGA text memory at 0xB8000. Built with no external libraries and bootable in QEMU."
+execution_mode: critical
+context:
+  system: "Empty repository on macOS (darwin). Toolchain available: nasm, i686-elf-gcc, i686-elf-ld, qemu-system-i386. No existing OS code."
+  assumptions:
+    - "The user accepts a BIOS legacy boot (floppy/disk image) on qemu-system-i386, not UEFI."
+    - "The cross toolchain i686-elf-gcc and nasm in /opt/homebrew/bin are the build tools."
+    - "Minimal means: boot sector, protected mode switch, VGA text driver, a banner; no interrupts, keyboard or filesystem."
+constraints:
+  - "No external libraries: freestanding C (-ffreestanding -nostdlib), no libc, no GRUB."
+  - "No keyboard driver, interrupts, paging, filesystem or multitasking."
+  - "Boot sector is exactly 512 bytes and ends with the 0x55AA signature."
+  - "Sources live in boot/, kernel/, Makefile and tests/; build output goes to build/."
+success_criteria:
+  - "make produces build/os.img from the sources with no warnings that fail the build."
+  - "Booting build/os.img in QEMU shows the kernel banner in VGA text memory."
+hypotheses:
+  - id: h1
+    description: "make builds a bootable image whose first sector is exactly 512 bytes with the 0x55AA signature."
+    confidence: 0.9
+  - id: h2
+    description: "The bootloader loads the kernel from disk, switches to 32-bit protected mode and jumps to the C kernel entry."
+    confidence: 0.8
+  - id: h3
+    description: "The kernel writes characters with colour attributes to VGA text memory at 0xB8000, with newline handling, scrolling and a cleared screen."
+    confidence: 0.85
+  - id: h4
+    description: "Booted in headless QEMU, VGA memory contains the kernel banner text."
+    confidence: 0.8
+  - id: h5
+    description: "The build uses only nasm, i686-elf-gcc and i686-elf-ld in freestanding mode, using only its own freestanding sources."
+    confidence: 0.9
+required_evidence:
+  - "Output of make showing build/os.img created."
+  - "Test run output of the boundary tests passing, including the headless QEMU boot reading VGA memory."
+actions:
+  - {id: a1, description: "Write boot/boot.asm: 512-byte boot sector, BIOS disk read, GDT, protected mode switch.", type: implement, requires_confirmation: false, supports: [h1, h2]}
+  - {id: a2, description: "Write kernel/entry.asm, kernel/kernel.c, kernel/vga.c and linker script, freestanding.", type: implement, requires_confirmation: false, supports: [h2, h3, h5]}
+  - {id: a3, description: "Write Makefile producing build/os.img and a run target for QEMU.", type: implement, requires_confirmation: false, supports: [h1, h5]}
+  - {id: a4, description: "Write unittest boundary tests: image layout, flags, headless QEMU VGA dump.", type: test, requires_confirmation: false, supports: [h1, h4, h5]}
+  - {id: a5, description: "Run tests and the gate and report the output.", type: validate, requires_confirmation: false, supports: [h1, h2, h3, h4, h5]}
+decision_rules:
+  - "If QEMU cannot be run headless in the environment, stop and report instead of dropping the boot test."
+  - "If the kernel outgrows the sectors the bootloader loads, raise the sector count in the Makefile, do not add features."
+metadata:
+  source_prompt: "Build a simple operating system in the current directory: x86 bare-metal, minimalist resources, bootloader + kernel with VGA text output, no external libraries, runnable in QEMU."
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "512-byte boot sector with 0x55AA"
+      - "protected mode"
+      - "VGA text output at 0xB8000"
+      - "no external libraries"
+      - "boots in QEMU"
+formal:
+  module: MiniOs
+  obligations:
+    - id: boot_sector_valid
+      kind: boundary
+      statement: "build/os.img first sector is 512 bytes and ends with 0x55 0xAA."
+      hypotheses: [h1]
+      must_include: ["512-byte boot sector with 0x55AA"]
+      test: "test_os.ImageTests.test_boot_signature"
+    - id: protected_mode_kernel_loaded
+      kind: boundary
+      statement: "The kernel is linked as a 32-bit freestanding ELF and the bootloader source sets CR0.PE to enter protected mode before jumping to the kernel."
+      hypotheses: [h2]
+      must_include: ["protected mode"]
+      test: "test_os.ImageTests.test_protected_mode_and_kernel_elf"
+    - id: vga_driver_present
+      kind: boundary
+      statement: "The kernel writes to VGA text memory at 0xB8000 with colour attributes, newline handling and scrolling."
+      hypotheses: [h3]
+      must_include: ["VGA text output at 0xB8000"]
+      test: "test_os.SourceTests.test_vga_driver_uses_b8000"
+    - id: no_libs
+      kind: boundary
+      statement: "The build compiles with -ffreestanding -nostdlib and links no libc, and the sources include no hosted headers."
+      hypotheses: [h5]
+      must_include: ["no external libraries"]
+      test: "test_os.SourceTests.test_freestanding_no_libs"
+    - id: qemu_boot_banner
+      kind: boundary
+      statement: "Headless QEMU booted from build/os.img shows the kernel banner in VGA memory at 0xB8000."
+      hypotheses: [h4]
+      must_include: ["boots in QEMU"]
+      test: "test_os.BootTests.test_banner_in_vga_memory"
+scope:
+  paths: ["boot/**", "kernel/**", "Makefile", "tests/**", "README.md", ".gitignore", "forgemyspec-board.yaml"]
+  tests: tests
+  verify_command: "make"

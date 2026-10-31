@@ -1,0 +1,120 @@
+version: "0.1"
+title: CSV Analytics Tool
+objective: Single-file stdlib-only Python tool (csv_analytics.py) that reads CSV files, computes per-column stats, filters rows, selects columns and exports a JSON report.
+execution_mode: critical
+context:
+  system: Empty Python repository; deliverable is csv_analytics.py at the repository root with unittest tests in tests/. Python 3 stdlib only.
+  assumptions:
+    - "The first CSV row is the header; column names are the header values."
+    - "A column is numeric if every non-empty cell parses as a float; empty cells are ignored for stats."
+    - "stdev is the sample standard deviation (n-1); it is null when fewer than 2 values."
+    - "Non-numeric columns report count, and min/max by string order; mean, median and stdev are null."
+    - "Filter syntax is COLUMN OP VALUE with OP in ==, !=, <, <=, >, >=; multiple filters are ANDed. Numeric comparison when both sides parse as numbers, else string comparison."
+    - "CLI is argparse-based: csv_analytics.py FILE [--select COLS] [--filter EXPR]... [--output report.json]; JSON goes to stdout when --output is absent."
+constraints:
+  - "Python standard library only; no pandas or third-party packages."
+  - "Everything lives in the single file csv_analytics.py."
+  - "No plotting, no database, no writing formats other than JSON."
+  - "Input files are never modified."
+success_criteria:
+  - "All unittest tests in tests/ pass."
+  - "The CLI produces a valid JSON report for a sample CSV."
+hypotheses:
+  - id: h1
+    description: "Reading a CSV file yields rows keyed by header column names."
+    confidence: 0.95
+  - id: h2
+    description: "Per-column stats report count, min, max, mean, median and stdev with correct values."
+    confidence: 0.9
+  - id: h3
+    description: "Filtering keeps exactly the rows that satisfy every filter expression."
+    confidence: 0.9
+  - id: h4
+    description: "Selecting columns keeps only the requested columns in the requested order and rejects unknown columns."
+    confidence: 0.9
+  - id: h5
+    description: "The JSON report contains the selected columns' stats and the filtered row count, written to a file or stdout."
+    confidence: 0.9
+required_evidence:
+  - "Output of python3 -m unittest discover tests showing all tests passing."
+  - "CLI run output on a sample CSV showing the JSON report."
+actions:
+  - id: a1
+    description: "Implement CSV reading and per-column stats in csv_analytics.py."
+    type: implement
+    requires_confirmation: false
+    supports: [h1, h2]
+  - id: a1b
+    description: "Implement filter, select and JSON report/CLI in csv_analytics.py."
+    type: implement
+    requires_confirmation: false
+    supports: [h3, h4, h5]
+  - id: a2
+    description: "Write unittest boundary tests for each obligation."
+    type: validate
+    requires_confirmation: false
+    supports: [h1, h2, h3, h4, h5]
+  - id: a3
+    description: "Run the unittest suite and the gate."
+    type: validate
+    requires_confirmation: false
+    supports: [h1, h2, h3, h4, h5]
+decision_rules:
+  - "If an ambiguity affects stats semantics (e.g. stdev population vs sample), stop and ask."
+  - "Anything outside the listed features is a spec amendment."
+metadata:
+  source_prompt: "Build a CSV Analytics Tool. Read CSV files, compute per-column stats (count, min, max, mean, median, stdev), filter rows, select columns, export JSON report. Single file csv_analytics.py, stdlib only."
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "read CSV files"
+      - "per-column stats"
+      - "count, min, max, mean, median, stdev"
+      - "filter rows"
+      - "select columns"
+      - "export JSON report"
+      - "single file csv_analytics.py"
+      - "stdlib only"
+formal:
+  module: CsvAnalytics
+  obligations:
+    - id: read_csv
+      kind: boundary
+      statement: "read_csv(path) returns the header and rows as dicts keyed by header names; a missing file or empty file raises a clear error and the CLI exits 2."
+      hypotheses: [h1]
+      must_include: ["read CSV files"]
+      test: "test_csv_analytics.ReadTests.test_read_csv"
+    - id: column_stats
+      kind: boundary
+      statement: "column_stats returns count, min, max, mean, median and sample stdev per column, ignoring empty cells; stdev is null for fewer than 2 values."
+      hypotheses: [h2]
+      must_include: ["per-column stats", "count, min, max, mean, median, stdev"]
+      test: "test_csv_analytics.StatsTests.test_numeric_stats"
+    - id: filter_rows
+      kind: boundary
+      statement: "filter_rows keeps exactly the rows satisfying all COLUMN OP VALUE expressions (==, !=, <, <=, >, >=); an unknown column or bad expression raises an error."
+      hypotheses: [h3]
+      must_include: ["filter rows"]
+      test: "test_csv_analytics.FilterTests.test_filter_rows"
+    - id: select_columns
+      kind: boundary
+      statement: "select_columns keeps only the requested columns in the requested order; an unknown column raises an error."
+      hypotheses: [h4]
+      must_include: ["select columns"]
+      test: "test_csv_analytics.SelectTests.test_select_columns"
+    - id: json_report
+      kind: boundary
+      statement: "build_report and the CLI produce valid JSON with row counts and stats of the selected columns on the filtered rows, written to --output or stdout."
+      hypotheses: [h5]
+      must_include: ["export JSON report"]
+      test: "test_csv_analytics.ReportTests.test_cli_report"
+    - id: single_file_stdlib
+      kind: boundary
+      statement: "csv_analytics.py is the only module of the tool and imports only standard library modules."
+      hypotheses: [h5]
+      must_include: ["single file csv_analytics.py", "stdlib only"]
+      test: "test_csv_analytics.ConstraintTests.test_stdlib_only"
+scope:
+  paths: ["csv_analytics.py", "tests/**"]
+  tests: tests
+  pythonpath: ["."]

@@ -1,0 +1,18 @@
+version: '0.1'
+purpose: Manual eval seeds to detect scope drift in Claude implementations
+source_prompt: 'Build a cron expression parser CLI in Python. Parse standard 5-field
+  cron expressions (minute, hour, day-of-month, month, day-of-week) supporting *,
+  lists, ranges and steps, and month/day names. Subcommands: validate <expr> (explains
+  each field or reports the error) and next <expr> [-n N] (prints the next N run times
+  from now). Handle invalid dates such as February 30. Single file cron_parser.py,
+  stdlib only.'
+checks:
+  must_include:
+  - 5-field cron expressions
+  - lists, ranges and steps
+  - month and day names
+  - validate explains each field or reports the error
+  - next -n N run times from now
+  - invalid dates such as February 30
+  - single file cron_parser.py, stdlib only
+cases: []

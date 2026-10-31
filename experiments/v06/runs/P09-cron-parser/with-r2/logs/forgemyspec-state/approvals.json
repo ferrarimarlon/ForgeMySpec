@@ -1,0 +1,30 @@
+{
+ "requests": [
+  {
+   "code": "XHG3A2",
+   "nonce": "0eae8fcb0e408ac0ba637019987adb55",
+   "created_at": "2026-10-31T20:34:56.185Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/cron-parser",
+     "content_sha": "3040bcab21dac424b81106f7bec3c727827b5cd40e3272efdfd0c0f3ff11fde9",
+     "used_at": null
+    }
+   ]
+  },
+  {
+   "code": "AKPQVQ",
+   "nonce": "dab2532694da2807c644c1033bc33ff9",
+   "created_at": "2026-10-31T20:34:59.537Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/cron-parser",
+     "content_sha": "14d5d6e74fae0859d9baa95b57e7873b30eb55e7dad37f01676607994e852224",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

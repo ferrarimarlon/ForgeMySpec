@@ -1,0 +1,16 @@
+blog_api.py:77:26: UP031 Use format specifiers instead of percent format
+blog_api.py:99:13: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+blog_api.py:108:13: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+blog_api.py:193:89: E501 Line too long (90 > 88)
+blog_api.py:208:11: UP031 Use format specifiers instead of percent format
+tests/test_blog_api.py:57:43: UP031 Use format specifiers instead of percent format
+tests/test_blog_api.py:66:43: UP031 Use format specifiers instead of percent format
+tests/test_blog_api.py:72:20: UP031 Use format specifiers instead of percent format
+tests/test_blog_api.py:78:43: UP031 Use format specifiers instead of percent format
+tests/test_blog_api.py:83:46: UP031 Use format specifiers instead of percent format
+tests/test_blog_api.py:84:43: UP031 Use format specifiers instead of percent format
+tests/test_blog_api.py:85:46: UP031 Use format specifiers instead of percent format
+tests/test_blog_api.py:89:15: UP031 Use format specifiers instead of percent format
+tests/test_blog_api.py:115:30: UP031 Use format specifiers instead of percent format
+Found 14 errors.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).

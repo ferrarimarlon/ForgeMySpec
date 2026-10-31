@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "TA7NTV",
+   "nonce": "7755dae11075225924e8e83bffe9f21c",
+   "created_at": "2026-10-31T21:17:12.121Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/mini-os",
+     "content_sha": "fb0ccf0b4df0ab2fb5a6f4cd1f26cad146af3287eee48599a6738d35df0e0482",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "JVXX2T",
+   "nonce": "adcf18549cb249cf37eb887673a55906",
+   "created_at": "2026-10-31T20:27:38.080Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/expense-splitter",
+     "content_sha": "1287c6f96b8b909e8fab4965df2640f9e41713a72fb3591a916f383d2c09f5a6",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

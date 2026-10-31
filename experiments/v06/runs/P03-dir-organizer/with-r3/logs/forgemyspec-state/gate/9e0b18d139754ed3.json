@@ -1,0 +1,130 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:21:59Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "score 100/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "7 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "once_moves_by_extension": {
+   "kind": "boundary",
+   "statement": "--once moves each top-level regular file into a subdirectory named after its lowercase extension and exits 0.",
+   "must_include": [
+    "move files into subdirectories by extension",
+    "--once mode"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "watch_organizes_new_files": {
+   "kind": "boundary",
+   "statement": "--watch keeps running and moves a file created after startup into its extension subdirectory.",
+   "must_include": [
+    "--watch mode"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "moves_logged": {
+   "kind": "boundary",
+   "statement": "Each move appends a line with timestamp, source and destination to organizer.log in the target directory.",
+   "must_include": [
+    "log moves to organizer.log"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "skips_files_in_subdirs": {
+   "kind": "boundary",
+   "statement": "Files already inside subdirectories are not moved and subdirectories are not descended into.",
+   "must_include": [
+    "skip files already in subdirs"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "skips_hidden_files": {
+   "kind": "boundary",
+   "statement": "Files whose name starts with a dot are not moved.",
+   "must_include": [
+    "skip hidden files"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "single_file_stdlib_only": {
+   "kind": "boundary",
+   "statement": "organizer.py imports only standard library modules and needs no other project file.",
+   "must_include": [
+    "single file organizer.py",
+    "stdlib only"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "collision_not_overwritten": {
+   "kind": "boundary",
+   "statement": "When the destination name exists, the moved file gets a numeric suffix and the existing file is unchanged.",
+   "must_include": [
+    "move files into subdirectories by extension"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/dir-organizer",
+ "inputs_sha": "7735a7507a5c443f9636a7f548312d9e34a3a703168acaa69b188c2e04de9587",
+ "schema": 2
+}

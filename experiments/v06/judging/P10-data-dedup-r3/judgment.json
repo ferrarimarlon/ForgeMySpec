@@ -1,0 +1,27 @@
+{
+ "requirements_total": 12,
+ "probes_total": 18,
+ "A": {"probes_passed": 15,
+       "scores": {"functional": 5, "coverage": 4, "security": 5, "robustness": 2, "quality": 4, "tests": 0},
+       "requirements_met": 11, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "high", "category": "functional", "requirement": "R12", "evidence": "P10: missing input file -> 'FileNotFoundError: [Errno 2] No such file or directory' traceback (A/data_dedup.py:69)", "summary": "Missing input file crashes with an unhandled traceback instead of a clean error message."},
+        {"severity": "medium", "category": "functional", "requirement": "R12", "evidence": "P16: non-UTF-8 input -> 'UnicodeDecodeError' traceback; P18: output in nonexistent dir -> FileNotFoundError traceback (A/data_dedup.py:122)", "summary": "Decode errors and unwritable output paths are not caught, so the user sees raw tracebacks."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt: C901 main too complex (15), B904, 8x UP031", "summary": "main() is long and complex; it mixes % formatting and has an unused parameter (ncols_hint)."},
+        {"severity": "low", "category": "scope", "requirement": null, "evidence": "A/data_dedup.py:22-26", "summary": "Adds unrequested options (--no-header, --ignore-case, --strip, --delimiter, --encoding, stdin/stdout); they don't change the defaults, but they enlarge the surface."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 143},
+ "B": {"probes_passed": 18,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 4},
+       "requirements_met": 12, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "silent", "requirement": "R4", "evidence": "manual run: rows '2' and '3' lacking the region column -> 'Duplicates found: 1; removed: 1', row '3' dropped (B/data_dedup.py:12)", "summary": "Short rows get their missing key columns padded with \"\", so unrelated malformed rows are silently merged and deleted as duplicates."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt: B905 zip without strict, F401 unused sys in tests, E501", "summary": "Minor lint issues: a zip() call without strict= and an unused import in the tests."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "B/data_dedup.py:42", "summary": "Loads the whole input into memory, which is fine for typical CSVs but not streaming."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 8, "failed": 0},
+       "loc": 76},
+ "blinding_guess": {"spec_framework_side": "B", "confidence": 0.55, "why": "B ships a test suite with one test per stated requirement (composite, first, last, error, summary, stdlib-only), which looks like spec-driven work, while A is a feature-rich script with no tests."},
+ "notes": "Both implementations handle the core dedup logic correctly, including composite keys, keep-first, keep-last (output ordered by the kept row's position in both), the error strategy, and the summary. A fails 3 of the 18 probes, all for unhandled I/O and decode exceptions that end in tracebacks. B passes all probes, but it silently drops malformed short rows by treating their missing key values as empty strings. In that same malformed-row case A exits with a clean error. Bandit reported nothing for either side."
+}

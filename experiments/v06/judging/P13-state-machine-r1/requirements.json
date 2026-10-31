@@ -1,0 +1,21 @@
+[
+ {"id":"R1","text":"CLI program implemented in Python"},
+ {"id":"R2","text":"Single file named state_machine.py"},
+ {"id":"R3","text":"Stdlib only (no third-party imports)"},
+ {"id":"R4","text":"Load a machine definition from a JSON file"},
+ {"id":"R5","text":"Definition supports a list of states"},
+ {"id":"R6","text":"Definition supports an initial state"},
+ {"id":"R7","text":"Definition supports final states"},
+ {"id":"R8","text":"Definition supports transitions with events (from, to, event)"},
+ {"id":"R9","text":"Transitions support optional guard conditions evaluated against a context"},
+ {"id":"R10","text":"Validation detects transitions referencing unknown states"},
+ {"id":"R11","text":"Validation detects unreachable states"},
+ {"id":"R12","text":"Validation detects missing initial state (absent or not among states)"},
+ {"id":"R13","text":"Validation errors reported clearly with non-zero exit"},
+ {"id":"R14","text":"Run a sequence of events against the machine"},
+ {"id":"R15","text":"Events without a valid transition (or failing guard) are handled/reported, not silently accepted"},
+ {"id":"R16","text":"Keep a history of transitions"},
+ {"id":"R17","text":"History can be printed"},
+ {"id":"R18","text":"Malformed JSON / missing file handled gracefully (no traceback)"},
+ {"id":"R19","text":"Guard evaluation is safe (no arbitrary code execution via definition)"}
+]

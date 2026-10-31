@@ -1,0 +1,25 @@
+{
+ "requirements_total": 16,
+ "probes_total": 30,
+ "A": {"probes_passed": 30,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 4, "quality": 4, "tests": 4},
+       "requirements_met": 16, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "silent", "requirement": "R14", "evidence": "A: `validate \"0 0 30 2 *\"` prints field explanation plus 'note: this expression never matches a real date' and exits 0", "summary": "An impossible schedule passes validate with exit 0 and only a note, so scripts checking the exit code treat it as valid."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt: B905 zip without strict (cron_parser.py:92,135), E501 x3", "summary": "Minor lint findings: zip calls without strict=, plus long lines."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 9, "failed": 0},
+       "loc": 176},
+ "B": {"probes_passed": 28,
+       "scores": {"functional": 4, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 0},
+       "requirements_met": 15, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "functional", "requirement": "R16", "evidence": "P26/P27; B/cron_parser.py:37-39 `validate \"² * * * *\"` -> Traceback ValueError: invalid literal for int() with base 10: '²'", "summary": "str.isdigit() accepts Unicode digits that int() rejects, so the program crashes with a traceback instead of printing a clean error; the same applies to step values."},
+        {"severity": "low", "category": "silent", "requirement": "R9", "evidence": "B: `validate \"١ * * * *\"` -> 'Valid cron expression', minute -> 1", "summary": "Non-ASCII digits such as Arabic-Indic ones are accepted as valid cron values."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt: F401 unused import datetime.date (cron_parser.py:10), B905 x2, E501", "summary": "Unused import and minor lint findings."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 189},
+ "blinding_guess": {"spec_framework_side": "unsure", "confidence": 0.3, "why": "Both are similarly structured. A has an injectable now/out, a test suite and ASCII-strict digit checks, which hints at a more disciplined process, but that is weak evidence."},
+ "notes": "Both implementations are functionally correct on all next-run probes. Results were compared against a minute-by-minute brute-force reference, including dom/dow OR semantics, 7=Sunday, Feb 29, day 31 and names. Both handle Feb 30: B rejects it at parse time (only when dow is '*'), and A reports it as never matching (a note in validate, an error in next). B's only probe failures are tracebacks on Unicode digit input. Bandit reports for both sides are empty."
+}

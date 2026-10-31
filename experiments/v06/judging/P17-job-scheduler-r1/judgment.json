@@ -1,0 +1,25 @@
+{
+ "requirements_total": 18,
+ "probes_total": 23,
+ "A": {"probes_passed": 21,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 4},
+       "requirements_met": 17, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "silent", "requirement": "R9", "evidence": "probe p23: a scheduler.json with a<->b cycle makes report print an empty 'Execution order:' and exit 0", "summary": "load() does not check the persisted graph for cycles or unknown dependencies, so report silently leaves out jobs that are in a cycle."},
+        {"severity": "low", "category": "quality", "requirement": "R17", "evidence": "probe p22: priority \"x\" in scheduler.json -> TypeError traceback at A/scheduler.py:85", "summary": "load() checks that each field exists but not its type, so a hand-edited state file can crash commands with a traceback."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt (43 findings: UP031, E501, B904)", "summary": "Code is clean but uses old-style formatting and has many lint findings."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 8, "failed": 0},
+       "loc": 208},
+ "B": {"probes_passed": 23,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 5, "quality": 4, "tests": 0},
+       "requirements_met": 18, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt: C901 load (18) and add_job (12) complexity", "summary": "load() and add_job() are long, branchy functions."},
+        {"severity": "low", "category": "scope", "requirement": "R4", "evidence": "B/scheduler.py:317 '-p' default=5", "summary": "Priority is optional with a default of 5 that the task did not ask for; jobs added after a dependency failed are auto-cancelled, which goes further than the spec (reasonable)."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 291},
+ "blinding_guess": {"spec_framework_side": "unsure", "confidence": 0.3, "why": "Both are similar idiomatic single-file implementations; A ships a test suite but neither shows clear signs of a spec framework."},
+ "notes": "Both sides pass all 21 core behavioural probes (validation, order, run-next, failure propagation, ready never persisted, recompute on load). The only differences are with hand-edited or corrupted state files: B validates the whole graph on load, while A can crash or silently drop jobs that form a cycle. Cycle-on-add (R8) cannot be triggered through the CLI alone, so probe p08 seeds a state file; both reject the add, B because the seeded file has an unknown dependency. A has 8 passing subprocess tests; B has no tests. Bandit reports only low findings in A's tests; no security issues in either scheduler."
+}

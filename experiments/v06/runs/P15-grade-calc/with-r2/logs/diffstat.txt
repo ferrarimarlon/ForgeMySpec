@@ -1,0 +1,9 @@
+ .../.claude/commands/implement-from-spec.md        |   8 ++
+ forgemyspec-bundle/grade-calc/CLAUDE.md            |  47 +++++++
+ .../grade-calc/acceptance-checklist.md             |  19 +++
+ .../grade-calc/evals/scope_drift_cases.yaml        |  16 +++
+ forgemyspec-bundle/grade-calc/spec.lock            |   5 +
+ forgemyspec-bundle/grade-calc/spec.yaml            | 101 +++++++++++++
+ grade_calc.py                                      | 156 +++++++++++++++++++++
+ tests/test_grade_calc.py                           | 118 ++++++++++++++++
+ 8 files changed, 470 insertions(+)

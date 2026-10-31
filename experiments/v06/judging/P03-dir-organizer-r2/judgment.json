@@ -1,0 +1,27 @@
+{
+ "requirements_total": 12,
+ "probes_total": 17,
+ "A": {"probes_passed": 16,
+  "scores": {"functional": 3, "coverage": 4, "security": 5, "robustness": 2, "quality": 4, "tests": 4},
+  "requirements_met": 11, "requirements_partial": 1, "requirements_missing": 0,
+  "issues": [
+   {"severity": "high", "category": "functional", "requirement": "R2", "evidence": "probe p_file_blocks_dir; A/organizer.py:48 dest_dir.mkdir outside try -> 'FileExistsError: [Errno 17] File exists: txt', rc=1; in --watch the process died and later.jpg was never organized", "summary": "If a top-level file has the same name as an extension folder (for example a file named 'txt' next to foo.txt), mkdir raises an error nothing catches, so --once stops partway and the --watch process dies."},
+   {"severity": "low", "category": "quality", "requirement": "R4", "evidence": "A/organizer.py:60-64", "summary": "Watch mode moves files as soon as it sees them and does not check whether they are still being written."},
+   {"severity": "low", "category": "quality", "requirement": "R5", "evidence": "A/organizer.py:83 --log default 'organizer.log' is relative to the CWD, so running from another directory writes the log there, not in the target", "summary": "Where the log ends up depends on the directory the program is run from, not on the target directory."},
+   {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt: 4x E501 in organizer.py", "summary": "Minor line-length lint findings."}
+  ],
+  "own_tests": {"present": true, "ran": true, "passed": 11, "failed": 0},
+  "loc": 108},
+ "B": {"probes_passed": 16,
+  "scores": {"functional": 4, "coverage": 3, "security": 5, "robustness": 5, "quality": 4, "tests": 0},
+  "requirements_met": 11, "requirements_partial": 1, "requirements_missing": 0,
+  "issues": [
+   {"severity": "medium", "category": "scope", "requirement": "R2", "evidence": "probe p_tmp_ext_moved; B/organizer.py:14,49 TEMP_SUFFIXES skips .part/.crdownload/.tmp/.download", "summary": "Files with .tmp, .part, .crdownload or .download extensions are left unmoved and nothing is logged, which the task did not ask for."},
+   {"severity": "low", "category": "quality", "requirement": null, "evidence": "find B -type f -> only organizer.py", "summary": "No automated tests."},
+   {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt: 4x E501", "summary": "Minor line-length lint findings."}
+  ],
+  "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+  "loc": 128},
+ "blinding_guess": {"spec_framework_side": "A", "confidence": 0.55, "why": "A ships a test suite whose tests map one-to-one onto the stated requirements (stdlib-only, single file, mode exclusivity, log not moved), which suggests a spec-driven process; B looks like a pragmatic hand-written script."},
+ "notes": "Probes ran on Python 3.9.6 with cwd set to the target directory for both sides, so A's CWD-relative log lands in the target. Each side failed one different probe: A crashes on a file/folder name clash (it also kills --watch, confirmed manually), and B deliberately skips temp-download extensions. B waits for two identical scans before moving a file in watch mode, which is safer but adds about one interval of delay. Bandit flagged only A's test subprocess use (low); neither organizer.py has security findings. pytest is not installed, so A's tests were run with unittest."
+}

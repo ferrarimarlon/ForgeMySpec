@@ -1,0 +1,35 @@
+{
+ "requirements_total": 25,
+ "probes_total": 37,
+ "A": {"probes_passed": 36,
+       "scores": {"functional": 5, "coverage": 5, "security": 3, "robustness": 4, "quality": 4, "tests": 0},
+       "requirements_met": 24, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "security", "requirement": "R21",
+         "evidence": "P35_stderr_no_value_on_usage_error; `vault.py set k part1 LeakedTail` -> stderr 'error: unrecognized arguments: LeakedTail' (A/vault.py:253-254 Parser.error forwards argparse message)",
+         "summary": "Argparse usage errors echo stray argv tokens, so part of an unquoted secret value can be written to stderr."},
+        {"severity": "low", "category": "quality", "requirement": null,
+         "evidence": "static/A-ruff.txt: 3x B904, 4x E501",
+         "summary": "Minor lint findings (raise without from, long lines)."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 304},
+ "B": {"probes_passed": 37,
+       "scores": {"functional": 5, "coverage": 5, "security": 4, "robustness": 5, "quality": 4, "tests": 5},
+       "requirements_met": 25, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "security", "requirement": "R17",
+         "evidence": "`HOME=.. vault.py audit` with no VAULT_MASTER_KEY and with a wrong key both exit 0 and print log lines with key names (B/vault.py:248-257 cmd_audit never constructs Vault)",
+         "summary": "audit requires no master password and ignores lockout, exposing key names and activity to anyone who can run the CLI as the user."},
+        {"severity": "low", "category": "quality", "requirement": "R16",
+         "evidence": "B/vault.py:306 `if args.command != \"audit\"` skips logging; audit output above shows no audit entries",
+         "summary": "Audit invocations themselves are not recorded in the audit log."},
+        {"severity": "low", "category": "quality", "requirement": null,
+         "evidence": "static/B-ruff.txt: B904 x2, UP031 x4, UP015",
+         "summary": "Minor lint findings (percent formatting, raise without from)."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 15, "failed": 0},
+       "loc": 315},
+ "blinding_guess": {"spec_framework_side": "unsure", "confidence": 0.3, "why": "Both are structurally very similar; B ships a test suite and argv-scrubbing which might hint at a more process-driven approach, but evidence is weak."},
+ "notes": "Both implementations pass every core probe (crypto layout, perms, TTL, expiry exit 3, lockout, masking, audit tail). The only probe difference is P35: A echoes stray argv tokens to stderr on usage errors, while B deliberately prints a generic usage message. B's audit command is unauthenticated and works during lockout, a low-severity metadata exposure. On a missing VAULT_MASTER_KEY, A exits 1 and B exits 2; the spec allows either reading, so neither was penalised. Probes needed PYTHONUSERBASE set because HOME is redirected to temp dirs."
+}

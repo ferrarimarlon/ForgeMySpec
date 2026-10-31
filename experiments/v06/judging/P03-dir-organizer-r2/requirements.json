@@ -1,0 +1,14 @@
+[
+ {"id":"R1","text":"Python program that organizes a target directory (target dir is configurable/given)"},
+ {"id":"R2","text":"Moves files into subdirectories named by file extension"},
+ {"id":"R3","text":"--once mode: organize once and exit"},
+ {"id":"R4","text":"--watch mode: keep watching and organize new files as they appear"},
+ {"id":"R5","text":"Log each move to organizer.log"},
+ {"id":"R6","text":"Skip files already in subdirectories (no recursion into subdirs)"},
+ {"id":"R7","text":"Skip hidden files (dotfiles)"},
+ {"id":"R8","text":"Single file organizer.py"},
+ {"id":"R9","text":"Standard library only"},
+ {"id":"R10","text":"Implied: organizer.log itself must not be moved/organized"},
+ {"id":"R11","text":"Implied: does not lose data on name collisions in destination"},
+ {"id":"R12","text":"Implied: files without extension handled sensibly (not crash)"}
+]

@@ -1,0 +1,29 @@
+{
+ "requirements_total": 16,
+ "probes_total": 23,
+ "A": {"probes_passed": 23,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 5, "quality": 4, "tests": 4},
+       "requirements_met": 16, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt (25 findings in task_manager.py: UP031 %-format, E501, B904, B905)", "summary": "Style lint findings: old-style %-formatting, long lines, raise without 'from'."},
+        {"severity": "low", "category": "security", "requirement": "R9", "evidence": "A/task_manager.py:96-98 (bandit B608)", "summary": "UPDATE SET clause built by string formatting; keys come from fixed kwargs so not exploitable, values are parameterized."},
+        {"severity": "low", "category": "quality", "requirement": "R16", "evidence": "A/task_manager.py:144-145", "summary": "Filter values are validated in code rather than with argparse choices, so --help does not list the allowed values."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 7, "failed": 0},
+       "loc": 193},
+ "B": {"probes_passed": 20,
+       "scores": {"functional": 4, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 0},
+       "requirements_met": 14, "requirements_partial": 2, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "silent", "requirement": "R1", "evidence": "probe P18_empty_title: `add '   '` -> 'Added task 1.' rc=0", "summary": "Whitespace-only/empty titles are accepted and stored."},
+        {"severity": "medium", "category": "functional", "requirement": "R16", "evidence": "probe P21_bad_db_path: Traceback ... sqlite3.OperationalError: unable to open database file", "summary": "sqlite3 errors are not caught, so the user sees a raw traceback."},
+        {"severity": "low", "category": "scope", "requirement": "R13", "evidence": "probe P23_long_title_shown; B/task_manager.py:48-53", "summary": "list truncates titles over 30 chars and descriptions over 40 chars with an ellipsis; full text is only visible via the extra 'show' command."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "B: `update 1 --due none` -> 'Nothing to update.' rc=1 (valid_date maps 'none' to None, which is then filtered out); B/task_manager.py:35,103", "summary": "valid_date accepts 'none' but update ignores it, which is confusing; --clear-due is the working path."},
+        {"severity": "low", "category": "scope", "requirement": "R8", "evidence": "B/task_manager.py:10", "summary": "Default database is ~/.tasks.db in the home directory (overridable with --db/TASK_DB)."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt (8 findings: E731 lambda, B904, B905, E501, S608)", "summary": "Minor lint findings."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 201},
+ "blinding_guess": {"spec_framework_side": "unsure", "confidence": 0.3, "why": "Both are compact single-file argparse CLIs with near-identical schemas; A's separated domain functions plus tests hint at a more disciplined process, but that is weak evidence."},
+ "notes": "Both sides use the same CLI shape (add/list/update/done/delete with -p/-s/--due/--db), so every probe used the same invocation with --db pointed at a temp file. A passed all 23 probes and its 7 unittest tests pass. B passed 20 of 23: it accepts empty titles, shows a traceback when the database path cannot be opened, and truncates long fields in the table. B adds extras (show command, --clear-due, priority/due-date sorting) but has no tests. Both build the UPDATE SET clause dynamically from fixed column names with parameterized values; bandit B608 is a false positive on both."
+}

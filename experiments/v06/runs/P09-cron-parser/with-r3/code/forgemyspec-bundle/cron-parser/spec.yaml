@@ -1,0 +1,99 @@
+version: "0.1"
+title: "Cron expression parser CLI"
+objective: "A single-file, stdlib-only Python CLI (cron_parser.py) that parses standard 5-field cron expressions, explains them with validate, and prints upcoming run times with next."
+execution_mode: critical
+context:
+  system: "Empty Python repository; Python 3 standard library only; code in cron_parser.py at the repository root, tests in tests/ (unittest)."
+  assumptions:
+    - "Fields are minute 0-59, hour 0-23, day-of-month 1-31, month 1-12, day-of-week 0-7 (0 and 7 are Sunday)."
+    - "When both day-of-month and day-of-week are restricted (not *), a date matches if either matches (Vixie cron semantics)."
+    - "Run times are computed in local time, at minute resolution, strictly after now; the search horizon is 8 years."
+    - "A hidden --from 'YYYY-MM-DD HH:MM' option on next replaces now, so tests are deterministic."
+    - "Macros such as @daily and 6-field expressions with seconds are out of scope."
+constraints:
+  - "Standard library only; everything lives in the single file cron_parser.py."
+  - "No macros (@daily), no seconds field, no year field, no L/W/# extensions, no timezone options."
+  - "Invalid input exits with status 2 and a message on stderr; it never raises a traceback."
+success_criteria:
+  - "validate prints one explanation line per field for a valid expression and exits 0."
+  - "validate names the field and the reason for an invalid expression and exits 2."
+  - "next prints N future run times, ascending, each matching the expression."
+  - "Impossible dates such as 0 0 30 2 * are reported, never looped on forever."
+hypotheses:
+  - {id: h1, description: "The parser accepts *, comma lists, ranges, steps (*/n, a-b/n, a/n) in all five fields.", confidence: 0.9}
+  - {id: h2, description: "Month names (jan-dec) and day names (sun-sat) are accepted case-insensitively, alone, in lists and in ranges.", confidence: 0.9}
+  - {id: h3, description: "Out-of-range values, malformed tokens, reversed ranges, zero steps and wrong field counts are rejected with the field and reason.", confidence: 0.9}
+  - {id: h4, description: "next returns the next N run times strictly after the start time, in ascending order, each matching the expression, with N defaulting to 5.", confidence: 0.85}
+  - {id: h5, description: "Expressions that can never match a real date (February 30, April 31) are reported and next terminates without run times.", confidence: 0.85}
+  - {id: h6, description: "When both day fields are restricted, a date matches if either day field matches, and February 29 occurs in leap years.", confidence: 0.8}
+required_evidence:
+  - "unittest run of tests/test_cron_parser.py with all tests passing"
+  - "output of cron_parser.py validate for a valid and an invalid expression"
+  - "output of cron_parser.py next for a normal expression and for 0 0 30 2 *"
+actions:
+  - {id: a1, description: "Implement the field parser with lists, ranges, steps and names", type: implement, requires_confirmation: false, supports: [h1, h2, h3]}
+  - {id: a2, description: "Implement next-run search with day OR rule, leap years and impossible-date detection", type: implement, requires_confirmation: false, supports: [h4, h5, h6]}
+  - {id: a3, description: "Write the unittest suite and run it", type: test, requires_confirmation: false, supports: [h1, h2, h3, h4, h5, h6]}
+decision_rules:
+  - "Stop and ask if a requirement needs anything beyond the standard library or a second file."
+  - "Treat any behavior not covered by an obligation as a spec amendment."
+metadata:
+  source_prompt: "Build a cron expression parser CLI in Python. Parse standard 5-field cron expressions (minute, hour, day-of-month, month, day-of-week) supporting *, lists, ranges and steps, and month/day names. Subcommands: validate <expr> (explains each field or reports the error) and next <expr> [-n N] (prints the next N run times from now). Handle invalid dates such as February 30. Single file cron_parser.py, stdlib only."
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "lists, ranges and steps"
+      - "month and day names"
+      - "validate explains each field"
+      - "validate reports the error"
+      - "next prints the next N run times"
+      - "invalid dates such as February 30"
+formal:
+  module: CronParser
+  obligations:
+    - id: syntax_lists_ranges_steps
+      kind: boundary
+      statement: "Fields accept *, comma lists, ranges a-b, and steps */n, a-b/n, a/n, expanding to the correct value sets."
+      hypotheses: [h1]
+      must_include: ["lists, ranges and steps"]
+      test: "test_cron_parser.ParseTests.test_lists_ranges_steps"
+    - id: names_case_insensitive
+      kind: boundary
+      statement: "Month and day names parse case-insensitively alone, in lists and in ranges; 0 and 7 are both Sunday."
+      hypotheses: [h2]
+      must_include: ["month and day names"]
+      test: "test_cron_parser.ParseTests.test_names"
+    - id: validate_explains
+      kind: boundary
+      statement: "validate on a valid expression prints one explanation line per field and exits 0."
+      hypotheses: [h1, h2]
+      must_include: ["validate explains each field"]
+      test: "test_cron_parser.CliTests.test_validate_explains_fields"
+    - id: validate_errors
+      kind: boundary
+      statement: "Out-of-range values, bad tokens, reversed ranges, zero steps and wrong field counts make validate exit 2 naming the field and reason."
+      hypotheses: [h3]
+      must_include: ["validate reports the error"]
+      test: "test_cron_parser.CliTests.test_validate_reports_errors"
+    - id: next_runs
+      kind: boundary
+      statement: "next -n N prints N ascending run times strictly after the start, each matching the expression; N defaults to 5."
+      hypotheses: [h4]
+      must_include: ["next prints the next N run times"]
+      test: "test_cron_parser.NextTests.test_next_n_runs"
+    - id: impossible_dates
+      kind: boundary
+      statement: "0 0 30 2 * and 0 0 31 4 * are reported as never matching; next prints no times, exits 2 and terminates."
+      hypotheses: [h5]
+      must_include: ["invalid dates such as February 30"]
+      test: "test_cron_parser.NextTests.test_impossible_dates"
+    - id: dom_dow_leap
+      kind: boundary
+      statement: "With both day fields restricted a date matches if either matches; 0 0 29 2 * runs only in leap years."
+      hypotheses: [h6]
+      must_include: ["invalid dates such as February 30"]
+      test: "test_cron_parser.NextTests.test_dom_dow_or_and_leap"
+scope:
+  paths: ["cron_parser.py", "tests/**"]
+  tests: tests
+  pythonpath: ["."]

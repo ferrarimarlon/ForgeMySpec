@@ -1,0 +1,30 @@
+{
+ "requests": [
+  {
+   "code": "CXQV4X",
+   "nonce": "b253e1b127f98c7585d6e7e7aab7746f",
+   "created_at": "2026-10-31T20:35:49.135Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/csv-dedup",
+     "content_sha": "c0c1b32065966168b87d2d4beac0ab009813a00978c1a7a49d9b631defed45dc",
+     "used_at": null
+    }
+   ]
+  },
+  {
+   "code": "WBRMZB",
+   "nonce": "a4dae27877b9eb64b57525f73eb5d33d",
+   "created_at": "2026-10-31T20:35:52.436Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/csv-dedup",
+     "content_sha": "1d8b1695d29202f642733891083c0e7efb1fba1ba11af6f4ea657d99bbf13610",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

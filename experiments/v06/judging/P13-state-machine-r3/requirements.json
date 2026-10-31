@@ -1,0 +1,20 @@
+[
+ {"id":"R1","text":"CLI program in Python"},
+ {"id":"R2","text":"Single file named state_machine.py"},
+ {"id":"R3","text":"Uses only the standard library"},
+ {"id":"R4","text":"Loads a machine definition from a JSON file"},
+ {"id":"R5","text":"Definition contains states"},
+ {"id":"R6","text":"Definition contains an initial state"},
+ {"id":"R7","text":"Definition contains final states"},
+ {"id":"R8","text":"Definition contains transitions with events (from/to/event)"},
+ {"id":"R9","text":"Transitions may have optional guard conditions evaluated on a context"},
+ {"id":"R10","text":"Validation detects transitions/initial/final referencing unknown states"},
+ {"id":"R11","text":"Validation detects unreachable states"},
+ {"id":"R12","text":"Validation detects missing initial state"},
+ {"id":"R13","text":"Runs a sequence of events against the machine"},
+ {"id":"R14","text":"Keeps a history of transitions"},
+ {"id":"R15","text":"History can be printed"},
+ {"id":"R16","text":"Guard that evaluates false blocks the transition"},
+ {"id":"R17","text":"Invalid events/errors are reported cleanly (non-zero exit, no traceback) — implied"},
+ {"id":"R18","text":"Guard evaluation must be safe (no arbitrary code execution from definition) — implied"}
+]

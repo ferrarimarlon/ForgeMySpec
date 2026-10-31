@@ -1,0 +1,98 @@
+version: "0.1"
+title: "Time tracker CLI"
+objective: "A single-file, stdlib-only Python CLI (time_tracker.py) that tracks work sessions per project in a JSON file."
+execution_mode: critical
+context:
+  system: "Empty Python repository; the deliverable is time_tracker.py at the repository root, tested with unittest."
+  assumptions:
+    - "The data file defaults to time_tracker.json in the current directory and can be overridden with --file or the TIME_TRACKER_FILE environment variable."
+    - "Timestamps are stored as ISO 8601 strings in local naive time, second precision."
+    - "Overlap means two sessions whose intervals intersect with positive length; touching endpoints do not overlap."
+    - "Overlaps can only arise from edited or imported data; log reports them and exits 0."
+    - "An active session is counted in log and report up to the current time."
+constraints:
+  - "Single file time_tracker.py, Python standard library only."
+  - "No manual session editing, no import/export, no GUI or network access."
+  - "No subcommands beyond start, stop, log and report."
+success_criteria:
+  - "All unittest boundary tests pass."
+  - "start twice in a row exits non-zero and leaves the file unchanged."
+  - "report prints one HH:MM:SS total per project."
+hypotheses:
+  - {id: h1, description: "start <project> records an active session and stop closes it, persisted in a JSON file.", confidence: 0.9}
+  - {id: h2, description: "start is refused with a non-zero exit while another session is active, and the file is unchanged.", confidence: 0.9}
+  - {id: h3, description: "log lists sessions with durations formatted as HH:MM:SS and flags overlapping sessions.", confidence: 0.85}
+  - {id: h4, description: "report prints total time per project formatted as HH:MM:SS.", confidence: 0.9}
+  - {id: h5, description: "Error conditions (stop when idle, corrupt data file) end with a non-zero exit and a clear stderr message.", confidence: 0.85}
+required_evidence:
+  - "Output of python3 -m unittest discover -s tests showing all tests passing."
+  - "Command output of a start, stop, log, report run against a temporary data file."
+actions:
+  - {id: a1, description: "Implement time_tracker.py with argparse subcommands and JSON persistence.", type: implement, requires_confirmation: false, supports: [h1, h2, h5]}
+  - {id: a2, description: "Implement duration formatting, overlap detection, log and report.", type: implement, requires_confirmation: false, supports: [h3, h4]}
+  - {id: a3, description: "Run the boundary tests and a manual CLI session.", type: validate, requires_confirmation: false, supports: [h1, h2, h3, h4, h5]}
+decision_rules:
+  - "If a requirement is ambiguous or conflicts with another, stop and ask the user."
+  - "Any behavior not covered by an obligation is a spec amendment."
+metadata:
+  source_prompt: "Build a time tracker CLI in Python. Subcommands: start <project>, stop, log, report. Persist sessions in a JSON file, refuse to start a session while another is active, detect overlapping sessions, show durations formatted as HH:MM:SS, and report total time per project. Single file time_tracker.py, stdlib only."
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "start <project>"
+      - "stop"
+      - "sessions persisted in JSON file"
+      - "refuse start while a session is active"
+      - "detect overlapping sessions"
+      - "durations formatted as HH:MM:SS"
+      - "report total time per project"
+      - "single file time_tracker.py, stdlib only"
+formal:
+  module: TimeTracker
+  obligations:
+    - id: start_stop_persist
+      kind: boundary
+      statement: "start <project> stores an active session and stop closes it with an end time; both are persisted in the JSON file and survive a new process."
+      hypotheses: [h1]
+      must_include: ["start <project>", "stop", "sessions persisted in JSON file"]
+      test: "test_time_tracker.TrackerTests.test_start_stop_persist"
+    - id: start_refused_when_active
+      kind: boundary
+      statement: "start while a session is active exits non-zero, names the active project, and leaves the file unchanged."
+      hypotheses: [h2]
+      must_include: ["refuse start while a session is active"]
+      test: "test_time_tracker.TrackerTests.test_start_refused_when_active"
+    - id: overlap_detected
+      kind: boundary
+      statement: "log flags sessions whose intervals intersect with positive length and does not flag touching ones."
+      hypotheses: [h3]
+      must_include: ["detect overlapping sessions"]
+      test: "test_time_tracker.TrackerTests.test_overlap_detected"
+    - id: duration_format
+      kind: boundary
+      statement: "Durations render as zero-padded HH:MM:SS, with hours beyond 99 and 24 shown unwrapped (e.g. 100:00:01)."
+      hypotheses: [h3]
+      must_include: ["durations formatted as HH:MM:SS"]
+      test: "test_time_tracker.TrackerTests.test_duration_format"
+    - id: report_totals
+      kind: boundary
+      statement: "report prints one line per project with the sum of its session durations as HH:MM:SS, including the active session up to now."
+      hypotheses: [h4]
+      must_include: ["report total time per project"]
+      test: "test_time_tracker.TrackerTests.test_report_totals"
+    - id: error_exits
+      kind: boundary
+      statement: "stop with no active session and an unreadable or corrupt JSON file exit non-zero with a message on stderr and never overwrite the corrupt file."
+      hypotheses: [h5]
+      must_include: ["stop"]
+      test: "test_time_tracker.TrackerTests.test_error_exits"
+    - id: single_file_stdlib
+      kind: boundary
+      statement: "time_tracker.py imports only standard library modules and is the only module the tests need."
+      hypotheses: [h1]
+      must_include: ["single file time_tracker.py, stdlib only"]
+      test: "test_time_tracker.TrackerTests.test_stdlib_only"
+scope:
+  paths: ["time_tracker.py", "tests/**"]
+  tests: tests
+  pythonpath: ["."]

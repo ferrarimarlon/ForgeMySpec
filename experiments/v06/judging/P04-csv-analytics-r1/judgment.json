@@ -1,0 +1,35 @@
+{
+ "requirements_total": 14,
+ "probes_total": 21,
+ "A": {"probes_passed": 21,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 0},
+       "requirements_met": 14, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "quality", "requirement": "R14",
+         "evidence": "csv_analytics.py -o /nonexistent/x.json -> FileNotFoundError traceback, rc=1 (A/csv_analytics.py:190 open() outside try)",
+         "summary": "Unwritable --output path crashes with an uncaught traceback instead of a clean error."},
+        {"severity": "low", "category": "quality", "requirement": null,
+         "evidence": "static/A-ruff.txt: 8x E501, B905 at :161",
+         "summary": "Minor lint findings (long lines, zip without strict)."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 204},
+ "B": {"probes_passed": 21,
+       "scores": {"functional": 3, "coverage": 5, "security": 5, "robustness": 4, "quality": 4, "tests": 4},
+       "requirements_met": 13, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "silent", "requirement": "R13",
+         "evidence": "CSV 'a\\n1\\nN/A\\n3' -> min/max/mean/median/stdev all null, count 3 (B/csv_analytics.py:82)",
+         "summary": "A single non-numeric cell in a numeric column silently nulls every numeric stat for that column."},
+        {"severity": "low", "category": "functional", "requirement": "R11",
+         "evidence": "header 'id, age' with --columns age -> 'error: unknown column: age' (headers not stripped)",
+         "summary": "Header names with whitespace after commas are not normalized, so natural column names are rejected."},
+        {"severity": "low", "category": "quality", "requirement": null,
+         "evidence": "static/B-ruff.txt: B904 at :40,:42,:131",
+         "summary": "Re-raised exceptions lack 'from' chaining."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 8, "failed": 0},
+       "loc": 283},
+ "blinding_guess": {"spec_framework_side": "B", "confidence": 0.4, "why": "B ships a unit-test suite and a stricter exit-code/error contract, which hints at a more process-driven workflow, but the signal is weak."},
+ "notes": "Both sides passed all 21 black-box probes (stats, even/odd median, numeric/string/AND filters, selection, JSON export, quoting, missing/ragged data, error paths). Differences only showed up in edge cases I probed by hand: A crashes with a traceback on an unwritable output path; B nulls all stats for mixed columns and doesn't strip header whitespace. A has extra features (multi-file, stdin, table output, ~= filter, --rows) but no tests; B has 8 passing unittest tests. Bandit reported nothing for either side. Probes ran with python3.11 (system python3 is 3.9, which lacks sys.stdlib_module_names)."
+}

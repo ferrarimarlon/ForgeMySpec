@@ -1,0 +1,16 @@
+[
+ {"id":"R1","text":"Single file named csv_analytics.py"},
+ {"id":"R2","text":"Uses only the Python standard library"},
+ {"id":"R3","text":"Reads CSV files (header row, quoted fields)"},
+ {"id":"R4","text":"Per-column stat: count"},
+ {"id":"R5","text":"Per-column stat: min"},
+ {"id":"R6","text":"Per-column stat: max"},
+ {"id":"R7","text":"Per-column stat: mean"},
+ {"id":"R8","text":"Per-column stat: median (correct for even and odd counts)"},
+ {"id":"R9","text":"Per-column stat: stdev"},
+ {"id":"R10","text":"Filter rows by a condition"},
+ {"id":"R11","text":"Select a subset of columns"},
+ {"id":"R12","text":"Export a JSON report (valid JSON containing stats)"},
+ {"id":"R13","text":"Implied: handles non-numeric / missing values without crashing"},
+ {"id":"R14","text":"Implied: clear error for missing/invalid input file or unknown column"}
+]

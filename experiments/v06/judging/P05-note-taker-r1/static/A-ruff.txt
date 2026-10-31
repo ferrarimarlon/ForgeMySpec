@@ -1,0 +1,8 @@
+note_taker.py:14:8: F401 [*] `tempfile` imported but unused
+note_taker.py:152:14: UP031 Use format specifiers instead of percent format
+note_taker.py:179:16: S603 `subprocess` call: check for execution of untrusted input
+note_taker.py:263:89: E501 Line too long (93 > 88)
+note_taker.py:276:89: E501 Line too long (89 > 88)
+note_taker.py:282:89: E501 Line too long (95 > 88)
+Found 6 errors.
+[*] 1 fixable with the `--fix` option (1 hidden fix can be enabled with the `--unsafe-fixes` option).

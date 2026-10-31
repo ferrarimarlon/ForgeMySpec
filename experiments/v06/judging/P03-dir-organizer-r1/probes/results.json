@@ -1,0 +1,40 @@
+{
+ "A": {
+  "P01_once_moves_by_ext": "pass",
+  "P02_once_exits": "pass",
+  "P03_log_records_move": "pass",
+  "P04_log_in_cwd_is_target_not_moved": "pass",
+  "P05_skip_subdir_files": "pass",
+  "P06_skip_hidden": "pass",
+  "P07_no_extension": "pass",
+  "P08_collision_no_overwrite": "pass",
+  "P09_watch_moves_new_file": "pass",
+  "P10_watch_clean_sigint": "pass",
+  "P11_requires_mode": "pass",
+  "P12_bad_dir_error": "pass",
+  "P13_single_file_stdlib": "pass",
+  "P14_dest_name_clash_with_file": "pass",
+  "P15_symlink_not_followed_or_crash": "pass",
+  "P16_tmp_file_moved_by_ext": "fail",
+  "P17_file_named_like_dest_dir": "pass"
+ },
+ "B": {
+  "P01_once_moves_by_ext": "pass",
+  "P02_once_exits": "pass",
+  "P03_log_records_move": "pass",
+  "P04_log_in_cwd_is_target_not_moved": "fail",
+  "P05_skip_subdir_files": "pass",
+  "P06_skip_hidden": "pass",
+  "P07_no_extension": "pass",
+  "P08_collision_no_overwrite": "pass",
+  "P09_watch_moves_new_file": "pass",
+  "P10_watch_clean_sigint": "pass",
+  "P11_requires_mode": "pass",
+  "P12_bad_dir_error": "pass",
+  "P13_single_file_stdlib": "pass",
+  "P14_dest_name_clash_with_file": "pass",
+  "P15_symlink_not_followed_or_crash": "pass",
+  "P16_tmp_file_moved_by_ext": "pass",
+  "P17_file_named_like_dest_dir": "fail"
+ }
+}

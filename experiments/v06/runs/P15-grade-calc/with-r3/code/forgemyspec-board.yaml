@@ -1,0 +1,14 @@
+- id: R1
+  status: doing
+  title: "Grade calculator CLI (grade_calc.py)"
+  quote: "Build a grade calculator CLI in Python. Read a CSV of students and assessment scores plus a weights definition, normalize weights that do not sum to 100%, compute each student's weighted final grade, letter grade and GPA points, and print class statistics (mean, median, standard deviation, highest, lowest). Single file grade_calc.py, stdlib only."
+  steps:
+    - {do: "Spec written, linted and approved by the user", check: "cmd: PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec lock --check forgemyspec-bundle/grade-calc"}
+    - {do: "Weights normalized to 100%", check: "test: test_grade_calc.GradeCalcTests.test_weights_normalized_to_100"}
+    - {do: "Weighted final grade", check: "test: test_grade_calc.GradeCalcTests.test_weighted_final_grade"}
+    - {do: "Letter grade and GPA points", check: "test: test_grade_calc.GradeCalcTests.test_letter_and_gpa_boundaries"}
+    - {do: "Class statistics", check: "test: test_grade_calc.GradeCalcTests.test_class_statistics"}
+    - {do: "Invalid input exits 2", check: "test: test_grade_calc.GradeCalcTests.test_invalid_input_exits_2"}
+    - {do: "CLI end to end", check: "test: test_grade_calc.GradeCalcTests.test_cli_end_to_end"}
+    - {do: "Gate passes", check: "cmd: PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec gate forgemyspec-bundle/grade-calc"}
+  next: "write tests and grade_calc.py, run the gate"

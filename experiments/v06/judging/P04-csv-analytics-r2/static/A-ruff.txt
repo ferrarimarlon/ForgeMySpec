@@ -1,0 +1,22 @@
+csv_analytics.py:2:89: E501 Line too long (95 > 88)
+csv_analytics.py:35:17: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+csv_analytics.py:35:41: UP031 Use format specifiers instead of percent format
+csv_analytics.py:41:34: B905 `zip()` without an explicit `strict=` parameter
+csv_analytics.py:43:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+csv_analytics.py:43:33: UP031 Use format specifiers instead of percent format
+csv_analytics.py:86:33: UP031 Use format specifiers instead of percent format
+csv_analytics.py:90:5: C901 `filter_rows` is too complex (11 > 10)
+csv_analytics.py:97:37: UP031 Use format specifiers instead of percent format
+csv_analytics.py:120:37: UP031 Use format specifiers instead of percent format
+csv_analytics.py:140:89: E501 Line too long (96 > 88)
+csv_analytics.py:143:89: E501 Line too long (103 > 88)
+csv_analytics.py:150:15: UP031 Use format specifiers instead of percent format
+tests/test_csv_analytics.py:49:89: E501 Line too long (94 > 88)
+tests/test_csv_analytics.py:57:9: E731 Do not assign a `lambda` expression, use a `def`
+tests/test_csv_analytics.py:58:89: E501 Line too long (90 > 88)
+tests/test_csv_analytics.py:59:89: E501 Line too long (99 > 88)
+tests/test_csv_analytics.py:60:89: E501 Line too long (94 > 88)
+tests/test_csv_analytics.py:103:89: E501 Line too long (108 > 88)
+tests/test_csv_analytics.py:112:89: E501 Line too long (92 > 88)
+Found 20 errors.
+No fixes available (8 hidden fixes can be enabled with the `--unsafe-fixes` option).

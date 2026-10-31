@@ -1,0 +1,8 @@
+organizer.py:77:89: E501 Line too long (90 > 88)
+organizer.py:81:89: E501 Line too long (95 > 88)
+organizer.py:82:89: E501 Line too long (96 > 88)
+organizer.py:83:89: E501 Line too long (93 > 88)
+tests/test_organizer.py:110:16: S603 `subprocess` call: check for execution of untrusted input
+tests/test_organizer.py:128:89: E501 Line too long (94 > 88)
+tests/test_organizer.py:155:89: E501 Line too long (90 > 88)
+Found 7 errors.

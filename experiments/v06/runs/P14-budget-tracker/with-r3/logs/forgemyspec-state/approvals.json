@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "XVRTFK",
+   "nonce": "38d40c6d85510557e0b4dc166ac3ade0",
+   "created_at": "2026-10-31T21:02:55.774Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/budget-tracker",
+     "content_sha": "8b72ead8a6b06611b116594214bd03a5d64ab1c11961561edd6b3c9da53f8291",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

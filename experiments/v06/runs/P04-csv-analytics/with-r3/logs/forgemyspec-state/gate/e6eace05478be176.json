@@ -1,0 +1,116 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:26:41Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "score 100/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "6 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "read_csv": {
+   "kind": "boundary",
+   "statement": "A CSV file with a header is read into rows keyed by column name; a missing file exits 2.",
+   "must_include": [
+    "read CSV files"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "column_stats": {
+   "kind": "boundary",
+   "statement": "Numeric columns report count, min, max, mean, median and sample stdev; empty cells are skipped; stdev is null for fewer than 2 values.",
+   "must_include": [
+    "per-column stats count min max mean median stdev"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "filter_rows": {
+   "kind": "boundary",
+   "statement": "Filters COLUMN OP VALUE are ANDed and keep only matching rows; a malformed filter or unknown column exits 2.",
+   "must_include": [
+    "filter rows"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "select_columns": {
+   "kind": "boundary",
+   "statement": "Column selection keeps only the named columns in the given order; an unknown column exits 2.",
+   "must_include": [
+    "select columns"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "export_json": {
+   "kind": "boundary",
+   "statement": "The report is valid JSON written to the --output file or to stdout.",
+   "must_include": [
+    "export JSON report"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "single_file_stdlib": {
+   "kind": "boundary",
+   "statement": "csv_analytics.py imports only standard-library modules and no other project module.",
+   "must_include": [
+    "single file csv_analytics.py",
+    "stdlib only"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/csv-analytics",
+ "inputs_sha": "9a2e784623febe323f39f10a73eab502efaadd5d8e0bc98c1a20ce30d2ab6c3e",
+ "schema": 2
+}

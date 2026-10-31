@@ -1,0 +1,18 @@
+[
+ {"id":"R1","text":"Python CLI, single file cron_parser.py, stdlib only"},
+ {"id":"R2","text":"Parse standard 5-field cron expressions; reject wrong field count"},
+ {"id":"R3","text":"Support * wildcard"},
+ {"id":"R4","text":"Support lists (a,b,c)"},
+ {"id":"R5","text":"Support ranges (a-b)"},
+ {"id":"R6","text":"Support steps (*/n, a-b/n)"},
+ {"id":"R7","text":"Support month names (JAN-DEC)"},
+ {"id":"R8","text":"Support day-of-week names (SUN-SAT)"},
+ {"id":"R9","text":"Reject out-of-range values per field"},
+ {"id":"R10","text":"validate <expr> explains each field for a valid expression"},
+ {"id":"R11","text":"validate <expr> reports the error for an invalid expression (non-zero exit, message)"},
+ {"id":"R12","text":"next <expr> prints next run times from now (default count)"},
+ {"id":"R13","text":"next <expr> -n N prints exactly N run times, correct and strictly after now"},
+ {"id":"R14","text":"Handle invalid dates like February 30 (no crash, never produce impossible dates; impossible schedule reported)"},
+ {"id":"R15","text":"Standard day-of-month / day-of-week OR semantics when both restricted"},
+ {"id":"R16","text":"Errors produce clean messages, not tracebacks"}
+]

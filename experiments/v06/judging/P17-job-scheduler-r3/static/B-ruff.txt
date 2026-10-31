@@ -1,0 +1,34 @@
+scheduler.py:39:34: UP031 Use format specifiers instead of percent format
+scheduler.py:42:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+scheduler.py:42:30: UP031 Use format specifiers instead of percent format
+scheduler.py:101:89: E501 Line too long (90 > 88)
+scheduler.py:136:5: C901 `cmd_add` is too complex (12 > 10)
+scheduler.py:140:30: UP031 Use format specifiers instead of percent format
+scheduler.py:140:89: E501 Line too long (91 > 88)
+scheduler.py:142:30: UP031 Use format specifiers instead of percent format
+scheduler.py:152:30: UP031 Use format specifiers instead of percent format
+scheduler.py:155:34: UP031 Use format specifiers instead of percent format
+scheduler.py:159:30: UP031 Use format specifiers instead of percent format
+scheduler.py:165:11: UP031 Use format specifiers instead of percent format
+scheduler.py:178:11: UP031 Use format specifiers instead of percent format
+scheduler.py:182:11: UP031 Use format specifiers instead of percent format
+scheduler.py:190:30: UP031 Use format specifiers instead of percent format
+scheduler.py:192:30: UP031 Use format specifiers instead of percent format
+scheduler.py:197:11: UP031 Use format specifiers instead of percent format
+scheduler.py:199:15: UP031 Use format specifiers instead of percent format
+scheduler.py:207:11: UP031 Use format specifiers instead of percent format
+scheduler.py:210:15: UP031 Use format specifiers instead of percent format
+scheduler.py:218:11: UP031 Use format specifiers instead of percent format
+scheduler.py:220:15: UP031 Use format specifiers instead of percent format
+scheduler.py:221:89: E501 Line too long (102 > 88)
+scheduler.py:222:89: E501 Line too long (90 > 88)
+scheduler.py:226:19: UP031 Use format specifiers instead of percent format
+scheduler.py:231:23: UP031 Use format specifiers instead of percent format
+scheduler.py:238:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+scheduler.py:242:89: E501 Line too long (90 > 88)
+scheduler.py:247:89: E501 Line too long (98 > 88)
+scheduler.py:250:89: E501 Line too long (105 > 88)
+scheduler.py:254:89: E501 Line too long (95 > 88)
+scheduler.py:260:15: UP031 Use format specifiers instead of percent format
+Found 32 errors.
+No fixes available (17 hidden fixes can be enabled with the `--unsafe-fixes` option).

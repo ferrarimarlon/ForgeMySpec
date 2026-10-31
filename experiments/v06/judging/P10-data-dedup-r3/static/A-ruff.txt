@@ -1,0 +1,23 @@
+data_dedup.py:19:89: E501 Line too long (96 > 88)
+data_dedup.py:20:89: E501 Line too long (91 > 88)
+data_dedup.py:22:89: E501 Line too long (89 > 88)
+data_dedup.py:24:89: E501 Line too long (96 > 88)
+data_dedup.py:25:89: E501 Line too long (93 > 88)
+data_dedup.py:26:89: E501 Line too long (97 > 88)
+data_dedup.py:38:13: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+data_dedup.py:44:26: UP031 Use format specifiers instead of percent format
+data_dedup.py:63:5: C901 `main` is too complex (15 > 10)
+data_dedup.py:69:89: E501 Line too long (98 > 88)
+data_dedup.py:81:19: UP031 Use format specifiers instead of percent format
+data_dedup.py:96:23: UP031 Use format specifiers instead of percent format
+data_dedup.py:96:89: E501 Line too long (91 > 88)
+data_dedup.py:115:15: UP031 Use format specifiers instead of percent format
+data_dedup.py:118:19: UP031 Use format specifiers instead of percent format
+data_dedup.py:122:89: E501 Line too long (101 > 88)
+data_dedup.py:134:11: UP031 Use format specifiers instead of percent format
+data_dedup.py:135:11: UP031 Use format specifiers instead of percent format
+data_dedup.py:136:11: UP031 Use format specifiers instead of percent format
+data_dedup.py:137:11: UP031 Use format specifiers instead of percent format
+data_dedup.py:138:11: UP031 Use format specifiers instead of percent format
+Found 21 errors.
+No fixes available (3 hidden fixes can be enabled with the `--unsafe-fixes` option).

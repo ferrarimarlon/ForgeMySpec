@@ -1,0 +1,9 @@
+ config_validator.py                                | 143 +++++++++++++++++++
+ .../.claude/commands/implement-from-spec.md        |   8 ++
+ forgemyspec-bundle/config-validator/CLAUDE.md      |  47 +++++++
+ .../config-validator/acceptance-checklist.md       |  17 +++
+ .../config-validator/evals/scope_drift_cases.yaml  |  20 +++
+ forgemyspec-bundle/config-validator/spec.lock      |   5 +
+ forgemyspec-bundle/config-validator/spec.yaml      | 152 +++++++++++++++++++++
+ tests/test_config_validator.py                     | 117 ++++++++++++++++
+ 8 files changed, 509 insertions(+)

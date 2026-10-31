@@ -1,0 +1,156 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:18:07Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "score 100/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "10 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "move_by_extension": {
+   "kind": "boundary",
+   "statement": "A visible top-level file is moved into a subdirectory named after its lowercased extension (no_extension if none).",
+   "must_include": [
+    "move files into subdirectories by extension"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "collision_safe": {
+   "kind": "boundary",
+   "statement": "If the destination exists, the file gets a numeric suffix and the existing file is untouched.",
+   "must_include": [
+    "move files into subdirectories by extension"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "once_mode": {
+   "kind": "boundary",
+   "statement": "--once organizes the target a single time and exits 0.",
+   "must_include": [
+    "--once mode"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "cli_validation": {
+   "kind": "boundary",
+   "statement": "Missing mode, both modes, or a non-directory target exit non-zero.",
+   "must_include": [
+    "--once mode",
+    "--watch mode"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "watch_mode": {
+   "kind": "boundary",
+   "statement": "--watch picks up a file created after start and moves it, and stops on interrupt.",
+   "must_include": [
+    "--watch mode"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "move_logged": {
+   "kind": "boundary",
+   "statement": "Each move appends a line with timestamp, source and destination to organizer.log.",
+   "must_include": [
+    "log moves to organizer.log"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "skip_subdir_files": {
+   "kind": "boundary",
+   "statement": "Files inside existing subdirectories are not moved and subdirectories are not entered.",
+   "must_include": [
+    "skip files already in subdirs"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "skip_hidden": {
+   "kind": "boundary",
+   "statement": "Files whose name starts with a dot are not moved.",
+   "must_include": [
+    "skip hidden files"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "single_file_stdlib": {
+   "kind": "boundary",
+   "statement": "organizer.py is the only module of the tool and imports only standard library modules.",
+   "must_include": [
+    "single file organizer.py",
+    "stdlib only"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/dir-organizer",
+ "inputs_sha": "4340a6d95459020b6bf5b83640a4d85314de9a721b4597b19d3cb39bf64e0bb0",
+ "schema": 2
+}

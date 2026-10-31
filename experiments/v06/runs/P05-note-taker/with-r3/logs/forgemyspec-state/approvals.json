@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "WMMUNO",
+   "nonce": "47aafb497a6bd54bdb7a2ac2848202dc",
+   "created_at": "2026-10-31T20:30:35.593Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/note-taker",
+     "content_sha": "d1368199075271604b9222a793791a0b49ae019f3c7718ea7d35ebd51353a6cd",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

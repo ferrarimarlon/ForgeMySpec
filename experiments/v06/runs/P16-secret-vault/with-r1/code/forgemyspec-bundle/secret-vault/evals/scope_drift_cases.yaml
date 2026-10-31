@@ -1,0 +1,30 @@
+version: '0.1'
+purpose: Manual eval seeds to detect scope drift in Claude implementations
+source_prompt: 'Build a Secret Vault CLI in Python (single file vault.py; the cryptography
+  package is allowed) with the 14 requirements: master password from VAULT_MASTER_KEY;
+  Fernet with PBKDF2HMAC SHA-256 200,000 iterations and random 16-byte salt in the
+  header; keys [a-zA-Z0-9_]{1,64} stored lowercase; values at most 4096 bytes UTF-8;
+  --ttl DAYS default 90 with ISO-8601 expiry; commands set, get, list, delete, rotate,
+  audit; get prints only the value, exit 3 if expired; list shows value[:4]***; rotate
+  exits 1 if key missing; audit appends to ~/.vault/audit.log and shows last 20 lines;
+  3 wrong passwords create .lockout, exit 2; never write values to audit log or stderr;
+  vault.enc chmod 600 and ~/.vault/ chmod 700; exit codes 0/1/2/3.'
+checks:
+  must_include:
+  - VAULT_MASTER_KEY
+  - PBKDF2HMAC SHA-256 200000 iterations
+  - random 16-byte salt in header
+  - keys stored lowercase
+  - values at most 4096 bytes
+  - --ttl default 90
+  - expiry in ISO-8601
+  - get prints only the value
+  - exit 3 if expired
+  - list shows value[:4]***
+  - rotate exits 1 if key missing
+  - audit shows last 20 lines
+  - 3 wrong passwords create .lockout
+  - never write values to audit log or stderr
+  - vault.enc chmod 600
+  - ~/.vault/ chmod 700
+cases: []

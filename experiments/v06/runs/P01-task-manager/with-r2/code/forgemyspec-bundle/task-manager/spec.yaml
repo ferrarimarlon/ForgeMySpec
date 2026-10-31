@@ -1,0 +1,107 @@
+version: "0.1"
+title: "CLI Task Manager"
+objective: "A single-file Python CLI (task_manager.py) that manages tasks with CRUD, filtering and done-marking, persisted in SQLite via raw sqlite3 and printed as a terminal table."
+execution_mode: critical
+context:
+  system: "Empty Python repository, stdlib only (argparse, sqlite3, unittest). Entry point task_manager.py at the repository root; tests in tests/."
+  assumptions:
+    - "Database path defaults to tasks.db in the current directory and can be overridden with --db or the TASK_DB environment variable."
+    - "due_date is optional and is an ISO date YYYY-MM-DD; description is optional (empty by default)."
+    - "Default priority is medium and default status is todo on add."
+    - "id is an auto-incrementing integer assigned by SQLite."
+    - "Filters combine with AND; list is ordered by id."
+    - "Invalid input or unknown id prints an error to stderr and exits with code 1 (argparse usage errors exit 2)."
+constraints:
+  - "No ORM and no third-party packages; only the Python standard library."
+  - "All code lives in the single file task_manager.py; tests are separate."
+  - "SQL uses parameterized queries, never string-formatted values."
+  - "No web UI, no authentication, no sync, no recurring tasks, no tags or subtasks."
+success_criteria:
+  - "add, list, update, delete and done commands work end to end against a real SQLite file."
+  - "list --status and --priority return only matching tasks."
+  - "list prints an aligned table with a header row."
+  - "Tasks survive across separate invocations."
+hypotheses:
+  - {id: h1, description: "add creates a task with id, title, description, priority, status and due_date and persists it in SQLite.", confidence: 0.95}
+  - {id: h2, description: "list shows all tasks and filters by status and by priority, combined with AND.", confidence: 0.9}
+  - {id: h3, description: "update changes only the given fields of an existing task and delete removes it; an unknown id is reported as an error.", confidence: 0.9}
+  - {id: h4, description: "done sets the status of a task to done.", confidence: 0.95}
+  - {id: h5, description: "Invalid priority, status, title or due_date is rejected with an error and exit code 1, and nothing is stored.", confidence: 0.85}
+  - {id: h6, description: "list output is a formatted table with a header row and aligned columns.", confidence: 0.85}
+  - {id: h7, description: "Data persists in a SQLite file using raw sqlite3, with only stdlib dependencies, in the single file task_manager.py.", confidence: 0.9}
+required_evidence:
+  - "Output of python3 -m unittest discover tests showing all boundary tests passing."
+  - "Output of the gate command ending in RESULT: PASS."
+  - "Sample CLI session output showing add, list with filters, update, done and delete."
+actions:
+  - {id: a1, description: "Design the schema, CLI subcommands and validation rules.", type: design, requires_confirmation: false, supports: [h1, h5, h7]}
+  - {id: a2, description: "Implement the database layer and commands in task_manager.py.", type: implement, requires_confirmation: false, supports: [h1, h2, h3, h4, h7]}
+  - {id: a3, description: "Implement validation and the table formatter.", type: implement, requires_confirmation: false, supports: [h5, h6]}
+  - {id: a4, description: "Write and run the unittest boundary tests and the gate.", type: validate, requires_confirmation: false, supports: [h1, h2, h3, h4, h5, h6, h7]}
+decision_rules:
+  - "If a requirement is ambiguous (for example due_date format), stop and ask the user before changing the spec."
+  - "Anything outside the obligations is a spec amendment, not an implementation choice."
+  - "Stop if a gate stage fails and fix the cause; never weaken tests."
+metadata:
+  source_prompt: "Build a CLI Task Manager in Python. Requirements: Add, list, update, delete tasks (CRUD). Each task has: id, title, description, priority (low/medium/high), status (todo/in-progress/done), due_date. Persist data in SQLite (no ORM, raw sqlite3). Filter tasks by status and priority. Mark task as done. Output as formatted table in terminal. Single file CLI entry point: task_manager.py. No external dependencies beyond stdlib."
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "add, list, update, delete tasks"
+      - "priority low/medium/high"
+      - "status todo/in-progress/done"
+      - "persist in SQLite with raw sqlite3"
+      - "filter by status and priority"
+      - "mark task as done"
+      - "formatted table output"
+      - "single file task_manager.py"
+      - "stdlib only"
+formal:
+  module: TaskManager
+  obligations:
+    - id: crud_roundtrip
+      kind: boundary
+      statement: "add stores a task with id, title, description, priority, status and due_date; update changes only given fields; delete removes it; unknown id exits 1."
+      hypotheses: [h1, h3]
+      must_include: ["add, list, update, delete tasks"]
+      test: "test_task_manager.CrudTests.test_add_update_delete_roundtrip"
+    - id: enum_validation
+      kind: boundary
+      statement: "Priority outside low/medium/high, status outside todo/in-progress/done, empty title or malformed due_date exits 1 and stores nothing."
+      hypotheses: [h5]
+      must_include: ["priority low/medium/high", "status todo/in-progress/done"]
+      test: "test_task_manager.ValidationTests.test_invalid_values_rejected"
+    - id: sqlite_persistence
+      kind: boundary
+      statement: "Tasks written by one process invocation are read by the next from the SQLite file, using raw sqlite3 with parameterized queries."
+      hypotheses: [h1, h7]
+      must_include: ["persist in SQLite with raw sqlite3"]
+      test: "test_task_manager.PersistenceTests.test_persists_across_invocations"
+    - id: filter_status_priority
+      kind: boundary
+      statement: "list --status and --priority return only matching tasks, and both together apply AND."
+      hypotheses: [h2]
+      must_include: ["filter by status and priority"]
+      test: "test_task_manager.FilterTests.test_filter_by_status_and_priority"
+    - id: mark_done
+      kind: boundary
+      statement: "done <id> sets status to done and leaves other fields unchanged; unknown id exits 1."
+      hypotheses: [h4]
+      must_include: ["mark task as done"]
+      test: "test_task_manager.DoneTests.test_done_sets_status"
+    - id: table_output
+      kind: boundary
+      statement: "list prints a header row (ID, TITLE, PRIORITY, STATUS, DUE) and aligned columns, one row per task."
+      hypotheses: [h6]
+      must_include: ["formatted table output"]
+      test: "test_task_manager.TableTests.test_table_has_header_and_aligned_columns"
+    - id: single_file_stdlib
+      kind: boundary
+      statement: "task_manager.py imports only stdlib modules and runs standalone as the CLI entry point."
+      hypotheses: [h7]
+      must_include: ["single file task_manager.py", "stdlib only"]
+      test: "test_task_manager.StructureTests.test_stdlib_only_single_file"
+scope:
+  paths: ["task_manager.py", "tests/**"]
+  tests: tests
+  pythonpath: ["."]

@@ -1,0 +1,9 @@
+- id: R1
+  status: done
+  title: "Cron expression parser CLI"
+  quote: "Build a cron expression parser CLI in Python ... validate <expr> and next <expr> [-n N] ... Handle invalid dates such as February 30. Single file cron_parser.py, stdlib only."
+  steps:
+    - {do: "Spec approved by the user (spec.lock)", ok: true}
+    - {do: "Boundary tests pass", check: "cmd: PYTHONPATH=. python3 -m unittest discover -s tests"}
+    - {do: "Gate passes", check: "cmd: PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec gate forgemyspec-bundle/cron"}
+  evidence: "gate RESULT: PASS (7 boundary tests)"

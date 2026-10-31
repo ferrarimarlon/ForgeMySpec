@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "2QTCKJ",
+   "nonce": "0069223461b229cd43224259b39c1285",
+   "created_at": "2026-10-31T20:22:38.523Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/blog-api",
+     "content_sha": "97a464966c8be3da73648981f614ec45c61d61bdedac0e03c50deea18aa309e1",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,42 @@
+{
+ "A": {
+  "P1": "pass",
+  "P2": "pass",
+  "P3": "pass",
+  "P4": "pass",
+  "P5": "pass",
+  "P6": "pass",
+  "P7": "pass",
+  "P8": "pass",
+  "P9": "pass",
+  "P10": "fail",
+  "P11": "pass",
+  "P12": "pass",
+  "P13": "pass",
+  "P14": "pass",
+  "P15": "pass",
+  "P16": "fail",
+  "P17": "pass",
+  "P18": "fail"
+ },
+ "B": {
+  "P1": "pass",
+  "P2": "pass",
+  "P3": "pass",
+  "P4": "pass",
+  "P5": "pass",
+  "P6": "pass",
+  "P7": "pass",
+  "P8": "pass",
+  "P9": "pass",
+  "P10": "pass",
+  "P11": "pass",
+  "P12": "pass",
+  "P13": "pass",
+  "P14": "pass",
+  "P15": "pass",
+  "P16": "pass",
+  "P17": "pass",
+  "P18": "pass"
+ }
+}

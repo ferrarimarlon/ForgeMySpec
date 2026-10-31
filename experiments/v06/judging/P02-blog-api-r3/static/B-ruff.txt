@@ -1,0 +1,8 @@
+blog_api.py:63:5: C901 `validate` is too complex (11 > 10)
+blog_api.py:101:13: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+blog_api.py:109:13: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+blog_api.py:139:21: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+blog_api.py:152:89: E501 Line too long (94 > 88)
+blog_api.py:168:21: S608 Possible SQL injection vector through string-based query construction
+blog_api.py:168:89: E501 Line too long (107 > 88)
+Found 7 errors.

@@ -1,0 +1,15 @@
+[
+ {"id":"R1","text":"CLI program written in Python"},
+ {"id":"R2","text":"Single file named budget_tracker.py"},
+ {"id":"R3","text":"Stdlib only (no third-party imports)"},
+ {"id":"R4","text":"Define monthly budgets per category"},
+ {"id":"R5","text":"Record expenses with amount, category, date and note"},
+ {"id":"R6","text":"Persist expenses (and budgets) into a JSON file"},
+ {"id":"R7","text":"Reject expenses with unknown (undefined) categories"},
+ {"id":"R8","text":"Reject invalid amounts (non-numeric, zero/negative, NaN/inf)"},
+ {"id":"R9","text":"Report spending per category against the budget (monthly)"},
+ {"id":"R10","text":"Alert when a category reaches 80% of its budget"},
+ {"id":"R11","text":"Alert when a category reaches 100% of its budget"},
+ {"id":"R12","text":"Rejections produce an error (non-zero exit / message) and leave data unchanged"},
+ {"id":"R13","text":"Invalid dates are rejected (date field validated)"}
+]

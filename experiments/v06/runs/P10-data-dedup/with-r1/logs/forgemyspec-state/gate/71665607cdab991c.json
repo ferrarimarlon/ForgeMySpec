@@ -1,0 +1,128 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:35:05Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "score 100/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "7 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "composite_key": {
+   "kind": "boundary",
+   "statement": "Rows are duplicates only when all key columns match; one or more key columns are supported.",
+   "must_include": [
+    "composite keys"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "keep_first": {
+   "kind": "boundary",
+   "statement": "Strategy first keeps the earliest row of each key, in original order.",
+   "must_include": [
+    "keep first"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "keep_last": {
+   "kind": "boundary",
+   "statement": "Strategy last keeps the latest row of each key, ordered by last occurrence.",
+   "must_include": [
+    "keep last"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "error_strategy": {
+   "kind": "boundary",
+   "statement": "Strategy error exits 1 when duplicates exist, lists the duplicate keys and writes no output file; exits 0 and writes output when none.",
+   "must_include": [
+    "error strategy exits non-zero and reports duplicates"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "output_csv": {
+   "kind": "boundary",
+   "statement": "The output CSV has the original header and the surviving rows.",
+   "must_include": [
+    "output CSV"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "summary": {
+   "kind": "boundary",
+   "statement": "Stdout summary states the number of duplicates found and removed.",
+   "must_include": [
+    "summary of duplicates found and removed"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "bad_input": {
+   "kind": "boundary",
+   "statement": "Unknown key column or missing input file exits 2 and writes no output.",
+   "must_include": [
+    "single file data_dedup.py stdlib only"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/csv-dedup",
+ "inputs_sha": "cd60e52d0842cf5adaa7305762761c6559f71109e7720e36232f2cfaec9bfc75",
+ "schema": 2
+}

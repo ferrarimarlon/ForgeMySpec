@@ -1,0 +1,15 @@
+ .gitignore                                         |   1 +
+ Makefile                                           |  44 ++++++++
+ README.md                                          |   9 ++
+ boot/boot.asm                                      |  88 +++++++++++++++
+ .../.claude/commands/implement-from-spec.md        |   8 ++
+ forgemyspec-bundle/mini-os/CLAUDE.md               |  45 ++++++++
+ forgemyspec-bundle/mini-os/acceptance-checklist.md |  18 ++++
+ .../mini-os/evals/scope_drift_cases.yaml           |  13 +++
+ forgemyspec-bundle/mini-os/spec.lock               |   5 +
+ forgemyspec-bundle/mini-os/spec.yaml               | 118 +++++++++++++++++++++
+ kernel/entry.asm                                   |  12 +++
+ kernel/kernel.c                                    |  90 ++++++++++++++++
+ kernel/linker.ld                                   |  10 ++
+ tests/test_os.py                                   |  79 ++++++++++++++
+ 14 files changed, 540 insertions(+)

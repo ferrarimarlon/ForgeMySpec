@@ -1,0 +1,40 @@
+{
+ "A": {
+  "P01_first_single": "pass",
+  "P02_last_single": "pass",
+  "P03_composite_first": "pass",
+  "P04_composite_last": "pass",
+  "P05_error_nonzero": "pass",
+  "P06_error_reports_dups": "pass",
+  "P07_error_no_dups_ok": "pass",
+  "P08_summary_counts": "pass",
+  "P09_unknown_key": "pass",
+  "P10_quoting": "pass",
+  "P11_missing_input": "pass",
+  "P12_header_only": "pass",
+  "P13_default_strategy_runs": "pass",
+  "P14_bom_header": "pass",
+  "P15_blank_line": "pass",
+  "P16_bad_encoding_no_traceback": "fail",
+  "P17_error_no_output_or_unchanged": "pass"
+ },
+ "B": {
+  "P01_first_single": "pass",
+  "P02_last_single": "pass",
+  "P03_composite_first": "pass",
+  "P04_composite_last": "pass",
+  "P05_error_nonzero": "pass",
+  "P06_error_reports_dups": "pass",
+  "P07_error_no_dups_ok": "pass",
+  "P08_summary_counts": "pass",
+  "P09_unknown_key": "pass",
+  "P10_quoting": "pass",
+  "P11_missing_input": "pass",
+  "P12_header_only": "pass",
+  "P13_default_strategy_runs": "pass",
+  "P14_bom_header": "fail",
+  "P15_blank_line": "fail",
+  "P16_bad_encoding_no_traceback": "fail",
+  "P17_error_no_output_or_unchanged": "pass"
+ }
+}

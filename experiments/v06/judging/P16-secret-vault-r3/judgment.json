@@ -1,0 +1,27 @@
+{
+ "requirements_total": 23,
+ "probes_total": 25,
+ "A": {"probes_passed": 25,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 5, "quality": 4, "tests": 0},
+       "requirements_met": 23, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "quality", "requirement": "R13", "evidence": "A/vault.py:198 mask(); `list` with value 'abc' prints 'ab***'", "summary": "For values of 4 chars or fewer, list shows fewer than value[:4] chars to avoid revealing the full value, a reasonable deviation from the literal spec."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt (11 findings: B904, UP031, E501)", "summary": "Minor lint findings: raise without 'from', percent formatting, long lines."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "ls A/ shows only vault.py", "summary": "No automated tests are shipped."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 309},
+ "B": {"probes_passed": 24,
+       "scores": {"functional": 4, "coverage": 4, "security": 3, "robustness": 4, "quality": 4, "tests": 4},
+       "requirements_met": 22, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "security", "requirement": "R13", "evidence": "probe p15; `set k abc` then `list` prints 'k  abc***' (B/vault.py:243)", "summary": "list reveals the entire secret for values of 4 characters or fewer, violating 'never the full value'."},
+        {"severity": "low", "category": "silent", "requirement": "R8", "evidence": "`set z x --ttl 0` exits 0 (B/vault.py:165 allows ttl>=0)", "summary": "--ttl 0 is accepted and silently stores an already-expired secret."},
+        {"severity": "low", "category": "security", "requirement": "R2", "evidence": "B/vault.py:178-185 value is a required positional argument", "summary": "Secret values can only be passed on argv (visible in process listings); there is no stdin option."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt C901 run() complexity 17; B904, UP031", "summary": "Single monolithic run() dispatcher with high complexity plus minor lint findings."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 15, "failed": 0},
+       "loc": 273},
+ "blinding_guess": {"spec_framework_side": "B", "confidence": 0.55, "why": "B ships a test suite that maps nearly one-to-one to the numbered requirements (test_exit_code_map, test_kdf_and_salt, etc.), which suggests it was built from a spec."},
+ "notes": "The probes ran under Python 3.9 with cryptography from the user site (PYTHONUSERBASE passed through) and HOME set to a temporary directory. Probe p15 reads 'never the full value' as overriding the literal value[:4] for short values. That is the only probe that separates A from B. A and B pick different exit codes when VAULT_MASTER_KEY is missing (A gives 1, B gives 2); both are defensible, so neither is penalised. B's own unittest suite ran with unittest because pytest is not installed."
+}

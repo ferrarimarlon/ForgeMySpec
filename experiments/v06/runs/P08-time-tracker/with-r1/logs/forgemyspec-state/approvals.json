@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "ETYWXJ",
+   "nonce": "630ed796cdf4c6c3b54e5903047a9b98",
+   "created_at": "2026-10-31T20:29:51.667Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/time-tracker",
+     "content_sha": "98595e0497c6bf16233fbd4fd08c264973b78b14b62e9e730c10610674928d12",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

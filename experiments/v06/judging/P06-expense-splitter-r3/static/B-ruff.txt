@@ -1,0 +1,20 @@
+expense_splitter.py:25:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+expense_splitter.py:25:29: UP031 Use format specifiers instead of percent format
+expense_splitter.py:27:29: UP031 Use format specifiers instead of percent format
+expense_splitter.py:30:29: UP031 Use format specifiers instead of percent format
+expense_splitter.py:37:12: UP031 Use format specifiers instead of percent format
+expense_splitter.py:54:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+expense_splitter.py:54:29: UP031 Use format specifiers instead of percent format
+expense_splitter.py:56:29: UP031 Use format specifiers instead of percent format
+expense_splitter.py:71:33: UP031 Use format specifiers instead of percent format
+expense_splitter.py:117:89: E501 Line too long (91 > 88)
+expense_splitter.py:137:89: E501 Line too long (96 > 88)
+expense_splitter.py:157:15: UP031 Use format specifiers instead of percent format
+expense_splitter.py:163:19: UP031 Use format specifiers instead of percent format
+expense_splitter.py:169:19: UP031 Use format specifiers instead of percent format
+expense_splitter.py:178:15: UP031 Use format specifiers instead of percent format
+tests/test_expense_splitter.py:26:89: E501 Line too long (91 > 88)
+tests/test_expense_splitter.py:55:26: UP031 Use format specifiers instead of percent format
+tests/test_expense_splitter.py:144:89: E501 Line too long (92 > 88)
+Found 18 errors.
+No fixes available (9 hidden fixes can be enabled with the `--unsafe-fixes` option).

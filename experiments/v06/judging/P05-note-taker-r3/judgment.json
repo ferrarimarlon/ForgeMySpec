@@ -1,0 +1,26 @@
+{
+ "requirements_total": 14,
+ "probes_total": 23,
+ "A": {"probes_passed": 22,
+  "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 0},
+  "requirements_met": 13, "requirements_partial": 1, "requirements_missing": 0,
+  "issues": [
+   {"severity": "medium", "category": "functional", "requirement": "R14", "evidence": "P16_list_tolerates_malformed_file; note_taker.py:102 read_text with no error handling -> 'UnicodeDecodeError' traceback from `list`", "summary": "One non-UTF-8 .md file in the store makes list/show/edit/delete crash with a traceback, because every lookup goes through all_notes()."},
+   {"severity": "low", "category": "functional", "requirement": "R6", "evidence": "`delete good </dev/null` -> EOFError traceback at note_taker.py:209", "summary": "delete without -y crashes with EOFError when stdin is closed or not interactive."},
+   {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt F401 note_taker.py:9", "summary": "Unused tempfile import, a local import inside a function, and several long lines."}
+  ],
+  "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+  "loc": 254},
+ "B": {"probes_passed": 20,
+  "scores": {"functional": 3, "coverage": 4, "security": 5, "robustness": 5, "quality": 4, "tests": 3},
+  "requirements_met": 13, "requirements_partial": 1, "requirements_missing": 0,
+  "issues": [
+   {"severity": "medium", "category": "silent", "requirement": "R8", "evidence": "P13/P14/P22: new 'Meeting: \"Q3\" plan' --tags '#urgent,c++' writes 'title: Meeting: \"Q3\" plan' and 'tags: [#urgent, c++]'; yaml.safe_load raises ScannerError/ParserError", "summary": "Titles and tags are written as unquoted plain scalars, so ordinary inputs (a colon in the title, a leading '- ', tags starting with '#') produce frontmatter that is not valid YAML, though B's own parser still reads it."},
+   {"severity": "low", "category": "silent", "requirement": "R8", "evidence": "P22: title '123' -> 'title: 123' is read by YAML as an int", "summary": "Numeric-looking or boolean-looking titles change type when the file is read by a real YAML parser."},
+   {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt B904 note_taker.py:74,170", "summary": "Exceptions re-raised without 'from', plus long lines."}
+  ],
+  "own_tests": {"present": true, "ran": true, "passed": 5, "failed": 0},
+  "loc": 208},
+ "blinding_guess": {"spec_framework_side": "B", "confidence": 0.4, "why": "B ships a unit-test suite and stricter error handling (a NoteError type, reverting a failed edit, id validation), which suggests a more process-driven build, but the signal is weak."},
+ "notes": "Both are single-file, stdlib-only CLIs that store notes in ~/.note-taker (probes set HOME to a temp dir) and support tag and keyword search. Interface adaptation: A's delete needs -y to skip its confirmation prompt; all other probe invocations are identical. PyYAML was used only by the probes to check that the frontmatter is valid YAML. A has a richer non-interactive edit (--title/--tags/--append), which no requirement asked for. Security is equivalent: both run the editor with shlex.split and no shell, and neither allows path traversal."
+}

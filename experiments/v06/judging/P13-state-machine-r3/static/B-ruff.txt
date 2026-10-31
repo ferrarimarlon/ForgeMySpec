@@ -1,0 +1,12 @@
+state_machine.py:40:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+state_machine.py:42:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+state_machine.py:62:5: C901 `validate` is too complex (22 > 10)
+tests/test_state_machine.py:6:8: F401 [*] `sys` imported but unused
+tests/test_state_machine.py:51:89: E501 Line too long (89 > 88)
+tests/test_state_machine.py:95:9: E731 Do not assign a `lambda` expression, use a `def`
+tests/test_state_machine.py:99:89: E501 Line too long (90 > 88)
+tests/test_state_machine.py:100:89: E501 Line too long (90 > 88)
+tests/test_state_machine.py:129:89: E501 Line too long (95 > 88)
+tests/test_state_machine.py:134:89: E501 Line too long (94 > 88)
+Found 10 errors.
+[*] 1 fixable with the `--fix` option (1 hidden fix can be enabled with the `--unsafe-fixes` option).

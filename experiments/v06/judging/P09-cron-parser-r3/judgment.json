@@ -1,0 +1,27 @@
+{
+ "requirements_total": 16,
+ "probes_total": 25,
+ "A": {"probes_passed": 25,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 5, "quality": 4, "tests": 4},
+       "requirements_met": 16, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt: cron_parser.py:12 F401 unused `date`, :69 C901 parse_field too complex", "summary": "Unused import and an over-complex parse_field function, plus leftover %-formatting style warnings."},
+        {"severity": "low", "category": "silent", "requirement": "R15", "evidence": "`validate '0 0 30 2 mon'` exits 0 with no note that day 30 never occurs in February", "summary": "When both day fields are restricted, an impossible day-of-month/month pair is accepted without any warning."},
+        {"severity": "low", "category": "scope", "requirement": null, "evidence": "A/cron_parser.py:245 hidden `--from` option with help=argparse.SUPPRESS", "summary": "Adds an undocumented --from option to `next`; harmless, but it was not requested."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 9, "failed": 0},
+       "loc": 261},
+ "B": {"probes_passed": 22,
+       "scores": {"functional": 3, "coverage": 4, "security": 5, "robustness": 3, "quality": 4, "tests": 0},
+       "requirements_met": 14, "requirements_partial": 2, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "functional", "requirement": "R14", "evidence": "probes P14/P15: `next '0 0 29 2 *' -n 5` prints only 3 dates (2028, 2032, 2036) and exits 0; B/cron_parser.py:35,139 SEARCH_YEARS=12", "summary": "`next` stops searching after 12 years, so it returns fewer than N runs for yearly or leap-day schedules (e.g. at most 12 for '0 0 1 1 *')."},
+        {"severity": "medium", "category": "functional", "requirement": "R10", "evidence": "probe P20: `validate '² * * * *'` -> uncaught ValueError traceback; `validate '١ * * * *'` -> 'Valid ... minute -> 1', rc=0; B/cron_parser.py:54 uses str.isdigit without an ascii check", "summary": "Non-ASCII digits either crash the CLI with a traceback or are silently accepted as numbers."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt: 6x E501, 2x B905; B/cron_parser.py:161 unpacks `names, offset` but never uses them", "summary": "Minor lint issues and unused variables in describe()."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "ls B/ -> only cron_parser.py", "summary": "No automated tests."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 227},
+ "blinding_guess": {"spec_framework_side": "A", "confidence": 0.55, "why": "A ships a unittest suite and a hidden deterministic --from hook, which suggests a more test-driven, structured process; B is a single file with no tests."},
+ "notes": "Probes compare `next` output with an independent brute-force reference, computed from the time just before and just after each call to avoid minute-boundary flakiness. One probe input was corrected before the final run: '24 * * * *' was meant to be an invalid hour, so it was changed to '* 24 * * *'. A's tests need unittest (pytest is not installed): `python3 -m unittest discover -s tests -t .` from A/. Both sides return a non-zero exit for February 30 when no day-of-week is set; B also warns when a day-of-week is set, A does not. Bandit reported nothing for either side."
+}

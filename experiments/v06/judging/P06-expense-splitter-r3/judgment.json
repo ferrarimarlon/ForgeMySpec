@@ -1,0 +1,30 @@
+{
+ "requirements_total": 13,
+ "probes_total": 24,
+ "A": {"probes_passed": 22,
+  "scores": {"functional": 5, "coverage": 4, "security": 5, "robustness": 3, "quality": 4, "tests": 0},
+  "requirements_met": 11, "requirements_partial": 2, "requirements_missing": 0,
+  "issues": [
+   {"severity": "medium", "category": "functional", "requirement": "R13", "evidence": "probe file_is_directory; A/expense_splitter.py:49-62 does not catch OSError -> 'IsADirectoryError: [Errno 21] Is a directory' traceback", "summary": "An unreadable data path crashes with a traceback instead of a clean error."},
+   {"severity": "low", "category": "silent", "requirement": "R13", "evidence": "probe wrong_shape_json; participants [1,2] pass validation at A/expense_splitter.py:57-59, settle prints '2 pays A 0.50' while list crashes with TypeError", "summary": "Load validation does not check participant types, so malformed files give odd output or crash."},
+   {"severity": "low", "category": "scope", "requirement": "R9", "evidence": "A/expense_splitter.py:186-206 (no group argument; only --file)", "summary": "No explicit group concept; groups are only possible as separate --file paths."},
+   {"severity": "low", "category": "functional", "requirement": "R4", "evidence": "--file /nonexistent_dir/e.json add ... -> FileNotFoundError traceback", "summary": "Saving to a missing directory crashes with a traceback."},
+   {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt: B904 at line 32, 4x E501", "summary": "Minor lint findings: exception re-raise without 'from', long lines."}
+  ],
+  "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+  "loc": 215},
+ "B": {"probes_passed": 24,
+  "scores": {"functional": 5, "coverage": 4, "security": 5, "robustness": 4, "quality": 4, "tests": 4},
+  "requirements_met": 12, "requirements_partial": 1, "requirements_missing": 0,
+  "issues": [
+   {"severity": "low", "category": "scope", "requirement": "R9", "evidence": "B/expense_splitter.py:135-147 (no group argument; only --file)", "summary": "No explicit group concept; groups are only possible as separate --file paths."},
+   {"severity": "low", "category": "functional", "requirement": "R4", "evidence": "--file /nonexistent_dir/e.json add ... -> FileNotFoundError traceback", "summary": "Saving to a missing directory crashes with a traceback."},
+   {"severity": "low", "category": "silent", "requirement": "R5", "evidence": "B/expense_splitter.py:160-163 prints nothing when there are no expenses", "summary": "The balances command gives empty output with no message when no expenses exist."},
+   {"severity": "low", "category": "quality", "requirement": null, "evidence": "B: 'python3 -m unittest discover -s tests' -> ModuleNotFoundError: No module named 'expense_splitter'; passes only with PYTHONPATH=.", "summary": "Test suite does not run without setting PYTHONPATH."},
+   {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt: 2x B904, 12x UP031, E501", "summary": "Minor lint findings: old %-formatting and exception re-raise without 'from'."}
+  ],
+  "own_tests": {"present": true, "ran": true, "passed": 13, "failed": 0},
+  "loc": 184},
+ "blinding_guess": {"spec_framework_side": "unsure", "confidence": 0.3, "why": "B ships a test suite and stricter validation, which may come from a spec-driven process, but both are similar in structure and money handling."},
+ "notes": "Both store integer cents, split remainders deterministically, and use a greedy largest-debtor/largest-creditor settlement; core probes pass on both. A adds list/remove commands and removes duplicate participants; B rejects duplicates and splits comma-separated names. Bandit reports are empty for both. The stdlib probe used a hard-coded fallback module set because the host runs Python 3.9 (no sys.stdlib_module_names); both import only argparse/json/os/sys/tempfile/decimal (+heapq in A). B's LOC excludes its 148-line test file."
+}

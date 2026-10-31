@@ -1,0 +1,181 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T21:14:53Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "score 100/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "12 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "id_and_priority_format": {
+   "kind": "boundary",
+   "statement": "Ids not matching [A-Za-z0-9_]{1,32} and priorities outside integers 1-10 are rejected on add with exit 1.",
+   "must_include": [
+    "id alphanumeric and underscore 1-32 chars",
+    "priority 1-10"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "duplicate_rejected": {
+   "kind": "boundary",
+   "statement": "Adding an existing id is rejected and scheduler.json is unchanged.",
+   "must_include": [
+    "reject duplicate id"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "self_dependency_rejected": {
+   "kind": "boundary",
+   "statement": "A job listing its own id in depends_on is rejected.",
+   "must_include": [
+    "reject self-dependency"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "unknown_dependency_rejected": {
+   "kind": "boundary",
+   "statement": "A depends_on id that is not an existing job is rejected.",
+   "must_include": [
+    "reject unknown dependency"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "cycle_rejected": {
+   "kind": "boundary",
+   "statement": "An add that would create a dependency cycle is rejected and state is unchanged.",
+   "must_include": [
+    "reject cycle"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "order_topological_priority": {
+   "kind": "boundary",
+   "statement": "The execution order lists every dependency before its dependents and, among available jobs, higher priority first.",
+   "must_include": [
+    "topological order with priority tiebreak"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "ready_recomputed_on_load": {
+   "kind": "boundary",
+   "statement": "A pending job whose depends_on are all done is ready after load, even if the file says pending.",
+   "must_include": [
+    "ready recomputed on load"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "ready_not_persisted": {
+   "kind": "boundary",
+   "statement": "scheduler.json never contains the status ready.",
+   "must_include": [
+    "ready never persisted"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "failure_cancels_dependents": {
+   "kind": "boundary",
+   "statement": "fail marks the job failed and every transitive dependent cancelled; unrelated jobs are untouched.",
+   "must_include": [
+    "failure cancels transitive dependents"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "run_next_picks_highest": {
+   "kind": "boundary",
+   "statement": "run-next runs the highest-priority ready job, ending it done; with no ready job it reports so.",
+   "must_include": [
+    "run-next highest-priority ready job"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "commands_available": {
+   "kind": "boundary",
+   "statement": "add, run-next, fail, status and report all run through the CLI and persist in scheduler.json.",
+   "must_include": [
+    "commands add run-next fail status report"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/job-scheduler",
+ "inputs_sha": "7d333dd1cd02cb981d1ad98428696adecd6f16d52879f388210711ba02103e99",
+ "schema": 2
+}

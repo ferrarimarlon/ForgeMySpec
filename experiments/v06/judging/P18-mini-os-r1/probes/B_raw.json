@@ -1,0 +1,27 @@
+{
+ "results": {
+  "P1_build_from_clean": "pass",
+  "P2_boot_sector_signature": "pass",
+  "P3_image_has_kernel_after_bootsector": "pass",
+  "P4_image_minimal_lt_2MiB": "pass",
+  "P5_qemu_boots_and_stays_up": "pass",
+  "P6_vga_text_output_from_kernel": "pass",
+  "P7_vga_attribute_bytes_set": "pass",
+  "P8_cpu_in_protected_mode": "pass",
+  "P9_executing_outside_bios_rom": "pass",
+  "P10_stable_after_10s_no_reset": "pass",
+  "P11_no_external_libraries": "pass",
+  "P12_own_bootloader_512B": "pass",
+  "P13_rebuild_succeeds": "pass",
+  "P14_clean_removes_image": "pass"
+ },
+ "log": {
+  "build": "nasm -f elf32 entry.asm -o entry.o\ni686-elf-gcc -m32 -ffreestanding -fno-pic -fno-stack-protector -nostdlib -O2 -Wall -Wextra -c kernel.c -o kernel.o\ni686-elf-ld -T linker.ld --oformat binary entry.o kernel.o -o kernel.bin\nnasm -f bin -DKERNEL_SECTORS=$(( ($(stat -f %z kernel.bin) + 511) / 512 )) boot.asm -o boot.bin\ncat boot.bin kernel.bin > os.img\ndd if=/dev/zero bs=512 count=4 >> os.img 2>/dev/null\n",
+  "kernel_payload_bytes": 1793,
+  "vga_text": "MiniOS 0.1 - x86 protected mode                                                 Type 'help' for commands.                                                                                                                                       >                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ",
+  "qemu_err": "",
+  "cr0": "00000011",
+  "eip": "00010240",
+  "undefined_symbols": []
+ }
+}

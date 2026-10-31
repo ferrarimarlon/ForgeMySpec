@@ -1,0 +1,20 @@
+note_taker.py:23:89: E501 Line too long (99 > 88)
+note_taker.py:39:25: UP031 Use format specifiers instead of percent format
+note_taker.py:100:25: UP031 Use format specifiers instead of percent format
+note_taker.py:109:14: S603 `subprocess` call: check for execution of untrusted input
+note_taker.py:111:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+note_taker.py:111:25: UP031 Use format specifiers instead of percent format
+note_taker.py:113:25: UP031 Use format specifiers instead of percent format
+note_taker.py:123:19: UP031 Use format specifiers instead of percent format
+note_taker.py:159:15: UP031 Use format specifiers instead of percent format
+note_taker.py:167:11: UP031 Use format specifiers instead of percent format
+note_taker.py:192:89: E501 Line too long (90 > 88)
+note_taker.py:196:89: E501 Line too long (94 > 88)
+note_taker.py:201:89: E501 Line too long (97 > 88)
+note_taker.py:203:89: E501 Line too long (105 > 88)
+note_taker.py:216:15: UP031 Use format specifiers instead of percent format
+tests/test_note_taker.py:39:89: E501 Line too long (98 > 88)
+tests/test_note_taker.py:54:89: E501 Line too long (102 > 88)
+tests/test_note_taker.py:120:89: E501 Line too long (99 > 88)
+Found 18 errors.
+No fixes available (6 hidden fixes can be enabled with the `--unsafe-fixes` option).

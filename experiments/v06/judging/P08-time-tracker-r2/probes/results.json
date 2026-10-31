@@ -1,0 +1,38 @@
+{
+ "A": {
+  "P01_stdlib_only": "pass",
+  "P02_start_persists_json": "pass",
+  "P03_stop_ends_and_shows_hms": "pass",
+  "P04_refuse_start_while_active": "pass",
+  "P05_stop_without_active_errors": "pass",
+  "P06_report_totals_per_project": "pass",
+  "P07_log_detects_overlap": "pass",
+  "P08_no_false_overlap_adjacent": "pass",
+  "P09_report_flags_overlap": "pass",
+  "P10_log_lists_session_hms": "pass",
+  "P11_hms_over_24h": "pass",
+  "P12_corrupt_json_graceful": "pass",
+  "P13_start_missing_project": "pass",
+  "P14_full_cycle_roundtrip": "pass",
+  "P15_reject_blank_project": "pass",
+  "P16_report_empty_ok": "pass"
+ },
+ "B": {
+  "P01_stdlib_only": "pass",
+  "P02_start_persists_json": "pass",
+  "P03_stop_ends_and_shows_hms": "pass",
+  "P04_refuse_start_while_active": "pass",
+  "P05_stop_without_active_errors": "pass",
+  "P06_report_totals_per_project": "pass",
+  "P07_log_detects_overlap": "pass",
+  "P08_no_false_overlap_adjacent": "pass",
+  "P09_report_flags_overlap": "pass",
+  "P10_log_lists_session_hms": "pass",
+  "P11_hms_over_24h": "pass",
+  "P12_corrupt_json_graceful": "fail",
+  "P13_start_missing_project": "pass",
+  "P14_full_cycle_roundtrip": "pass",
+  "P15_reject_blank_project": "fail",
+  "P16_report_empty_ok": "pass"
+ }
+}

@@ -1,0 +1,142 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:23:45Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "[LINT-HY-007] hypotheses[4].description: Hypothesis appears to describe what will NOT be built; hypotheses must be affirmative and testable",
+    "score 95/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "8 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "create_post": {
+   "kind": "boundary",
+   "statement": "POST /posts with valid JSON title and body answers 201 and returns the post with id; GET /posts/{id} then returns it.",
+   "must_include": [
+    "CRUD for posts"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "read_posts": {
+   "kind": "boundary",
+   "statement": "GET /posts lists all posts; GET /posts/{id} of an unknown id answers 404.",
+   "must_include": [
+    "CRUD for posts"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "update_delete_post": {
+   "kind": "boundary",
+   "statement": "PUT replaces title and body; DELETE removes the post; both answer 404 for an unknown id and a deleted post is then 404.",
+   "must_include": [
+    "CRUD for posts"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "api_key_required": {
+   "kind": "boundary",
+   "statement": "A request with a missing or wrong X-API-Key answers 401 on every route and leaves the database unchanged.",
+   "must_include": [
+    "X-API-Key auth"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "json_validation": {
+   "kind": "boundary",
+   "statement": "Malformed JSON, non-object bodies, missing, empty or non-string title/body answer 400 with a JSON error body; all responses carry Content-Type application/json.",
+   "must_include": [
+    "JSON bodies"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "bind_localhost_8080": {
+   "kind": "boundary",
+   "statement": "The default host is 127.0.0.1 and the default port is 8080; startup fails when BLOG_API_KEY is unset.",
+   "must_include": [
+    "localhost:8080"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "persistence_sqlite": {
+   "kind": "boundary",
+   "statement": "Posts survive a server restart on the same SQLite file.",
+   "must_include": [
+    "single file blog_api.py"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "stdlib_only": {
+   "kind": "boundary",
+   "statement": "blog_api.py imports only standard library modules (checked via sys.stdlib_module_names).",
+   "must_include": [
+    "standard library only"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/blog-api",
+ "inputs_sha": "0d1526782dbb7fc8ed9fdb8e0c8f43ebc3a484a26c0a790c4964b2bec7039458",
+ "schema": 2
+}

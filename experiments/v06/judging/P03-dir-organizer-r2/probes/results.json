@@ -1,0 +1,40 @@
+{
+ "A": {
+  "p_once_basic": "pass",
+  "p_hidden": "pass",
+  "p_subdir": "pass",
+  "p_log_records": "pass",
+  "p_log_not_moved": "pass",
+  "p_noext": "pass",
+  "p_collision": "pass",
+  "p_file_blocks_dir": "fail",
+  "p_bad_dir": "pass",
+  "p_mode_required": "pass",
+  "p_idempotent": "pass",
+  "p_watch_new_file": "pass",
+  "p_watch_sigint_clean": "pass",
+  "p_stdlib_only": "pass",
+  "p_single_file": "pass",
+  "p_relative_target": "pass",
+  "p_tmp_ext_moved": "pass"
+ },
+ "B": {
+  "p_once_basic": "pass",
+  "p_hidden": "pass",
+  "p_subdir": "pass",
+  "p_log_records": "pass",
+  "p_log_not_moved": "pass",
+  "p_noext": "pass",
+  "p_collision": "pass",
+  "p_file_blocks_dir": "pass",
+  "p_bad_dir": "pass",
+  "p_mode_required": "pass",
+  "p_idempotent": "pass",
+  "p_watch_new_file": "pass",
+  "p_watch_sigint_clean": "pass",
+  "p_stdlib_only": "pass",
+  "p_single_file": "pass",
+  "p_relative_target": "pass",
+  "p_tmp_ext_moved": "fail"
+ }
+}

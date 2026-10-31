@@ -1,0 +1,9 @@
+ .../.claude/commands/implement-from-spec.md        |   8 ++
+ forgemyspec-bundle/dir-organizer/CLAUDE.md         |  52 +++++++
+ .../dir-organizer/acceptance-checklist.md          |  20 +++
+ .../dir-organizer/evals/scope_drift_cases.yaml     |  17 +++
+ forgemyspec-bundle/dir-organizer/spec.lock         |   5 +
+ forgemyspec-bundle/dir-organizer/spec.yaml         | 112 +++++++++++++++
+ organizer.py                                       | 108 ++++++++++++++
+ tests/test_organizer.py                            | 159 +++++++++++++++++++++
+ 8 files changed, 481 insertions(+)

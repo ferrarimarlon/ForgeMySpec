@@ -1,0 +1,30 @@
+{
+ "requests": [
+  {
+   "code": "E7OGQJ",
+   "nonce": "02461d00635622e05425bc6c0f46c4ab",
+   "created_at": "2026-10-31T20:17:12.673Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/task-manager",
+     "content_sha": "f3c7d4c4fc82423a7c59513f6c87cf1bceac64181b6ff7b2ba056d168f78c21a",
+     "used_at": null
+    }
+   ]
+  },
+  {
+   "code": "LE7TGE",
+   "nonce": "ab73926a89080331c1c41d2a4054fc89",
+   "created_at": "2026-10-31T20:17:19.089Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/task-manager",
+     "content_sha": "9e6f9cdd0d4e49e30ec253b01ca47576dff9a6483b2804204eec7e74ee4adf3b",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "7QQRGE",
+   "nonce": "d7f372059b97488e52c26050643f3c55",
+   "created_at": "2026-10-31T20:19:32.911Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/dir-organizer",
+     "content_sha": "9aad14fa591e20b2a4d84eab2dd396139238dcc3346f82791144c7652bb6492d",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

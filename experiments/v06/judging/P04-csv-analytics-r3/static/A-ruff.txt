@@ -1,0 +1,14 @@
+csv_analytics.py:32:89: E501 Line too long (104 > 88)
+csv_analytics.py:61:89: E501 Line too long (93 > 88)
+csv_analytics.py:130:89: E501 Line too long (112 > 88)
+csv_analytics.py:136:89: E501 Line too long (91 > 88)
+csv_analytics.py:142:88: B905 `zip()` without an explicit `strict=` parameter
+csv_analytics.py:142:89: E501 Line too long (104 > 88)
+csv_analytics.py:147:5: C901 `main` is too complex (14 > 10)
+csv_analytics.py:148:89: E501 Line too long (97 > 88)
+csv_analytics.py:150:89: E501 Line too long (93 > 88)
+csv_analytics.py:155:89: E501 Line too long (90 > 88)
+csv_analytics.py:156:89: E501 Line too long (92 > 88)
+csv_analytics.py:181:89: E501 Line too long (89 > 88)
+Found 12 errors.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).

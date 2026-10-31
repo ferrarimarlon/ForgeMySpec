@@ -1,0 +1,9 @@
+ blog_api.py                                        | 218 +++++++++++++++++++++
+ .../.claude/commands/implement-from-spec.md        |   8 +
+ forgemyspec-bundle/blog-api/CLAUDE.md              |  51 +++++
+ .../blog-api/acceptance-checklist.md               |  20 ++
+ .../blog-api/evals/scope_drift_cases.yaml          |  14 ++
+ forgemyspec-bundle/blog-api/spec.lock              |   5 +
+ forgemyspec-bundle/blog-api/spec.yaml              | 110 +++++++++++
+ tests/test_blog_api.py                             | 142 ++++++++++++++
+ 8 files changed, 568 insertions(+)

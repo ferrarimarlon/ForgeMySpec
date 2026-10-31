@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "M6UNKF",
+   "nonce": "f98783db6c2bb52e6b0f28b51dc56547",
+   "created_at": "2026-10-31T21:00:51.181Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/budget-tracker",
+     "content_sha": "e02c8abc41eef5bc0ff8d6a0c75946db7f8e36117df915f793442e86e5f2ac61",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

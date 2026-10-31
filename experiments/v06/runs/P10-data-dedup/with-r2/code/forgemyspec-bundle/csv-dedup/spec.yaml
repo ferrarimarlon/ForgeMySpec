@@ -1,0 +1,107 @@
+version: "0.1"
+title: "CSV deduplicator CLI"
+objective: "Provide data_dedup.py, a stdlib-only single-file Python CLI that removes duplicate CSV rows by a composite key using keep-first, keep-last or error strategies, writes an output CSV and prints a summary."
+execution_mode: critical
+context:
+  system: "Empty Python repository; single module data_dedup.py at the repository root, unittest tests under tests/."
+  assumptions:
+    - "The input CSV has a header row; key columns are selected by header name."
+    - "Rows are compared by exact string equality of the key column values (no trimming or case folding)."
+    - "Input and output are UTF-8 with csv module default dialect handling; output keeps the input header and column order."
+    - "Surviving rows keep their original relative order; with keep-last the survivor sits at the position of the last occurrence."
+    - "A duplicate is any row beyond the first sharing a key; found count equals rows minus distinct keys."
+constraints:
+  - "Python standard library only; no third-party packages."
+  - "All code lives in the single file data_dedup.py."
+  - "No fuzzy matching, no in-place editing of the input, no formats other than CSV."
+  - "In error strategy no output file is written."
+success_criteria:
+  - "Composite keys of one or more columns dedupe correctly under first, last and error strategies."
+  - "Error strategy exits non-zero and lists the duplicate keys with row numbers."
+  - "Summary prints duplicates found and removed."
+hypotheses:
+  - {id: h1, description: "Rows sharing the same values in all key columns are treated as duplicates, and rows differing in any key column are kept.", confidence: 0.9}
+  - {id: h2, description: "Strategy first keeps the earliest occurrence and strategy last keeps the latest occurrence, preserving order of survivors.", confidence: 0.9}
+  - {id: h3, description: "Strategy error exits non-zero, reports each duplicate key with row numbers, and writes no output when duplicates exist.", confidence: 0.85}
+  - {id: h4, description: "The output CSV starts with the input header followed by the surviving rows, and the summary reports the counts of duplicates found and removed.", confidence: 0.9}
+  - {id: h5, description: "A missing key column or unreadable input exits non-zero with a clear message naming the problem.", confidence: 0.85}
+required_evidence:
+  - "unittest run output of tests/ with all tests passing"
+  - "forgemyspec gate report showing RESULT: PASS"
+actions:
+  - {id: a1, description: "Implement the dedupe core for composite keys with first and last strategies", type: implement, requires_confirmation: false, supports: [h1, h2]}
+  - {id: a2, description: "Implement the error strategy, missing-column handling, CSV output and summary in the CLI", type: implement, requires_confirmation: false, supports: [h3, h4, h5]}
+  - {id: a4, description: "Write unittest boundary tests for each obligation", type: implement, requires_confirmation: false, supports: [h1, h2, h3]}
+  - {id: a3, description: "Run the gate and review the report", type: validate, requires_confirmation: false, supports: [h1, h2, h3, h4, h5]}
+decision_rules:
+  - "If a behavior is not covered by an obligation, stop and request a spec amendment."
+  - "If the gate fails, fix the implementation, never the tests or the spec."
+metadata:
+  source_prompt: "Build a CSV deduplicator CLI in Python. Remove duplicate rows by a key made of one or more columns (composite keys), with three strategies: keep first, keep last, or error (exit non-zero and report duplicates). Write the result to an output CSV and print a summary of how many duplicates were found and removed. Single file data_dedup.py, stdlib only."
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "composite key"
+      - "keep first"
+      - "keep last"
+      - "error strategy exits non-zero"
+      - "output CSV"
+      - "summary of duplicates found and removed"
+      - "single file data_dedup.py"
+      - "stdlib only"
+      - "missing column reported"
+formal:
+  module: DataDedup
+  obligations:
+    - id: composite_key
+      kind: boundary
+      statement: "Rows are duplicates only if all key columns match; rows differing in any key column are kept."
+      hypotheses: [h1]
+      must_include: ["composite key"]
+      test: "test_data_dedup.DedupTests.test_composite_key"
+    - id: keep_first
+      kind: boundary
+      statement: "Strategy first keeps the earliest row of each key, in original order."
+      hypotheses: [h2]
+      must_include: ["keep first"]
+      test: "test_data_dedup.DedupTests.test_keep_first"
+    - id: keep_last
+      kind: boundary
+      statement: "Strategy last keeps the latest row of each key, ordered by position of that row."
+      hypotheses: [h2]
+      must_include: ["keep last"]
+      test: "test_data_dedup.DedupTests.test_keep_last"
+    - id: error_strategy
+      kind: boundary
+      statement: "Strategy error with duplicates exits non-zero, reports duplicate keys with row numbers, and writes no output file."
+      hypotheses: [h3]
+      must_include: ["error strategy exits non-zero"]
+      test: "test_data_dedup.DedupTests.test_error_strategy_exits_nonzero"
+    - id: output_csv
+      kind: boundary
+      statement: "The output CSV contains the input header followed by the surviving rows."
+      hypotheses: [h4]
+      must_include: ["output CSV"]
+      test: "test_data_dedup.DedupTests.test_output_csv"
+    - id: summary
+      kind: boundary
+      statement: "The CLI prints the number of duplicates found and removed (error strategy: found, removed 0)."
+      hypotheses: [h4]
+      must_include: ["summary of duplicates found and removed"]
+      test: "test_data_dedup.DedupTests.test_summary"
+    - id: missing_column
+      kind: boundary
+      statement: "A key column absent from the header exits non-zero and names the missing column; a missing input file also exits non-zero."
+      hypotheses: [h5]
+      must_include: ["missing column reported"]
+      test: "test_data_dedup.DedupTests.test_missing_column"
+    - id: single_file_stdlib
+      kind: boundary
+      statement: "data_dedup.py is one file and imports only standard library modules."
+      hypotheses: [h4]
+      must_include: ["single file data_dedup.py", "stdlib only"]
+      test: "test_data_dedup.DedupTests.test_stdlib_only"
+scope:
+  paths: ["data_dedup.py", "tests/**"]
+  tests: tests
+  pythonpath: ["."]

@@ -1,0 +1,26 @@
+{
+ "requirements_total": 15,
+ "probes_total": 22,
+ "A": {"probes_passed": 19,
+       "scores": {"functional": 4, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 0},
+       "requirements_met": 14, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "silent", "requirement": "R15", "evidence": "P19_out_of_range_flagged; manual run: Bob hw=900 -> Final 260.00, A+, class mean 151.00, exit 0 (grade_calc.py:115 checks only >=0)", "summary": "Scores above 100 are accepted without any warning, producing final grades over 100% and distorted class statistics."},
+        {"severity": "medium", "category": "silent", "requirement": "R15", "evidence": "P18_ragged_row_flagged; manual run: 'Ann,90,80' (missing final) -> Final 42.00 F, exit 0, no stderr (zip truncation at grade_calc.py:107)", "summary": "Rows with missing columns are silently scored as zero for the absent assessments instead of being reported."},
+        {"severity": "low", "category": "functional", "requirement": "R15", "evidence": "P20_non_utf8_no_traceback: UnicodeDecodeError traceback (grade_calc.py:183 catches only GradeError/OSError)", "summary": "A non-UTF-8 scores file crashes with a traceback."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt: 20 findings incl. C901 on load_scores/main, B904 x4, E741", "summary": "Lint findings: complex functions, exception chaining missing, ambiguous names."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 234},
+ "B": {"probes_passed": 22,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 5, "quality": 4, "tests": 4},
+       "requirements_met": 15, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt: B904 x2, C901 read_scores, B905, E501", "summary": "Minor lint findings: no exception chaining and one overly complex function."},
+        {"severity": "low", "category": "quality", "requirement": "R12", "evidence": "grade_calc.py:122 uses statistics.pstdev; output label is just 'stddev'", "summary": "Population standard deviation is used without saying so in the output."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 6, "failed": 0},
+       "loc": 155},
+ "blinding_guess": {"spec_framework_side": "B", "confidence": 0.55, "why": "B has a test suite, strict documented input contract and a fixed exit-code convention, which suggests a more process-driven build, but the signal is weak."},
+ "notes": "Both sides compute correct weighted grades, normalize weights, give letters/GPA and all five statistics; core functionality is equivalent. A is more flexible (inline/JSON weights, --missing, --sort, +/- letter scale) but silently accepts out-of-range scores and ragged rows and tracebacks on non-UTF-8 input. B validates strictly (header, column count, 0-100 range, unweighted columns rejected) and ships 6 passing unittest tests. Probes were run with python3.11 because the system python3 is 3.9 and lacks sys.stdlib_module_names. P18/P19 treat 'error or stderr warning' as a pass, so they don't favour either the reject or the warn approach."
+}

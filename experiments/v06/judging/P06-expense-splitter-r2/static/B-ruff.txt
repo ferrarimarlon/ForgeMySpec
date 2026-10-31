@@ -1,0 +1,35 @@
+expense_splitter.py:25:27: UP031 Use format specifiers instead of percent format
+expense_splitter.py:25:89: E501 Line too long (100 > 88)
+expense_splitter.py:29:27: UP031 Use format specifiers instead of percent format
+expense_splitter.py:36:12: UP031 Use format specifiers instead of percent format
+expense_splitter.py:40:89: E501 Line too long (92 > 88)
+expense_splitter.py:70:89: E501 Line too long (98 > 88)
+expense_splitter.py:77:31: UP031 Use format specifiers instead of percent format
+expense_splitter.py:84:25: UP015 [*] Unnecessary mode argument
+expense_splitter.py:89:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+expense_splitter.py:89:27: UP031 Use format specifiers instead of percent format
+expense_splitter.py:91:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+expense_splitter.py:91:27: UP031 Use format specifiers instead of percent format
+expense_splitter.py:110:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+expense_splitter.py:110:27: UP031 Use format specifiers instead of percent format
+expense_splitter.py:147:89: E501 Line too long (90 > 88)
+expense_splitter.py:148:89: E501 Line too long (96 > 88)
+expense_splitter.py:154:89: E501 Line too long (97 > 88)
+expense_splitter.py:163:89: E501 Line too long (92 > 88)
+expense_splitter.py:167:15: UP031 Use format specifiers instead of percent format
+expense_splitter.py:174:19: UP031 Use format specifiers instead of percent format
+expense_splitter.py:179:19: UP031 Use format specifiers instead of percent format
+expense_splitter.py:185:19: UP031 Use format specifiers instead of percent format
+expense_splitter.py:193:15: UP031 Use format specifiers instead of percent format
+tests/test_expense_splitter.py:31:46: UP031 Use format specifiers instead of percent format
+tests/test_expense_splitter.py:48:89: E501 Line too long (91 > 88)
+tests/test_expense_splitter.py:49:89: E501 Line too long (91 > 88)
+tests/test_expense_splitter.py:76:15: S311 Standard pseudo-random generators are not suitable for cryptographic purposes
+tests/test_expense_splitter.py:81:20: UP031 Use format specifiers instead of percent format
+tests/test_expense_splitter.py:104:89: E501 Line too long (99 > 88)
+tests/test_expense_splitter.py:108:89: E501 Line too long (90 > 88)
+tests/test_expense_splitter.py:129:89: E501 Line too long (91 > 88)
+tests/test_expense_splitter.py:131:89: E501 Line too long (91 > 88)
+tests/test_expense_splitter.py:152:89: E501 Line too long (97 > 88)
+Found 33 errors.
+[*] 1 fixable with the `--fix` option (8 hidden fixes can be enabled with the `--unsafe-fixes` option).

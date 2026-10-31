@@ -1,0 +1,116 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:32:54Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "[LINT-HY-007] hypotheses[2].description: Hypothesis appears to describe what will NOT be built; hypotheses must be affirmative and testable",
+    "score 95/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "7 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "persist_sessions": {
+   "kind": "boundary",
+   "statement": "start then stop writes a session to the JSON file that a later invocation reads back.",
+   "must_include": [
+    "sessions persisted in JSON file"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "start_refused_when_active": {
+   "kind": "boundary",
+   "statement": "start while a session is active exits 1 and leaves the file byte-identical.",
+   "must_include": [
+    "start refused while another session is active"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "overlap_detected": {
+   "kind": "boundary",
+   "statement": "log flags sessions whose intervals intersect.",
+   "must_include": [
+    "overlapping sessions detected"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "duration_format": {
+   "kind": "boundary",
+   "statement": "Durations render as zero-padded HH:MM:SS, hours may exceed 99.",
+   "must_include": [
+    "durations formatted HH:MM:SS"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "report_totals": {
+   "kind": "boundary",
+   "statement": "report prints the summed duration per project.",
+   "must_include": [
+    "total time per project"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "single_file_stdlib": {
+   "kind": "boundary",
+   "statement": "time_tracker.py imports only standard library modules.",
+   "must_include": [
+    "single file time_tracker.py, stdlib only"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/time-tracker",
+ "inputs_sha": "a0053be753bbbcde3cefd5c9ade9026c597637ea1e763f57526e03d6d31f2dcb",
+ "schema": 2
+}

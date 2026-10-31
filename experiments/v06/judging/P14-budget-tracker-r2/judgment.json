@@ -1,0 +1,26 @@
+{
+ "requirements_total": 14,
+ "probes_total": 24,
+ "A": {"probes_passed": 22,
+  "scores": {"functional": 3, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 0},
+  "requirements_met": 13, "requirements_partial": 1, "requirements_missing": 0,
+  "issues": [
+   {"severity": "medium", "category": "functional", "requirement": "R6", "evidence": "P04_reject_amount_6_1e999; `set-budget big 1e30` -> decimal.InvalidOperation traceback at A/budget_tracker.py:36", "summary": "Very large amounts raise an uncaught decimal.InvalidOperation in quantize, so the program crashes with a traceback instead of a clean rejection."},
+   {"severity": "low", "category": "functional", "requirement": "R13", "evidence": "P14_wrong_shape_file_clean_error: {\"budgets\": [\"food\"]} -> TypeError traceback (A/budget_tracker.py:56-59 only checks top-level dict)", "summary": "A data file with the wrong structure causes a traceback rather than a clean error."},
+   {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt: F401 math unused, 4x B904", "summary": "Unused import and exception chaining lint warnings."}
+  ],
+  "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+  "loc": 184},
+ "B": {"probes_passed": 22,
+  "scores": {"functional": 3, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 4},
+  "requirements_met": 12, "requirements_partial": 2, "requirements_missing": 0,
+  "issues": [
+   {"severity": "medium", "category": "functional", "requirement": "R6", "evidence": "P04_reject_amount_6_1e999; `set-budget big 1e30` -> decimal.InvalidOperation traceback at B/budget_tracker.py:26", "summary": "Very large amounts raise an uncaught decimal.InvalidOperation in quantize, so the program crashes with a traceback instead of a clean rejection."},
+   {"severity": "low", "category": "silent", "requirement": "R5", "evidence": "P18: set-budget ' food ' stores 'food', then add 5 ' food ' -> 'unknown category' (B/budget_tracker.py:66 vs :97)", "summary": "set-budget strips whitespace from category names but add does not, so the same input is accepted by one command and rejected by the other."},
+   {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt: 28 findings (UP031 percent-format, B904, test F401/E741); B/budget_tracker.py:59 fixed .tmp name with no cleanup", "summary": "Lint warnings, plus a fixed temp-file name that is not cleaned up if the write fails."}
+  ],
+  "own_tests": {"present": true, "ran": true, "passed": 8, "failed": 0},
+  "loc": 160},
+ "blinding_guess": {"spec_framework_side": "B", "confidence": 0.4, "why": "B ships a test suite organised around each stated requirement (persist, unknown category, invalid amount, 80%, 100%, stdlib only), which suggests a requirement-driven process."},
+ "notes": "Both use the same CLI shape (--file, set-budget, add, report --month) and Decimal money handling, so the probes ran unchanged on both. The two sides differ mainly in edge-case handling: A crashes on a structurally wrong data file, B validates structure but handles category whitespace inconsistently. Both crash on huge amounts. Bandit reported nothing for either side. The probes ran on Python 3.9.6."
+}

@@ -1,0 +1,15 @@
+[
+ {"id":"R1","text":"Python CLI named time_tracker.py, single file"},
+ {"id":"R2","text":"Stdlib only (no third-party imports)"},
+ {"id":"R3","text":"Subcommand 'start <project>' starts a session for a project"},
+ {"id":"R4","text":"Subcommand 'stop' stops the active session"},
+ {"id":"R5","text":"Subcommand 'log' lists sessions"},
+ {"id":"R6","text":"Subcommand 'report' shows total time per project"},
+ {"id":"R7","text":"Sessions persisted in a JSON file across invocations"},
+ {"id":"R8","text":"Refuse to start a session while another is active (non-zero exit / error, state unchanged)"},
+ {"id":"R9","text":"Detect overlapping sessions (e.g. in stored data)"},
+ {"id":"R10","text":"Durations formatted as HH:MM:SS"},
+ {"id":"R11","text":"Report totals correct per project (summing multiple sessions)"},
+ {"id":"R12","text":"Stop with no active session handled with an error, not a crash"},
+ {"id":"R13","text":"Corrupt/missing JSON file handled gracefully"}
+]

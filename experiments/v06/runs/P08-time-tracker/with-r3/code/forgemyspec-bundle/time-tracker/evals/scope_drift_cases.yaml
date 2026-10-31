@@ -1,0 +1,17 @@
+version: '0.1'
+purpose: Manual eval seeds to detect scope drift in Claude implementations
+source_prompt: 'Build a time tracker CLI in Python. Subcommands: start <project>,
+  stop, log, report. Persist sessions in a JSON file, refuse to start a session while
+  another is active, detect overlapping sessions, show durations formatted as HH:MM:SS,
+  and report total time per project. Single file time_tracker.py, stdlib only.'
+checks:
+  must_include:
+  - start <project>
+  - stop
+  - sessions persisted in JSON file
+  - refuse start while a session is active
+  - detect overlapping sessions
+  - durations formatted as HH:MM:SS
+  - report total time per project
+  - single file time_tracker.py, stdlib only
+cases: []

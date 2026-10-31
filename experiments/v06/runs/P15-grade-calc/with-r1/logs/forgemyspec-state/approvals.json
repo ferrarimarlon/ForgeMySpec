@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "FE2NQZ",
+   "nonce": "a8b7f6a1536c70ab54b176cb14c6d7ea",
+   "created_at": "2026-10-31T21:01:44.752Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/grade-calc",
+     "content_sha": "35bcbae980ef58e2f4c38e45ce5e7e491a49c394259b5c281f125314adec8c33",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,20 @@
+[
+ {"id":"R1","text":"Python CLI program"},
+ {"id":"R2","text":"Single file named invoice_gen.py"},
+ {"id":"R3","text":"Stdlib only (no third-party imports)"},
+ {"id":"R4","text":"Reads an invoice JSON file as input"},
+ {"id":"R5","text":"Input schema: customer, items (description, quantity, unit price), tax rate, optional discount"},
+ {"id":"R6","text":"Discount is optional; invoice without discount is valid"},
+ {"id":"R7","text":"Validates input (missing/invalid fields, types, negative values, etc.)"},
+ {"id":"R8","text":"Reports all validation errors at once rather than stopping at the first"},
+ {"id":"R9","text":"Invalid input yields an error exit (non-zero) and no invoice output"},
+ {"id":"R10","text":"Computes line totals (quantity x unit price)"},
+ {"id":"R11","text":"Computes subtotal"},
+ {"id":"R12","text":"Computes discount amount"},
+ {"id":"R13","text":"Computes tax"},
+ {"id":"R14","text":"Computes grand total"},
+ {"id":"R15","text":"Correct money rounding (decimal arithmetic, half-up to cents, no float artifacts)"},
+ {"id":"R16","text":"Prints a formatted text invoice"},
+ {"id":"R17","text":"Exports the invoice as JSON"},
+ {"id":"R18","text":"Malformed JSON / missing file handled gracefully with a clear error"}
+]

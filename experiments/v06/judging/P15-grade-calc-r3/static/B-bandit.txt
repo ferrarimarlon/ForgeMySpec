@@ -1,0 +1,42 @@
+Run started:2026-10-31 21:44:23.990103
+
+Test results:
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: ./tests/test_grade_calc.py:4:0
+3	import os
+4	import subprocess
+5	import sys
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./tests/test_grade_calc.py:90:12
+89	                  "student,hw,mid,final\nAnn,90,80,70\nBob,100,100,100\nCy,50,40,30\n")
+90	        r = subprocess.run([sys.executable, os.path.join(ROOT, "grade_calc.py"), s, self.weights],
+91	                           capture_output=True, text=True)
+92	        self.assertEqual(r.returncode, 0, r.stderr)
+
+--------------------------------------------------
+
+Code scanned:
+	Total lines of code: 214
+	Total lines skipped (#nosec): 0
+	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 0
+
+Run metrics:
+	Total issues (by severity):
+		Undefined: 0
+		Low: 2
+		Medium: 0
+		High: 0
+	Total issues (by confidence):
+		Undefined: 0
+		Low: 0
+		Medium: 0
+		High: 2
+Files skipped (0):

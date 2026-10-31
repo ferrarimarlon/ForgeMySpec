@@ -1,0 +1,219 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T21:11:33Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "score 100/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "15 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "reject_duplicate_id": {
+   "kind": "boundary",
+   "statement": "Adding a job whose id already exists exits 1 and leaves scheduler.json unchanged.",
+   "must_include": [
+    "reject duplicate id"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "reject_self_dependency": {
+   "kind": "boundary",
+   "statement": "Adding a job that lists its own id in depends_on is rejected.",
+   "must_include": [
+    "reject self-dependency"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "reject_unknown_dependency": {
+   "kind": "boundary",
+   "statement": "Adding a job that depends on an id not yet in the scheduler is rejected.",
+   "must_include": [
+    "reject unknown dependency"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "id_format": {
+   "kind": "boundary",
+   "statement": "Ids must match [A-Za-z0-9_]{1,32}; empty, 33-char and punctuated ids are rejected, 32-char ids accepted.",
+   "must_include": [
+    "id alphanumeric and underscore 1-32 chars"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "priority_range": {
+   "kind": "boundary",
+   "statement": "Priority 0, 11 and non-integers are rejected; 1 and 10 are accepted.",
+   "must_include": [
+    "priority 1-10"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "cycle_rejected": {
+   "kind": "boundary",
+   "statement": "Any add that would create a cycle is rejected and the state is unchanged.",
+   "must_include": [
+    "reject any add that would create a cycle"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "execution_order": {
+   "kind": "boundary",
+   "statement": "The execution order is topological; among available jobs the higher priority comes first, and a dependent never precedes its dependency even with higher priority.",
+   "must_include": [
+    "topological order with priority tiebreak"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "ready_definition": {
+   "kind": "boundary",
+   "statement": "A pending job is ready exactly when all its depends_on are done.",
+   "must_include": [
+    "ready when pending and all depends_on done"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "ready_not_persisted": {
+   "kind": "boundary",
+   "statement": "scheduler.json never contains the status ready.",
+   "must_include": [
+    "ready is never persisted"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "ready_recomputed_on_load": {
+   "kind": "boundary",
+   "statement": "Loading a file edited by hand recomputes ready from dependency states.",
+   "must_include": [
+    "recompute on load"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "failure_propagation": {
+   "kind": "boundary",
+   "statement": "Failing a job cancels all its transitive dependents and leaves unrelated jobs untouched.",
+   "must_include": [
+    "transitive dependents become cancelled"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "run_next_selection": {
+   "kind": "boundary",
+   "statement": "run-next runs the highest-priority ready job, ends it as done, and unlocks its dependents.",
+   "must_include": [
+    "run-next takes highest-priority ready job"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "persistence_file": {
+   "kind": "boundary",
+   "statement": "State round-trips through scheduler.json between CLI invocations.",
+   "must_include": [
+    "persistence in scheduler.json"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "cli_commands": {
+   "kind": "boundary",
+   "statement": "The add, run-next, fail, status and report commands run end to end and exit 0 on success.",
+   "must_include": [
+    "commands add, run-next, fail, status, report"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/job-scheduler",
+ "inputs_sha": "4229ce979599372c7497694e4cc50bab82be3949673b1bb513918004f1689760",
+ "schema": 2
+}

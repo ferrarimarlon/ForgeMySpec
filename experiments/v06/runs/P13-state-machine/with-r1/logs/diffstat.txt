@@ -1,0 +1,10 @@
+ forgemyspec-board.yaml                             |   9 +
+ .../.claude/commands/implement-from-spec.md        |   8 +
+ forgemyspec-bundle/state-machine/CLAUDE.md         |  46 +++++
+ .../state-machine/acceptance-checklist.md          |  18 ++
+ .../state-machine/evals/scope_drift_cases.yaml     |  18 ++
+ forgemyspec-bundle/state-machine/spec.lock         |   5 +
+ forgemyspec-bundle/state-machine/spec.yaml         | 103 ++++++++++++
+ state_machine.py                                   | 185 +++++++++++++++++++++
+ test_state_machine.py                              | 139 ++++++++++++++++
+ 9 files changed, 531 insertions(+)

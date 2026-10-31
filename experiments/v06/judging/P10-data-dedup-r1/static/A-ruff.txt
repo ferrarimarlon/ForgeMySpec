@@ -1,0 +1,14 @@
+data_dedup.py:36:13: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+data_dedup.py:50:89: E501 Line too long (93 > 88)
+data_dedup.py:60:89: E501 Line too long (99 > 88)
+data_dedup.py:71:89: E501 Line too long (92 > 88)
+data_dedup.py:73:89: E501 Line too long (95 > 88)
+data_dedup.py:76:89: E501 Line too long (91 > 88)
+data_dedup.py:78:89: E501 Line too long (89 > 88)
+data_dedup.py:79:89: E501 Line too long (102 > 88)
+data_dedup.py:87:89: E501 Line too long (101 > 88)
+data_dedup.py:97:89: E501 Line too long (89 > 88)
+data_dedup.py:100:33: B905 `zip()` without an explicit `strict=` parameter
+data_dedup.py:105:89: E501 Line too long (101 > 88)
+Found 12 errors.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).

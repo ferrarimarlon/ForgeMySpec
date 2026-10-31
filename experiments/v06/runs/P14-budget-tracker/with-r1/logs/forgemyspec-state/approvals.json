@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "7ONWKE",
+   "nonce": "4879ec136761eae155ee5e609169f1dc",
+   "created_at": "2026-10-31T20:59:32.603Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/budget-tracker",
+     "content_sha": "f731d761e62990ba6325667e606ef36e6faa11a580d4e1056b68869c1e8271b5",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

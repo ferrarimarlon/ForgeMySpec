@@ -1,0 +1,27 @@
+{
+ "requirements_total": 12,
+ "probes_total": 28,
+ "A": {"probes_passed": 26,
+       "scores": {"functional": 4, "coverage": 5, "security": 3, "robustness": 3, "quality": 4, "tests": 0},
+       "requirements_met": 11, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "functional", "requirement": "R11", "evidence": "P20_get_id0_404; GET /posts/0 -> HTTP 500, log: TypeError: _GET_coll() missing 1 required positional argument: 'query' (A/blog_api.py:123-126, truthiness check on pid)", "summary": "Post id 0 is routed to the collection handler with wrong arguments and crashes with 500 instead of 404."},
+        {"severity": "medium", "category": "security", "requirement": "R8", "evidence": "A/blog_api.py:26; started with BLOG_API_KEY unset, POST /posts with X-API-Key: dev-key -> 201", "summary": "Falls back to a publicly documented default API key 'dev-key' when no key is configured (only a warning is printed)."},
+        {"severity": "low", "category": "silent", "requirement": "R5", "evidence": "P27_list_returns_all_posts; 61 posts created, GET /posts returned 50 (A/blog_api.py:144)", "summary": "GET /posts silently truncates to 50 items by default with no pagination metadata."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt (3x B904); A/blog_api.py:142 query params parsed without URL-decoding", "summary": "Minor lint findings and hand-rolled query parsing instead of urllib.parse."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 220},
+ "B": {"probes_passed": 28,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 4, "quality": 4, "tests": 4},
+       "requirements_met": 12, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "quality", "requirement": "R12", "evidence": "B/blog_api.py:102-103", "summary": "Oversized request bodies return 400 instead of 413."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt (14 findings, mostly UP031 percent-format, 2x B904, 1x E501)", "summary": "Minor style lint findings."},
+        {"severity": "low", "category": "functional", "requirement": "R6", "evidence": "B/blog_api.py:126-146 (no PATCH route; PATCH -> 405)", "summary": "Only full PUT update supported; no partial update and GET /posts has no pagination."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 8, "failed": 0},
+       "loc": 218},
+ "blinding_guess": {"spec_framework_side": "B", "confidence": 0.55, "why": "B has a dedicated test suite including a stdlib/single-file conformance test and refuses to start without a configured key, suggesting a spec-driven process."},
+ "notes": "Both are stdlib-only single-file servers on 127.0.0.1:8080 with parameterized SQL and constant-time key comparison; bandit reported nothing for either. A requires auth on all routes except unknown paths (404 checked first); B requires auth on every request including reads. Probe P01 uses an explicit stdlib allowlist because the host Python is 3.9 (no sys.stdlib_module_names). P27 counts A's default 50-item page limit as a fail under the same expectation applied to B. A has no tests; B's 8 unittest tests pass."
+}

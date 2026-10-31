@@ -1,0 +1,30 @@
+{
+ "requests": [
+  {
+   "code": "3M7MUO",
+   "nonce": "757fd9502e2f4353aee797438fd00629",
+   "created_at": "2026-10-31T20:36:39.680Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/invoice-gen",
+     "content_sha": "de843a00366558bd67b373f010a78b339aec0374cbcee91996e75837fe07d565",
+     "used_at": null
+    }
+   ]
+  },
+  {
+   "code": "QGANER",
+   "nonce": "ce76631f5ff71e4ef918d8ce8a18088b",
+   "created_at": "2026-10-31T20:36:43.577Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/invoice-gen",
+     "content_sha": "3c1687ab78092d91898bc9cb0bfadb70aae72da7336e179520f98f6cfbf9dde6",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

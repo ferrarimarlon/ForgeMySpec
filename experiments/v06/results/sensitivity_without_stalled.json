@@ -1,0 +1,123 @@
+{
+ "score_mean": {
+  "tasks": 18,
+  "with_mean": 4.3685,
+  "without_mean": 4.337,
+  "diff_mean": 0.0315,
+  "ci95": [
+   -0.1185,
+   0.1889
+  ],
+  "wilcoxon_p": 0.9175
+ },
+ "score_functional": {
+  "tasks": 18,
+  "with_mean": 4.3333,
+  "without_mean": 4.4815,
+  "diff_mean": -0.1481,
+  "ci95": [
+   -0.5185,
+   0.2222
+  ],
+  "wilcoxon_p": 0.3864
+ },
+ "score_coverage": {
+  "tasks": 18,
+  "with_mean": 4.75,
+  "without_mean": 4.7963,
+  "diff_mean": -0.0463,
+  "ci95": [
+   -0.213,
+   0.1296
+  ],
+  "wilcoxon_p": 0.5728
+ },
+ "score_security": {
+  "tasks": 18,
+  "with_mean": 4.8611,
+  "without_mean": 4.8148,
+  "diff_mean": 0.0463,
+  "ci95": [
+   -0.0833,
+   0.2037
+  ],
+  "wilcoxon_p": 0.5839
+ },
+ "score_robustness": {
+  "tasks": 18,
+  "with_mean": 3.9167,
+  "without_mean": 3.5926,
+  "diff_mean": 0.3241,
+  "ci95": [
+   -0.1019,
+   0.7685
+  ],
+  "wilcoxon_p": 0.1866
+ },
+ "score_quality": {
+  "tasks": 18,
+  "with_mean": 3.9815,
+  "without_mean": 4.0,
+  "diff_mean": -0.0185,
+  "ci95": [
+   -0.0741,
+   0.037
+  ],
+  "wilcoxon_p": 1.0
+ },
+ "probe_rate": {
+  "tasks": 18,
+  "with_mean": 0.9578,
+  "without_mean": 0.9491,
+  "diff_mean": 0.0087,
+  "ci95": [
+   -0.0123,
+   0.0291
+  ],
+  "wilcoxon_p": 0.5074
+ },
+ "crit_high": {
+  "tasks": 18,
+  "with_mean": 0.0185,
+  "without_mean": 0.0556,
+  "diff_mean": -0.037,
+  "ci95": [
+   -0.1111,
+   0.037
+  ],
+  "wilcoxon_p": 0.4237
+ },
+ "sev_critical": {
+  "tasks": 18,
+  "with_mean": 0.0,
+  "without_mean": 0.0,
+  "diff_mean": 0.0,
+  "ci95": [
+   0.0,
+   0.0
+  ],
+  "wilcoxon_p": 1.0
+ },
+ "cat_silent": {
+  "tasks": 18,
+  "with_mean": 0.8056,
+  "without_mean": 0.5185,
+  "diff_mean": 0.287,
+  "ci95": [
+   -0.1389,
+   0.6852
+  ],
+  "wilcoxon_p": 0.1465
+ },
+ "issues": {
+  "tasks": 18,
+  "with_mean": 3.0648,
+  "without_mean": 3.2222,
+  "diff_mean": -0.1574,
+  "ci95": [
+   -0.6111,
+   0.2778
+  ],
+  "wilcoxon_p": 0.5925
+ }
+}

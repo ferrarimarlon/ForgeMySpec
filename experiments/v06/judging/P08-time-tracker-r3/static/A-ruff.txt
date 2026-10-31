@@ -1,0 +1,28 @@
+tests/test_time_tracker.py:42:89: E501 Line too long (108 > 88)
+tests/test_time_tracker.py:49:13: S603 `subprocess` call: check for execution of untrusted input
+tests/test_time_tracker.py:67:89: E501 Line too long (91 > 88)
+tests/test_time_tracker.py:68:89: E501 Line too long (91 > 88)
+tests/test_time_tracker.py:69:89: E501 Line too long (91 > 88)
+tests/test_time_tracker.py:87:89: E501 Line too long (91 > 88)
+tests/test_time_tracker.py:88:89: E501 Line too long (91 > 88)
+tests/test_time_tracker.py:89:89: E501 Line too long (91 > 88)
+tests/test_time_tracker.py:100:89: E501 Line too long (90 > 88)
+time_tracker.py:26:12: UP031 Use format specifiers instead of percent format
+time_tracker.py:35:25: UP015 [*] Unnecessary mode argument
+time_tracker.py:40:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+time_tracker.py:40:28: UP031 Use format specifiers instead of percent format
+time_tracker.py:52:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+time_tracker.py:52:28: UP031 Use format specifiers instead of percent format
+time_tracker.py:99:28: UP031 Use format specifiers instead of percent format
+time_tracker.py:104:11: UP031 Use format specifiers instead of percent format
+time_tracker.py:117:11: UP031 Use format specifiers instead of percent format
+time_tracker.py:117:89: E501 Line too long (104 > 88)
+time_tracker.py:130:16: UP031 Use format specifiers instead of percent format
+time_tracker.py:135:51: UP031 Use format specifiers instead of percent format
+time_tracker.py:147:15: UP031 Use format specifiers instead of percent format
+time_tracker.py:153:25: UP031 Use format specifiers instead of percent format
+time_tracker.py:153:89: E501 Line too long (92 > 88)
+time_tracker.py:160:89: E501 Line too long (89 > 88)
+time_tracker.py:173:15: UP031 Use format specifiers instead of percent format
+Found 26 errors.
+[*] 1 fixable with the `--fix` option (8 hidden fixes can be enabled with the `--unsafe-fixes` option).

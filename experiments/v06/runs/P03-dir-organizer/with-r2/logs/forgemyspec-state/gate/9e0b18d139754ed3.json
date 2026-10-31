@@ -1,0 +1,143 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:20:14Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "[LINT-HY-007] hypotheses[2].description: Hypothesis appears to describe what will NOT be built; hypotheses must be affirmative and testable",
+    "[LINT-HY-007] hypotheses[5].description: Hypothesis appears to describe what will NOT be built; hypotheses must be affirmative and testable",
+    "score 90/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "11 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "move_by_extension": {
+   "kind": "boundary",
+   "statement": "A visible top-level file moves to a subdirectory named by its lowercased extension (no_extension when none); a name collision gets a numeric suffix and never overwrites.",
+   "must_include": [
+    "move files by extension"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "once_mode": {
+   "kind": "boundary",
+   "statement": "--once does a single pass over the target and exits 0.",
+   "must_include": [
+    "--once mode"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "watch_mode": {
+   "kind": "boundary",
+   "statement": "--watch keeps organizing files that appear after start until stopped.",
+   "must_include": [
+    "--watch mode"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "log_moves": {
+   "kind": "boundary",
+   "statement": "Each move appends a line with timestamp, source and destination to organizer.log.",
+   "must_include": [
+    "log moves to organizer.log"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "skip_subdirs": {
+   "kind": "boundary",
+   "statement": "Files inside subdirectories are not touched and nothing is recursed into.",
+   "must_include": [
+    "skip files already in subdirs"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "skip_hidden": {
+   "kind": "boundary",
+   "statement": "Files whose names start with a dot stay in place.",
+   "must_include": [
+    "skip hidden files"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "single_file": {
+   "kind": "boundary",
+   "statement": "organizer.py is one self-contained module that is runnable as a script.",
+   "must_include": [
+    "single file organizer.py"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "stdlib_only": {
+   "kind": "boundary",
+   "statement": "organizer.py imports only standard library modules.",
+   "must_include": [
+    "stdlib only"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/dir-organizer",
+ "inputs_sha": "e57395f2c87f1ec19c33386e54371d8cfc55f65f5b39bdc298f5214896e6b785",
+ "schema": 2
+}

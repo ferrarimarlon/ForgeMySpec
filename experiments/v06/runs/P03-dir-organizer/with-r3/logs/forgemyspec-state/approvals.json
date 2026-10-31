@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "UAJ23W",
+   "nonce": "416fccf26a379f6201bef356c1d55ced",
+   "created_at": "2026-10-31T20:21:18.003Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/dir-organizer",
+     "content_sha": "584b2f05818909992efcbf019563749ffc084be9c89c5cf45616a347b04e3b2c",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

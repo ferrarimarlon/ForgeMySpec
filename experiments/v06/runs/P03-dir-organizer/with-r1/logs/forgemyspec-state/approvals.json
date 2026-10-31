@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "BVJDM6",
+   "nonce": "3aa9a04baf9357ce4f28eb2dad097880",
+   "created_at": "2026-10-31T20:17:12.578Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/dir-organizer",
+     "content_sha": "7508c392cd81e8eb125344dfffd35cd73c7176cfd88e32a0107082f6d1cd249b",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

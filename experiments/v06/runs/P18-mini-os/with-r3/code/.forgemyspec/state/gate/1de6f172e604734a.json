@@ -1,0 +1,110 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T21:21:46Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "score 100/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "5 tests, 0 failed, 0 skipped"
+   ]
+  },
+  {
+   "name": "verify-command",
+   "status": "PASS",
+   "details": [
+    "command: make (exit 0)",
+    "dafny│ make: Nothing to be done for `all'."
+   ]
+  }
+ ],
+ "evidence": {
+  "boot_sector_valid": {
+   "kind": "boundary",
+   "statement": "build/os.img first sector is 512 bytes and ends with 0x55 0xAA.",
+   "must_include": [
+    "512-byte boot sector with 0x55AA"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "protected_mode_kernel_loaded": {
+   "kind": "boundary",
+   "statement": "The kernel is linked as a 32-bit freestanding ELF and the bootloader source sets CR0.PE to enter protected mode before jumping to the kernel.",
+   "must_include": [
+    "protected mode"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "vga_driver_present": {
+   "kind": "boundary",
+   "statement": "The kernel writes to VGA text memory at 0xB8000 with colour attributes, newline handling and scrolling.",
+   "must_include": [
+    "VGA text output at 0xB8000"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "no_libs": {
+   "kind": "boundary",
+   "statement": "The build compiles with -ffreestanding -nostdlib and links no libc, and the sources include no hosted headers.",
+   "must_include": [
+    "no external libraries"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "qemu_boot_banner": {
+   "kind": "boundary",
+   "statement": "Headless QEMU booted from build/os.img shows the kernel banner in VGA memory at 0xB8000.",
+   "must_include": [
+    "boots in QEMU"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/mini-os",
+ "inputs_sha": "f44a714a05d6013852abcf71a393ac11a2845d6a3e3f270e50c1fe67a5f07619",
+ "schema": 2
+}

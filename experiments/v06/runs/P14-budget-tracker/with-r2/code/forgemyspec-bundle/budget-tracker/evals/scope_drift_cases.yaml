@@ -1,0 +1,18 @@
+version: '0.1'
+purpose: Manual eval seeds to detect scope drift in Claude implementations
+source_prompt: Build a budget tracker CLI in Python. Define monthly budgets per category,
+  record expenses (amount, category, date, note) into a JSON file, reject unknown
+  categories and invalid amounts, report spending per category against the budget,
+  and alert when a category reaches 80% and 100% of its budget. Single file budget_tracker.py,
+  stdlib only.
+checks:
+  must_include:
+  - monthly budget per category
+  - expense stored in JSON file
+  - unknown category rejected
+  - invalid amount rejected
+  - spending per category against budget
+  - alert at 80% of budget
+  - alert at 100% of budget
+  - single file budget_tracker.py stdlib only
+cases: []

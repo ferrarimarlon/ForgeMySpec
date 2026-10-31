@@ -1,0 +1,30 @@
+{
+ "requests": [
+  {
+   "code": "VVGPWZ",
+   "nonce": "ebd9cb7244e7fd6be6094e45d6a483c4",
+   "created_at": "2026-10-31T21:00:16.024Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/state-machine",
+     "content_sha": "327f0914624d1c9034f534bffc72006b8d917d087cd9e37892675a21daea9682",
+     "used_at": null
+    }
+   ]
+  },
+  {
+   "code": "D3SA3R",
+   "nonce": "c510e3888ceb4f901f65e84ccf7bd5fa",
+   "created_at": "2026-10-31T21:00:20.533Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/state-machine",
+     "content_sha": "7793098e3ad1eca8cf7da518d32ba7b22cc91c7a9459588ecb618c43a50a1b08",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

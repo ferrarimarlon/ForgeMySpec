@@ -1,0 +1,24 @@
+{
+ "requirements_total": 16,
+ "probes_total": 26,
+ "A": {"probes_passed": 26,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 5, "quality": 4, "tests": 4},
+       "requirements_met": 16, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt: 41 findings (C901 load/add_job/main, B904 at scheduler.py:92, UP031, E501)", "summary": "Style/complexity lint findings; no functional impact."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 12, "failed": 0},
+       "loc": 268},
+ "B": {"probes_passed": 25,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 0},
+       "requirements_met": 15, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "functional", "requirement": "R16", "evidence": "probe p24_dangling_dep_file_clean_error: `status` on a scheduler.json with depends_on ['ghost'] raises uncaught KeyError traceback at scheduler.py:70", "summary": "load() does not validate dependency references, so recompute_ready crashes with a traceback on an inconsistent state file."},
+        {"severity": "low", "category": "silent", "requirement": "R9", "evidence": "scheduler.json with a->b->a cycle: `status` prints only the header with rc=0 (A reports 'dependency cycle' rc=1)", "summary": "Cyclic state file is loaded without error and status silently omits the cyclic jobs."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt: 32 findings (C901 cmd_add, B904 at scheduler.py:42,238, UP031, E501)", "summary": "Style/complexity lint findings; no functional impact."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 265},
+ "blinding_guess": {"spec_framework_side": "A", "confidence": 0.55, "why": "A ships a test suite and validates the persisted file defensively (ids, priorities, dangling deps, cycles), suggesting a more spec-driven process."},
+ "notes": "Both sides meet every functional requirement through their CLIs; interfaces differ (A uses positional add args, B uses --id/--name/--priority flags), and the probe harness adapts only the invocation. Because unknown dependencies are rejected at add time, a cycle can only appear through a hand-edited state file; both reject further adds in that case. Bandit reports were empty for both sides. A's 12 unittest tests pass (pytest not installed; ran with unittest). B has no tests and is less robust when loading a malformed state file."
+}

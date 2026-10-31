@@ -1,0 +1,36 @@
+{
+ "requirements_total": 12,
+ "probes_total": 19,
+ "A": {
+  "probes_passed": 18,
+  "scores": {"functional": 4, "coverage": 4, "security": 5, "robustness": 4, "quality": 4, "tests": 5},
+  "requirements_met": 11, "requirements_partial": 1, "requirements_missing": 0,
+  "issues": [
+   {"severity": "low", "category": "silent", "requirement": "R3",
+    "evidence": "probe P13b_user_organizer_py_moved fail; A/organizer.py:20,33 skips any top-level file whose name equals the script basename",
+    "summary": "A user file named organizer.py in the target directory is silently never organized, even when the script lives elsewhere."},
+   {"severity": "low", "category": "quality",
+    "requirement": null, "evidence": "static/A-ruff.txt: 6 E501, 4 UP031",
+    "summary": "Minor style lint (long lines, percent formatting); move failures go to stderr only, not organizer.log (A/organizer.py:73)."}
+  ],
+  "own_tests": {"present": true, "ran": true, "passed": 7, "failed": 0},
+  "loc": 111
+ },
+ "B": {
+  "probes_passed": 18,
+  "scores": {"functional": 3, "coverage": 3, "security": 5, "robustness": 4, "quality": 4, "tests": 0},
+  "requirements_met": 11, "requirements_partial": 1, "requirements_missing": 0,
+  "issues": [
+   {"severity": "medium", "category": "scope", "requirement": "R3",
+    "evidence": "probe P13a_tmp_part_files_moved fail; B/organizer.py:14,51 TEMP_SUFFIXES {.part,.crdownload,.tmp,.download} skipped in both --once and --watch",
+    "summary": "Unrequested rule silently leaves .tmp/.part/.crdownload/.download files unorganized forever, even in --once mode."},
+   {"severity": "low", "category": "quality", "requirement": null,
+    "evidence": "B/ contains only organizer.py; static/B-ruff.txt: 3 E501",
+    "summary": "No tests provided; minor long-line lint."}
+  ],
+  "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+  "loc": 127
+ },
+ "blinding_guess": {"spec_framework_side": "A", "confidence": 0.55, "why": "A ships a unittest suite that maps one-to-one onto the stated requirements (stdlib-only, single file, skips, log), suggesting a spec-driven process."},
+ "notes": "Both sides are functionally sound: --once/--watch, extension-based moves, organizer.log, hidden/subdir skips, collision-safe renaming, and stdlib-only were verified by black-box probes on both. Each fails exactly one probe due to an extra skip rule (A: files named organizer.py; B: temp/partial-download suffixes); B's rule affects more common file types and also applies in --once, so it was rated medium. B's watch mode adds a size-stability delay before moving, which is reasonable and did not break the watch probe. Bandit reported no issues for either side. Probes require python>=3.10 (run with python3.11); both programs also ran correctly under system python 3.9."
+}

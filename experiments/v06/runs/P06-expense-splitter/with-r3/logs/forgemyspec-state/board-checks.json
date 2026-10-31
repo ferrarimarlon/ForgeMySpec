@@ -1,0 +1,14 @@
+{
+ "cmd: PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec lint forgemyspec-bundle/expense-splitter/spec.yaml --formal": {
+  "passed": true,
+  "fingerprint": "dad5ede160bb3d6fa037419cb6b4ebc63730b4fad5af2acd47db42140c8b3278",
+  "ran_at": "2026-10-31T20:28:41.344Z",
+  "seconds": 0.1
+ },
+ "cmd: PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec gate forgemyspec-bundle/expense-splitter": {
+  "passed": true,
+  "fingerprint": "dad5ede160bb3d6fa037419cb6b4ebc63730b4fad5af2acd47db42140c8b3278",
+  "ran_at": "2026-10-31T20:28:41.491Z",
+  "seconds": 0.1
+ }
+}

@@ -1,0 +1,141 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:40:17Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "score 100/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "9 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "load_json": {
+   "kind": "boundary",
+   "statement": "Loading a JSON file builds the machine; unreadable or malformed JSON exits 2.",
+   "must_include": [
+    "load machine from JSON"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "guards": {
+   "kind": "boundary",
+   "statement": "A transition with a guard fires only when the guard holds on the context; otherwise the next candidate or a rejection applies.",
+   "must_include": [
+    "guard conditions on context"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "unknown_states": {
+   "kind": "boundary",
+   "statement": "A transition, initial or final state not in states is reported by name.",
+   "must_include": [
+    "unknown states detected"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "unreachable_states": {
+   "kind": "boundary",
+   "statement": "A state not reachable from the initial state is reported by name.",
+   "must_include": [
+    "unreachable states detected"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "missing_initial": {
+   "kind": "boundary",
+   "statement": "A machine without an initial state, or with an empty one, is reported as invalid.",
+   "must_include": [
+    "missing initial state detected"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "run_events": {
+   "kind": "boundary",
+   "statement": "Events apply in order from the initial state; an event with no enabled transition, or any event in a final state, is rejected and leaves the state unchanged.",
+   "must_include": [
+    "run sequence of events"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "history_print": {
+   "kind": "boundary",
+   "statement": "Each attempted event is recorded and printed as one line with from-state, event, to-state and outcome.",
+   "must_include": [
+    "printable transition history"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "cli_single_file": {
+   "kind": "boundary",
+   "statement": "The validate and run subcommands of state_machine.py return exit codes 0, 1 and 2, and the module imports only the standard library.",
+   "must_include": [
+    "single file stdlib only"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/state-machine",
+ "inputs_sha": "15c6f45facaa668be7b9bb7ee9347bc0b635c32c5e8ab5dc8ffe6695322b7818",
+ "schema": 2
+}

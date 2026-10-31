@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "KNXCKZ",
+   "nonce": "c738b0827a1e9cfc9f63c53e91370019",
+   "created_at": "2026-10-31T20:34:27.609Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/csv-dedup",
+     "content_sha": "868cdcb47b65ae1da6d818aa42c34b075026aa2b75728f43d16f356b1e67fe9f",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

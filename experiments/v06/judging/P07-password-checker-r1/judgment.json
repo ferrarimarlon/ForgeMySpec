@@ -1,0 +1,35 @@
+{
+ "requirements_total": 17,
+ "probes_total": 27,
+ "A": {"probes_passed": 25,
+       "scores": {"functional": 3, "coverage": 4, "security": 5, "robustness": 3, "quality": 4, "tests": 0},
+       "requirements_met": 15, "requirements_partial": 2, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "silent", "requirement": "R12",
+         "evidence": "P19: in a dir whose policy.json sets min_length=30, `check Xk9#mPq2$vLw7!` exits 0 using built-in defaults; A/password_checker.py:232 (default: built-in) vs :215 (validate-policy defaults to policy.json)",
+         "summary": "check/generate ignore policy.json unless -p is given, while validate-policy defaults to policy.json, so the validated policy is not the one enforced."},
+        {"severity": "medium", "category": "functional", "requirement": "R11",
+         "evidence": "P25: policy {\"min_entropy\":70} passes validate-policy but `generate -p p.json` prints 'error: could not generate a password satisfying the policy' rc=2; default length 16 caps Shannon entropy at 64 bits (A/password_checker.py:155)",
+         "summary": "generate fails for valid policies whose min_entropy exceeds what the default length 16 can reach instead of choosing a longer length."},
+        {"severity": "low", "category": "functional", "requirement": "R15",
+         "evidence": "policy {min_length:12,max_length:12,min_entropy:60} -> validate-policy 'OK', generate rc=2",
+         "summary": "validate-policy accepts unsatisfiable policies (min_entropy unreachable within max_length)."},
+        {"severity": "low", "category": "quality", "requirement": null,
+         "evidence": "static/A-ruff.txt: C901 validate_policy complexity 14, B904 at :90/:92, 11x E501",
+         "summary": "Minor lint issues: missing exception chaining, long lines, one over-complex function."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 259},
+ "B": {"probes_passed": 0,
+       "scores": {"functional": 0, "coverage": 0, "security": 0, "robustness": 0, "quality": 0, "tests": 0},
+       "requirements_met": 0, "requirements_partial": 0, "requirements_missing": 17,
+       "issues": [
+        {"severity": "critical", "category": "scope", "requirement": "R1",
+         "evidence": "`ls -A B | wc -l` -> 0; static/B-ruff.txt 'No Python files found'; all 27 probes fail",
+         "summary": "B directory is empty; no implementation was delivered."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 0},
+ "blinding_guess": {"spec_framework_side": "unsure", "confidence": 0.1, "why": "B is empty so there is nothing to compare; A shows no spec-framework artifacts."},
+ "notes": "B/ is empty, so it scores 0 everywhere. A is a solid single-file stdlib implementation that uses secrets for generation and handles errors without tracebacks. The probe harness was fixed mid-run for Python 3.9 (no sys.stdlib_module_names) and to stop negative probes from passing when the program is missing; results.json reflects the corrected run. Neither side has its own tests."
+}

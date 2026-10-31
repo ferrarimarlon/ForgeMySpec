@@ -1,0 +1,26 @@
+{
+ "requirements_total": 19,
+ "probes_total": 20,
+ "A": {"probes_passed": 19,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 4, "quality": 4, "tests": 4},
+       "requirements_met": 18, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "quality", "requirement": "R18", "evidence": "P15_unhashable_state_ref: A/state_machine.py:74 TypeError: unhashable type: 'list'", "summary": "A transition whose 'to' or 'from' is a JSON list crashes validation with a traceback instead of a validation error."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt: C901 validate complexity 23, B904 x3", "summary": "validate() is overly complex, and re-raised exceptions drop their cause chain."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 9, "failed": 0},
+       "loc": 185},
+ "B": {"probes_passed": 18,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 0},
+       "requirements_met": 17, "requirements_partial": 2, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "functional", "requirement": "R18", "evidence": "P14_toplevel_list: B/state_machine.py:82 AttributeError: 'list' object has no attribute 'get'", "summary": "A valid-JSON definition that is not an object crashes with a traceback because Machine.__init__ calls .get() before validate() can check its type."},
+        {"severity": "low", "category": "quality", "requirement": "R13", "evidence": "P15_unhashable_state_ref: B/state_machine.py:126 TypeError: unhashable type: 'list'", "summary": "A list-valued 'to' or 'from' in a transition crashes validation with a traceback."},
+        {"severity": "low", "category": "scope", "requirement": null, "evidence": "B/state_machine.py:130,159 'set' key mutates context", "summary": "Adds unrequested 'set' context mutation and all/any/not guard combinators, which widens the definition format."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "no test file in B/", "summary": "B ships no automated tests."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 227},
+ "blinding_guess": {"spec_framework_side": "A", "confidence": 0.4, "why": "A ships a test suite (including a stdlib-only AST check) and documents its exit codes, which suggests a more process-driven build, but the evidence is weak."},
+ "notes": "Both implementations meet the core spec: JSON load, validation of unknown, unreachable and missing-initial states, operator-table guards with no eval, event runs, and printable history. A records rejected events in its history and always prints the history on run; B prints history only with --history and records only accepted transitions. Both are reasonable readings of the spec. A's 9 tests passed under unittest (pytest is not installed here). B fails one more robustness probe: a non-object top-level JSON value causes a traceback."
+}

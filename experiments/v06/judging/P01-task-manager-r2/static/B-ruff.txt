@@ -1,0 +1,27 @@
+task_manager.py:44:25: UP031 Use format specifiers instead of percent format
+task_manager.py:44:89: E501 Line too long (93 > 88)
+task_manager.py:54:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+task_manager.py:54:25: UP031 Use format specifiers instead of percent format
+task_manager.py:56:25: UP031 Use format specifiers instead of percent format
+task_manager.py:63:25: UP031 Use format specifiers instead of percent format
+task_manager.py:67:89: E501 Line too long (91 > 88)
+task_manager.py:73:89: E501 Line too long (100 > 88)
+task_manager.py:110:29: UP031 Use format specifiers instead of percent format
+task_manager.py:111:18: S608 Possible SQL injection vector through string-based query construction
+task_manager.py:123:89: E501 Line too long (94 > 88)
+task_manager.py:125:89: E501 Line too long (93 > 88)
+task_manager.py:127:5: E731 Do not assign a `lambda` expression, use a `def`
+task_manager.py:127:58: B905 `zip()` without an explicit `strict=` parameter
+task_manager.py:134:89: E501 Line too long (90 > 88)
+task_manager.py:146:5: E741 Ambiguous variable name: `l`
+task_manager.py:172:19: UP031 Use format specifiers instead of percent format
+task_manager.py:178:19: UP031 Use format specifiers instead of percent format
+task_manager.py:181:19: UP031 Use format specifiers instead of percent format
+task_manager.py:185:19: UP031 Use format specifiers instead of percent format
+task_manager.py:195:15: UP031 Use format specifiers instead of percent format
+tests/test_task_manager.py:23:16: S603 `subprocess` call: check for execution of untrusted input
+tests/test_task_manager.py:39:89: E501 Line too long (91 > 88)
+tests/test_task_manager.py:43:89: E501 Line too long (97 > 88)
+tests/test_task_manager.py:81:38: E741 Ambiguous variable name: `l`
+Found 25 errors.
+No fixes available (7 hidden fixes can be enabled with the `--unsafe-fixes` option).

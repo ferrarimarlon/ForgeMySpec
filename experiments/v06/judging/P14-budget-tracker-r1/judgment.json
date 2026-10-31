@@ -1,0 +1,26 @@
+{
+ "requirements_total": 13,
+ "probes_total": 27,
+ "A": {"probes_passed": 25,
+  "scores": {"functional": 4, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 0},
+  "requirements_met": 12, "requirements_partial": 1, "requirements_missing": 0,
+  "issues": [
+   {"severity": "medium", "category": "functional", "requirement": "R8", "evidence": "probes P07_invalid_amount_6_1e400 / P07_invalid_amount_7_1e30: `add 1e30 food` -> decimal.InvalidOperation traceback (budget_tracker.py:57 quantize)", "summary": "Very large amounts crash with an uncaught decimal.InvalidOperation traceback instead of a clean rejection."},
+   {"severity": "low", "category": "functional", "requirement": "R12", "evidence": "data file with expense {\"amount\":\"1\"} -> `report` prints KeyError: 'category'", "summary": "Structurally malformed expense entries in the JSON file cause an uncaught KeyError."},
+   {"severity": "low", "category": "silent", "requirement": "R10", "evidence": "after 85/100 spent, `add 1 food` prints only 'Recorded 1.00 ...' with no warning (budget_tracker.py:127-131)", "summary": "add only alerts at the moment a threshold is crossed, so further spending while already at 80-99% gives no alert (report still shows it)."}
+  ],
+  "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+  "loc": 210},
+ "B": {"probes_passed": 25,
+  "scores": {"functional": 4, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 4},
+  "requirements_met": 12, "requirements_partial": 1, "requirements_missing": 0,
+  "issues": [
+   {"severity": "medium", "category": "functional", "requirement": "R8", "evidence": "probes P07_invalid_amount_6_1e400 / P07_invalid_amount_7_1e30: `add 1e30 food` -> decimal.InvalidOperation traceback (budget_tracker.py:28 quantize)", "summary": "Very large amounts crash with an uncaught decimal.InvalidOperation traceback instead of a clean rejection."},
+   {"severity": "low", "category": "functional", "requirement": "R12", "evidence": "data file with expense {\"amount\":\"1\"} -> `report` prints KeyError: 'date'", "summary": "Structurally malformed expense entries in the JSON file cause an uncaught KeyError."},
+   {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt: 30 findings (UP031 %-format, B904, E501, E741 in tests); budget_tracker.py:116 does not strip category while set-budget does (line 103)", "summary": "Lint noise and inconsistent category normalisation between set-budget and add."}
+  ],
+  "own_tests": {"present": true, "ran": true, "passed": 8, "failed": 0},
+  "loc": 183},
+ "blinding_guess": {"spec_framework_side": "B", "confidence": 0.4, "why": "B ships a unittest suite that maps one test per stated requirement (persist, unknown category, invalid amount, report, stdlib-only), suggestive of a spec-driven process."},
+ "notes": "Both sides expose an identical CLI (set-budget/add/report with --file/--date/--note/--month), so probes needed no invocation adaptation. Both pass 25/27 probes and fail the same two (huge amounts like 1e30 crash in Decimal.quantize). A adds atomic mkstemp saves, a list command and case-insensitive categories; B alerts on every add at/over 80% and has an 8-test passing suite. Bandit reported no issues for either side. LOC excludes B's tests (117 lines)."
+}

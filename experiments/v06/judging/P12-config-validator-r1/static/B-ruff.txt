@@ -1,0 +1,29 @@
+config_validator.py:51:22: UP031 Use format specifiers instead of percent format
+config_validator.py:55:12: UP031 Use format specifiers instead of percent format
+config_validator.py:58:5: C901 `validate` is too complex (18 > 10)
+config_validator.py:66:27: UP031 Use format specifiers instead of percent format
+config_validator.py:66:89: E501 Line too long (105 > 88)
+config_validator.py:70:23: UP031 Use format specifiers instead of percent format
+config_validator.py:70:89: E501 Line too long (97 > 88)
+config_validator.py:74:27: UP031 Use format specifiers instead of percent format
+config_validator.py:74:89: E501 Line too long (101 > 88)
+config_validator.py:76:27: UP031 Use format specifiers instead of percent format
+config_validator.py:76:89: E501 Line too long (104 > 88)
+config_validator.py:80:27: UP031 Use format specifiers instead of percent format
+config_validator.py:80:89: E501 Line too long (111 > 88)
+config_validator.py:82:27: UP031 Use format specifiers instead of percent format
+config_validator.py:82:89: E501 Line too long (114 > 88)
+config_validator.py:84:27: UP031 Use format specifiers instead of percent format
+config_validator.py:84:89: E501 Line too long (103 > 88)
+config_validator.py:90:31: UP031 Use format specifiers instead of percent format
+config_validator.py:97:45: UP031 Use format specifiers instead of percent format
+config_validator.py:97:79: UP031 Use format specifiers instead of percent format
+config_validator.py:97:89: E501 Line too long (97 > 88)
+config_validator.py:105:15: UP031 Use format specifiers instead of percent format
+config_validator.py:107:15: UP031 Use format specifiers instead of percent format
+config_validator.py:113:89: E501 Line too long (93 > 88)
+config_validator.py:128:15: UP031 Use format specifiers instead of percent format
+config_validator.py:132:15: UP031 Use format specifiers instead of percent format
+config_validator.py:136:11: UP031 Use format specifiers instead of percent format
+Found 27 errors.
+No fixes available (12 hidden fixes can be enabled with the `--unsafe-fixes` option).

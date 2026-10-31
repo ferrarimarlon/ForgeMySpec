@@ -1,0 +1,20 @@
+version: '0.1'
+purpose: Manual eval seeds to detect scope drift in Claude implementations
+source_prompt: 'Build a CLI Task Manager in Python. Requirements: Add, list, update,
+  delete tasks (CRUD). Each task has: id, title, description, priority (low/medium/high),
+  status (todo/in-progress/done), due_date. Persist data in SQLite (no ORM, raw sqlite3).
+  Filter tasks by status and priority. Mark task as done. Output as formatted table
+  in terminal. Single file CLI entry point: task_manager.py. No external dependencies
+  beyond stdlib.'
+checks:
+  must_include:
+  - add, list, update, delete tasks
+  - priority low/medium/high
+  - status todo/in-progress/done
+  - persist in SQLite with raw sqlite3
+  - filter by status and priority
+  - mark task as done
+  - formatted table output
+  - single file task_manager.py
+  - stdlib only
+cases: []

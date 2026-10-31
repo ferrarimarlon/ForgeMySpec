@@ -1,0 +1,145 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T21:06:34Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "score 100/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "8 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "id_and_priority_format": {
+   "kind": "boundary",
+   "statement": "Ids must match [A-Za-z0-9_]{1,32} and priority must be an integer 1-10, otherwise add is rejected.",
+   "must_include": [
+    "id alphanumeric and underscore 1-32 chars",
+    "priority 1-10"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "add_rejections": {
+   "kind": "boundary",
+   "statement": "add rejects a duplicate id, a self-dependency and an unknown dependency, leaving the file unchanged.",
+   "must_include": [
+    "reject duplicate id",
+    "reject self-dependency",
+    "reject unknown dependency"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "cycle_rejected": {
+   "kind": "boundary",
+   "statement": "An add that would create a dependency cycle is rejected.",
+   "must_include": [
+    "reject cycle"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "execution_order": {
+   "kind": "boundary",
+   "statement": "The execution order is topological; among available jobs higher priority comes first, ties by id.",
+   "must_include": [
+    "topological order priority tiebreak"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "ready_derived": {
+   "kind": "boundary",
+   "statement": "A pending job with all dependencies done is ready; readiness is recomputed on load and scheduler.json never contains ready.",
+   "must_include": [
+    "ready recomputed on load",
+    "ready never persisted"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "failure_propagation": {
+   "kind": "boundary",
+   "statement": "fail marks the job failed and cancels all transitive dependents.",
+   "must_include": [
+    "failure cancels transitive dependents"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "run_next": {
+   "kind": "boundary",
+   "statement": "run-next picks the highest-priority ready job, passes it through running and ends it done.",
+   "must_include": [
+    "run-next highest-priority ready job"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "cli_commands": {
+   "kind": "boundary",
+   "statement": "The CLI supports add, run-next, fail <id>, status and report, persisting in scheduler.json.",
+   "must_include": [
+    "commands add run-next fail status report"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/job-scheduler",
+ "inputs_sha": "05783febb042bc092a7a2229b165510fed22474e677e064c1fbde9847a5aaadc",
+ "schema": 2
+}

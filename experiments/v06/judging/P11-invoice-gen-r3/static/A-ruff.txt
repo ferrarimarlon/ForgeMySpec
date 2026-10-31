@@ -1,0 +1,15 @@
+invoice_gen.py:13:89: E501 Line too long (90 > 88)
+invoice_gen.py:51:5: C901 `validate` is too complex (33 > 10)
+invoice_gen.py:136:89: E501 Line too long (94 > 88)
+invoice_gen.py:152:89: E501 Line too long (98 > 88)
+invoice_gen.py:169:36: E741 Ambiguous variable name: `l`
+invoice_gen.py:211:89: E501 Line too long (92 > 88)
+invoice_gen.py:222:17: E741 Ambiguous variable name: `l`
+invoice_gen.py:226:89: E501 Line too long (94 > 88)
+invoice_gen.py:247:5: E731 Do not assign a `lambda` expression, use a `def`
+invoice_gen.py:251:89: E501 Line too long (91 > 88)
+invoice_gen.py:261:13: E741 Ambiguous variable name: `l`
+invoice_gen.py:279:89: E501 Line too long (97 > 88)
+invoice_gen.py:335:89: E501 Line too long (91 > 88)
+Found 13 errors.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).

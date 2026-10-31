@@ -1,0 +1,107 @@
+version: "0.1"
+title: "REST Blog API"
+objective: "A single-file Python REST API (blog_api.py) using only http.server and sqlite3, offering CRUD for blog posts with JSON bodies and X-API-Key authentication, served on localhost:8080."
+execution_mode: critical
+context:
+  system: "Empty Python repository; target is one file blog_api.py at the repository root, Python 3 standard library only."
+  assumptions:
+    - "A post has id (integer, assigned by the server), title (non-empty string), body (non-empty string), created_at and updated_at (UTC ISO-8601 strings)."
+    - "Routes: POST /posts, GET /posts, GET /posts/{id}, PUT /posts/{id} (full replace), DELETE /posts/{id}."
+    - "The valid API key comes from the environment variable BLOG_API_KEY; the server refuses to start when it is unset or empty."
+    - "The SQLite file path comes from BLOG_DB_PATH, default blog.db; tests use a temporary file."
+    - "Binding is 127.0.0.1 port 8080 by default; tests may start the server on another port through the factory function."
+    - "No pagination, no users, no comments, no tags."
+constraints:
+  - "Only the Python standard library; no third-party packages."
+  - "Everything lives in the single file blog_api.py."
+  - "The server binds to 127.0.0.1, never to 0.0.0.0."
+  - "SQL uses parameterized queries only, never string formatting of user input."
+  - "No HTTPS, no CORS, no pagination, no user accounts."
+success_criteria:
+  - "All five post routes behave as specified, with JSON request and response bodies."
+  - "Every request without a correct X-API-Key is answered 401 and changes nothing."
+  - "Boundary tests pass against a real server on a temporary database."
+hypotheses:
+  - {id: h1, description: "POST /posts with a valid JSON body creates a post and answers 201 with the stored post including its id.", confidence: 0.9}
+  - {id: h2, description: "GET /posts lists all posts and GET /posts/{id} returns one post, answering 404 for an unknown id.", confidence: 0.9}
+  - {id: h3, description: "PUT /posts/{id} replaces title and body of an existing post and DELETE /posts/{id} removes it, both answering 404 for an unknown id.", confidence: 0.9}
+  - {id: h4, description: "Any request without a valid X-API-Key header is rejected with 401 and no data is read or changed.", confidence: 0.9}
+  - {id: h5, description: "Invalid input (malformed JSON, non-object body, missing or empty title/body, non-string fields) is answered with status 400 and a JSON error.", confidence: 0.85}
+  - {id: h6, description: "The server binds to localhost port 8080 by default and persists posts in SQLite.", confidence: 0.85}
+required_evidence:
+  - "Output of the unittest run showing every boundary test passing."
+  - "Output of the gate command ending in RESULT: PASS."
+actions:
+  - {id: a1, description: "Implement the five post routes with SQLite storage in blog_api.py.", type: implement, requires_confirmation: false, supports: [h1, h2, h3]}
+  - {id: a2, description: "Implement the X-API-Key check and the JSON input validation in blog_api.py.", type: implement, requires_confirmation: false, supports: [h4, h5]}
+  - {id: a3, description: "Implement the localhost:8080 server entry point and database persistence.", type: implement, requires_confirmation: false, supports: [h6]}
+  - {id: a4, description: "Write boundary tests that start the server on a free port with a temp database, then run the unittest suite and the gate.", type: validate, requires_confirmation: false, supports: [h1, h2, h3, h4, h5, h6]}
+decision_rules:
+  - "If a behavior is not covered by an obligation, stop and ask for a spec amendment."
+  - "If the gate fails, fix the code, never the tests."
+metadata:
+  source_prompt: "Build a REST Blog API in Python using only the standard library (http.server + sqlite3). CRUD for posts, X-API-Key auth, JSON bodies, localhost:8080, single file blog_api.py."
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "CRUD for posts"
+      - "X-API-Key auth"
+      - "JSON bodies"
+      - "localhost:8080"
+      - "single file blog_api.py"
+      - "standard library only"
+formal:
+  module: BlogApi
+  obligations:
+    - id: create_post
+      kind: boundary
+      statement: "POST /posts with valid JSON title and body answers 201 and returns the post with id; GET /posts/{id} then returns it."
+      hypotheses: [h1]
+      must_include: ["CRUD for posts"]
+      test: "test_blog_api.BlogApiTests.test_create_then_get"
+    - id: read_posts
+      kind: boundary
+      statement: "GET /posts lists all posts; GET /posts/{id} of an unknown id answers 404."
+      hypotheses: [h2]
+      must_include: ["CRUD for posts"]
+      test: "test_blog_api.BlogApiTests.test_list_and_unknown_id_404"
+    - id: update_delete_post
+      kind: boundary
+      statement: "PUT replaces title and body; DELETE removes the post; both answer 404 for an unknown id and a deleted post is then 404."
+      hypotheses: [h3]
+      must_include: ["CRUD for posts"]
+      test: "test_blog_api.BlogApiTests.test_update_and_delete"
+    - id: api_key_required
+      kind: boundary
+      statement: "A request with a missing or wrong X-API-Key answers 401 on every route and leaves the database unchanged."
+      hypotheses: [h4]
+      must_include: ["X-API-Key auth"]
+      test: "test_blog_api.BlogApiTests.test_auth_required_and_no_side_effects"
+    - id: json_validation
+      kind: boundary
+      statement: "Malformed JSON, non-object bodies, missing, empty or non-string title/body answer 400 with a JSON error body; all responses carry Content-Type application/json."
+      hypotheses: [h5]
+      must_include: ["JSON bodies"]
+      test: "test_blog_api.BlogApiTests.test_invalid_bodies_400"
+    - id: bind_localhost_8080
+      kind: boundary
+      statement: "The default host is 127.0.0.1 and the default port is 8080; startup fails when BLOG_API_KEY is unset."
+      hypotheses: [h6]
+      must_include: ["localhost:8080"]
+      test: "test_blog_api.BlogApiTests.test_defaults_and_requires_key"
+    - id: persistence_sqlite
+      kind: boundary
+      statement: "Posts survive a server restart on the same SQLite file."
+      hypotheses: [h6]
+      must_include: ["single file blog_api.py"]
+      test: "test_blog_api.BlogApiTests.test_persists_across_restart"
+    - id: stdlib_only
+      kind: boundary
+      statement: "blog_api.py imports only standard library modules (checked via sys.stdlib_module_names)."
+      hypotheses: [h6]
+      must_include: ["standard library only"]
+      test: "test_blog_api.BlogApiTests.test_imports_stdlib_only"
+scope:
+  paths: ["blog_api.py", "tests/**"]
+  tests: tests
+  pythonpath: ["."]

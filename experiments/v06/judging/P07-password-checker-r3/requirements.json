@@ -1,0 +1,19 @@
+[
+ {"id":"R1","text":"Python CLI, single file password_checker.py"},
+ {"id":"R2","text":"stdlib only (no third-party imports)"},
+ {"id":"R3","text":"check: enforce minimum length"},
+ {"id":"R4","text":"check: enforce uppercase requirement"},
+ {"id":"R5","text":"check: enforce lowercase requirement"},
+ {"id":"R6","text":"check: enforce digit requirement"},
+ {"id":"R7","text":"check: enforce symbol requirement"},
+ {"id":"R8","text":"check: reject forbidden common passwords"},
+ {"id":"R9","text":"check: report every failed rule (not just first)"},
+ {"id":"R10","text":"compute Shannon entropy in bits"},
+ {"id":"R11","text":"policy is configurable (rules can be enabled/disabled/adjusted)"},
+ {"id":"R12","text":"policy loadable from policy.json"},
+ {"id":"R13","text":"generate subcommand produces random passwords satisfying the policy"},
+ {"id":"R14","text":"generate uses cryptographically secure randomness"},
+ {"id":"R15","text":"validate-policy subcommand validates a policy file, rejecting invalid ones"},
+ {"id":"R16","text":"check exits non-zero / signals failure when the password fails policy, zero when passes"},
+ {"id":"R17","text":"graceful errors (missing/malformed policy file) without tracebacks"}
+]

@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "WC76Y5",
+   "nonce": "c4347bca6b8c5054020f0259eb732117",
+   "created_at": "2026-10-31T21:10:14.093Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/vault",
+     "content_sha": "9cd9e015aaa9f9d5fe6f6884a2252ead3ea17ea26d835c41b11533cf568a5988",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,131 @@
+version: "0.1"
+title: Directory Organizer
+objective: >
+  A single-file, stdlib-only Python tool (organizer.py) that moves files from the top level of a target
+  directory into subdirectories named after their extension, once (--once) or continuously (--watch),
+  logging every move to organizer.log.
+execution_mode: critical
+context:
+  system: "New Python 3 project; no existing code. Deliverable is organizer.py at the repository root plus unittest tests in tests/."
+  assumptions:
+    - "Subdirectory name is the lowercased extension without the dot (report.PDF goes to pdf/)."
+    - "Files with no extension go to a subdirectory named no_extension."
+    - "Hidden means the file name starts with a dot; hidden files are never moved."
+    - "Files already in subdirectories are never touched; only top-level regular files of the target are considered."
+    - "Name collision at the destination: the file is renamed with a numeric suffix (name_1.ext); nothing is overwritten."
+    - "organizer.log is written in the current working directory (option --log overrides the path); if it sits in the target it is not moved."
+    - "Watch mode is polling-based (stdlib has no filesystem events), with a configurable interval defaulting to 2 seconds."
+    - "CLI: organizer.py TARGET (--once | --watch) [--interval SECONDS]; exactly one mode is required."
+constraints:
+  - "Single file organizer.py; Python standard library only; no third-party packages."
+  - "No recursion into subdirectories; no deletion of files; no overwriting of existing files."
+  - "No GUI, no daemonization, no configuration file, no custom extension mapping."
+success_criteria:
+  - "Running --once on a directory with mixed files moves each visible top-level file into its extension subdirectory."
+  - "Every move appends a line to organizer.log."
+  - "Hidden files and files already in subdirectories are left in place."
+hypotheses:
+  - id: h1
+    description: "--once moves every visible top-level file into a subdirectory named after its lowercased extension and exits 0."
+    confidence: 0.95
+  - id: h2
+    description: "--watch keeps running and moves files that appear in the target after start, until interrupted."
+    confidence: 0.85
+  - id: h3
+    description: "Each move is appended to organizer.log with timestamp, source and destination."
+    confidence: 0.95
+  - id: h4
+    description: "Hidden files and files already inside subdirectories stay in place after a run."
+    confidence: 0.95
+  - id: h5
+    description: "The CLI requires exactly one of --once or --watch and rejects a missing or non-directory target with a non-zero exit."
+    confidence: 0.9
+  - id: h6
+    description: "On a name collision at the destination, the existing file keeps its content and the moved file gets a numeric suffix."
+    confidence: 0.9
+required_evidence:
+  - "unittest run of tests/ showing all tests passing"
+  - "Command output of organizer.py --once on a sample directory followed by a directory listing"
+  - "Contents of organizer.log after a run"
+actions:
+  - {id: a1, description: "Design CLI and extension-to-subdirectory rules", type: design, requires_confirmation: false, supports: [h1, h4, h5, h6]}
+  - {id: a2, description: "Implement organizer.py once mode and logging", type: implement, requires_confirmation: false, supports: [h1, h3, h4, h6]}
+  - {id: a3, description: "Implement watch mode", type: implement, requires_confirmation: false, supports: [h2]}
+  - {id: a4, description: "Write unittest boundary tests and run them", type: validate, requires_confirmation: false, supports: [h1, h2, h3, h4, h5, h6]}
+decision_rules:
+  - "If a behavior is not covered by an obligation, stop and amend the spec instead of adding it."
+  - "If stdlib cannot do something, escalate to the user; do not add a dependency."
+metadata:
+  source_prompt: "Build a Directory Organizer in Python. Watch a target directory and move files into subdirectories by extension. Two modes: --watch and --once. Log moves to organizer.log. Skip files already in subdirs and hidden files. Single file organizer.py, stdlib only."
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "move files into subdirectories by extension"
+      - "--once mode"
+      - "--watch mode"
+      - "log moves to organizer.log"
+      - "skip files already in subdirs"
+      - "skip hidden files"
+      - "single file organizer.py"
+      - "stdlib only"
+formal:
+  module: DirOrganizer
+  obligations:
+    - id: move_by_extension
+      kind: boundary
+      statement: "A visible top-level file is moved into a subdirectory named after its lowercased extension (no_extension if none)."
+      hypotheses: [h1, h6]
+      must_include: ["move files into subdirectories by extension"]
+      test: "test_organizer.OrganizeTests.test_moves_by_extension"
+    - id: collision_safe
+      kind: boundary
+      statement: "If the destination exists, the file gets a numeric suffix and the existing file is untouched."
+      hypotheses: [h6]
+      must_include: ["move files into subdirectories by extension"]
+      test: "test_organizer.OrganizeTests.test_collision_does_not_overwrite"
+    - id: once_mode
+      kind: boundary
+      statement: "--once organizes the target a single time and exits 0."
+      hypotheses: [h1, h5]
+      must_include: ["--once mode"]
+      test: "test_organizer.CliTests.test_once_exits_zero_and_moves"
+    - id: cli_validation
+      kind: boundary
+      statement: "Missing mode, both modes, or a non-directory target exit non-zero."
+      hypotheses: [h5]
+      must_include: ["--once mode", "--watch mode"]
+      test: "test_organizer.CliTests.test_invalid_arguments_rejected"
+    - id: watch_mode
+      kind: boundary
+      statement: "--watch picks up a file created after start and moves it, and stops on interrupt."
+      hypotheses: [h2]
+      must_include: ["--watch mode"]
+      test: "test_organizer.WatchTests.test_watch_moves_new_file"
+    - id: move_logged
+      kind: boundary
+      statement: "Each move appends a line with timestamp, source and destination to organizer.log."
+      hypotheses: [h3]
+      must_include: ["log moves to organizer.log"]
+      test: "test_organizer.OrganizeTests.test_move_is_logged"
+    - id: skip_subdir_files
+      kind: boundary
+      statement: "Files inside existing subdirectories are not moved and subdirectories are not entered."
+      hypotheses: [h4]
+      must_include: ["skip files already in subdirs"]
+      test: "test_organizer.OrganizeTests.test_skips_files_in_subdirs"
+    - id: skip_hidden
+      kind: boundary
+      statement: "Files whose name starts with a dot are not moved."
+      hypotheses: [h4]
+      must_include: ["skip hidden files"]
+      test: "test_organizer.OrganizeTests.test_skips_hidden_files"
+    - id: single_file_stdlib
+      kind: boundary
+      statement: "organizer.py is the only module of the tool and imports only standard library modules."
+      hypotheses: [h1]
+      must_include: ["single file organizer.py", "stdlib only"]
+      test: "test_organizer.StructureTests.test_single_file_stdlib_only"
+scope:
+  paths: ["organizer.py", "tests/**"]
+  tests: tests
+  pythonpath: ["."]

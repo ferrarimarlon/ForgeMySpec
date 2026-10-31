@@ -1,0 +1,9 @@
+ .../.claude/commands/implement-from-spec.md        |   8 +
+ forgemyspec-bundle/secret-vault/CLAUDE.md          |  49 ++++
+ .../secret-vault/acceptance-checklist.md           |  17 ++
+ .../secret-vault/evals/scope_drift_cases.yaml      |  30 +++
+ forgemyspec-bundle/secret-vault/spec.lock          |   5 +
+ forgemyspec-bundle/secret-vault/spec.yaml          | 182 ++++++++++++++
+ tests/test_vault.py                                | 205 +++++++++++++++
+ vault.py                                           | 280 +++++++++++++++++++++
+ 8 files changed, 776 insertions(+)

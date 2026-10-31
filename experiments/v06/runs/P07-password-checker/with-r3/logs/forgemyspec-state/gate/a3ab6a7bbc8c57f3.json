@@ -1,0 +1,128 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:33:35Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "score 100/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "13 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "all_failures_reported": {
+   "kind": "boundary",
+   "statement": "check evaluates min length, uppercase, lowercase, digits, symbols and forbidden passwords, and lists every failed rule in one run.",
+   "must_include": [
+    "report every failed rule"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "entropy_bits": {
+   "kind": "boundary",
+   "statement": "Shannon entropy is length times per-character empirical entropy; 'aaaa' is 0 bits and 'abcd' is 8 bits.",
+   "must_include": [
+    "Shannon entropy in bits"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "generate_satisfies_policy": {
+   "kind": "boundary",
+   "statement": "Generated passwords pass check under the same policy, over many runs and varied policies.",
+   "must_include": [
+    "generate random passwords that satisfy the policy"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "policy_from_file": {
+   "kind": "boundary",
+   "statement": "The policy is read from policy.json (or --policy path); a missing or malformed file exits 2.",
+   "must_include": [
+    "policy loaded from policy.json"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "validate_policy_rejects_invalid": {
+   "kind": "boundary",
+   "statement": "validate-policy exits 0 for a valid policy and 2 with a message naming the field for an invalid or unsatisfiable one.",
+   "must_include": [
+    "policy loaded from policy.json"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "cli_subcommands": {
+   "kind": "boundary",
+   "statement": "The CLI has check, generate and validate-policy; check exits 0 if compliant and 1 otherwise; unknown subcommand exits 2.",
+   "must_include": [
+    "subcommands check, generate, validate-policy"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "single_file_stdlib": {
+   "kind": "boundary",
+   "statement": "password_checker.py is one file importing only standard library modules.",
+   "must_include": [
+    "single file password_checker.py, stdlib only"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/password-checker",
+ "inputs_sha": "9d821ebcf261284d948bfb81568aa2229f4f085e2ab6552f140e2a43d526c0f0",
+ "schema": 2
+}

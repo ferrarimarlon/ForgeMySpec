@@ -1,0 +1,16 @@
+version: '0.1'
+purpose: Manual eval seeds to detect scope drift in Claude implementations
+source_prompt: Build a CLI expense splitter in Python. Record expenses for a group
+  (payer, amount, description, participants; split equally among participants), persist
+  them in a JSON file, show each person's balance, and compute a settlement plan with
+  the minimum number of transfers using a greedy algorithm. Single file expense_splitter.py,
+  stdlib only.
+checks:
+  must_include:
+  - equal split among participants
+  - persisted in JSON file
+  - balance per person
+  - greedy settlement plan
+  - single file expense_splitter.py
+  - stdlib only
+cases: []

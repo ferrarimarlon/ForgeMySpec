@@ -1,0 +1,145 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:22:36Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "score 100/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "8 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "add_and_persist": {
+   "kind": "boundary",
+   "statement": "add stores a task with id, title, description, priority, status and due_date; it is readable by a later separate invocation.",
+   "must_include": [
+    "add, list, update, delete tasks",
+    "task fields id, title, description, priority, status, due_date",
+    "persist in SQLite with raw sqlite3"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "allowed_values": {
+   "kind": "boundary",
+   "statement": "priority accepts only low, medium, high and status only todo, in-progress, done; defaults are medium and todo; other values exit non-zero.",
+   "must_include": [
+    "priority low/medium/high",
+    "status todo/in-progress/done"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "update_and_delete": {
+   "kind": "boundary",
+   "statement": "update changes only the given fields and delete removes the task; an unknown id exits non-zero.",
+   "must_include": [
+    "add, list, update, delete tasks"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "filter_list": {
+   "kind": "boundary",
+   "statement": "list --status and --priority return only matching tasks, alone and combined.",
+   "must_include": [
+    "filter by status and priority"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "mark_done": {
+   "kind": "boundary",
+   "statement": "done ID sets status to done and leaves other fields unchanged.",
+   "must_include": [
+    "mark task as done"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "table_output": {
+   "kind": "boundary",
+   "statement": "list prints a header row and one aligned row per task with the columns ID, Title, Priority, Status, Due.",
+   "must_include": [
+    "formatted table output"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "invalid_input": {
+   "kind": "boundary",
+   "statement": "invalid due_date, empty title or unknown id exit non-zero with a message on stderr.",
+   "must_include": [
+    "task fields id, title, description, priority, status, due_date"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "single_file_stdlib": {
+   "kind": "boundary",
+   "statement": "task_manager.py imports only stdlib modules and is the single entry point, with no ORM.",
+   "must_include": [
+    "single file task_manager.py",
+    "no external dependencies beyond stdlib"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/task-manager",
+ "inputs_sha": "b2d00e622e4895327765ca276f41406bc4a20afb51bc292662cb01326c47ea63",
+ "schema": 2
+}

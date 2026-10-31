@@ -1,0 +1,110 @@
+version: "0.1"
+title: "REST Blog API"
+objective: "A single-file Python REST API (blog_api.py) using only the standard library (http.server + sqlite3) offering CRUD for blog posts, protected by an X-API-Key header, with JSON bodies, served on localhost:8080."
+execution_mode: critical
+context:
+  system: "Empty Python repository on macOS; Python 3 standard library only; single deliverable blog_api.py at the repository root, tests in tests/."
+  assumptions:
+    - "A post has id (integer, server assigned), title (non-empty string), content (string), created_at and updated_at (UTC ISO-8601 strings)."
+    - "The valid API key is read from the environment variable BLOG_API_KEY; the server refuses to start when it is unset or empty."
+    - "The SQLite file path comes from BLOG_DB_PATH and defaults to blog.db; tests use a temporary file or :memory:."
+    - "Routes: POST /posts, GET /posts, GET /posts/{id}, PUT /posts/{id} (full replace), DELETE /posts/{id}."
+    - "Binding is 127.0.0.1:8080 only, plain HTTP, no TLS."
+constraints:
+  - "Standard library only: no third-party packages."
+  - "All code lives in one file, blog_api.py."
+  - "No users, comments, tags, pagination, PATCH or rate limiting."
+  - "The server binds to localhost only, never 0.0.0.0."
+  - "SQL uses parameterized queries, never string formatting of user input."
+  - "The API key is never hard-coded or logged."
+success_criteria:
+  - "Every route behaves as specified in the boundary tests, which run against a real server on an ephemeral port."
+  - "Requests without a valid X-API-Key get 401 and change nothing."
+  - "The gate passes."
+hypotheses:
+  - {id: h1, description: "POST /posts with a valid JSON body creates a post and returns 201 with the stored post as JSON.", confidence: 0.9}
+  - {id: h2, description: "GET /posts lists all posts and GET /posts/{id} returns one post, or 404 for an unknown id.", confidence: 0.9}
+  - {id: h3, description: "PUT /posts/{id} replaces title and content and returns the updated post, or 404 for an unknown id.", confidence: 0.9}
+  - {id: h4, description: "DELETE /posts/{id} deletes the post and returns 204, or 404 for an unknown id.", confidence: 0.9}
+  - {id: h5, description: "Every request with a missing or wrong X-API-Key header receives 401 and leaves data untouched.", confidence: 0.9}
+  - {id: h6, description: "Malformed JSON or an absent or blank title receives 400 with a JSON error body.", confidence: 0.85}
+  - {id: h7, description: "The server listens on 127.0.0.1:8080, persists in sqlite3, and blog_api.py is a single standard-library file.", confidence: 0.85}
+required_evidence:
+  - "Output of the unittest run in tests/ showing all boundary tests passing."
+  - "Gate report with RESULT: PASS."
+actions:
+  - {id: a1, description: "Design routes, status codes and the post schema.", type: design, requires_confirmation: false, supports: [h1, h2, h3, h4, h6]}
+  - {id: a2, description: "Implement CRUD handlers and sqlite storage in blog_api.py.", type: implement, requires_confirmation: false, supports: [h1, h2, h3, h4, h6]}
+  - {id: a5, description: "Implement X-API-Key auth and the localhost:8080 server setup in blog_api.py.", type: implement, requires_confirmation: false, supports: [h5, h7]}
+  - {id: a3, description: "Write boundary tests that start the server on an ephemeral port and exercise each route.", type: test, requires_confirmation: false, supports: [h1, h2, h3, h4, h5, h6, h7]}
+  - {id: a4, description: "Run the gate and review its report.", type: validate, requires_confirmation: false, supports: [h1, h2, h3, h4, h5, h6, h7]}
+decision_rules:
+  - "If a requirement is ambiguous, stop and ask the user."
+  - "Anything outside the listed routes is a spec amendment."
+  - "Stop and report when the gate fails twice for the same reason."
+metadata:
+  source_prompt: "Build a REST Blog API in Python using only the standard library (http.server + sqlite3). CRUD for posts, X-API-Key auth, JSON bodies, localhost:8080, single file blog_api.py."
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "standard library only"
+      - "CRUD for posts"
+      - "X-API-Key auth"
+      - "JSON bodies"
+      - "localhost:8080"
+      - "single file blog_api.py"
+formal:
+  module: BlogApi
+  obligations:
+    - id: create_post
+      kind: boundary
+      statement: "POST /posts with valid JSON returns 201 and the stored post."
+      hypotheses: [h1]
+      must_include: ["CRUD for posts"]
+      test: "test_blog_api.BlogApiTests.test_create_post"
+    - id: read_posts
+      kind: boundary
+      statement: "GET /posts lists posts; GET /posts/{id} returns one or 404."
+      hypotheses: [h2]
+      must_include: ["CRUD for posts"]
+      test: "test_blog_api.BlogApiTests.test_read_posts"
+    - id: update_post
+      kind: boundary
+      statement: "PUT /posts/{id} replaces title and content, 404 when missing."
+      hypotheses: [h3]
+      must_include: ["CRUD for posts"]
+      test: "test_blog_api.BlogApiTests.test_update_post"
+    - id: delete_post
+      kind: boundary
+      statement: "DELETE /posts/{id} returns 204 and the post is gone; 404 when missing."
+      hypotheses: [h4]
+      must_include: ["CRUD for posts"]
+      test: "test_blog_api.BlogApiTests.test_delete_post"
+    - id: auth_required
+      kind: boundary
+      statement: "Missing or wrong X-API-Key on any route returns 401 and leaves data unchanged."
+      hypotheses: [h5]
+      must_include: ["X-API-Key auth"]
+      test: "test_blog_api.BlogApiTests.test_auth_required"
+    - id: json_validation
+      kind: boundary
+      statement: "Malformed JSON or missing/empty title returns 400 with a JSON error; responses are JSON."
+      hypotheses: [h6]
+      must_include: ["JSON bodies"]
+      test: "test_blog_api.BlogApiTests.test_json_validation"
+    - id: bind_localhost
+      kind: boundary
+      statement: "The server binds 127.0.0.1 on port 8080 by default."
+      hypotheses: [h7]
+      must_include: ["localhost:8080"]
+      test: "test_blog_api.BlogApiTests.test_default_bind"
+    - id: stdlib_single_file
+      kind: boundary
+      statement: "blog_api.py imports only standard library modules and no other project module."
+      hypotheses: [h7]
+      must_include: ["standard library only", "single file blog_api.py"]
+      test: "test_blog_api.BlogApiTests.test_stdlib_single_file"
+scope:
+  paths: ["blog_api.py", "tests/**"]
+  tests: tests
+  pythonpath: ["."]

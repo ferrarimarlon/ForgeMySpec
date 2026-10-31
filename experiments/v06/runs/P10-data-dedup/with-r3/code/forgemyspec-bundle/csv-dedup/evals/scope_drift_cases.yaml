@@ -1,0 +1,18 @@
+version: '0.1'
+purpose: Manual eval seeds to detect scope drift in Claude implementations
+source_prompt: 'Build a CSV deduplicator CLI in Python. Remove duplicate rows by a
+  key made of one or more columns (composite keys), with three strategies: keep first,
+  keep last, or error (exit non-zero and report duplicates). Write the result to an
+  output CSV and print a summary of how many duplicates were found and removed. Single
+  file data_dedup.py, stdlib only.'
+checks:
+  must_include:
+  - composite key
+  - keep first
+  - keep last
+  - error strategy exits non-zero
+  - output CSV
+  - summary of duplicates found and removed
+  - single file data_dedup.py
+  - stdlib only
+cases: []

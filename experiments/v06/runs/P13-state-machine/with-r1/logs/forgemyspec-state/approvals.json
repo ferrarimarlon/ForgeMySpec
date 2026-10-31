@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "5LRL6S",
+   "nonce": "a7b7e3e96daa76cac123b0823fa7c43e",
+   "created_at": "2026-10-31T20:39:28.226Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/state-machine",
+     "content_sha": "70402c8d9265afb36983256ef239caf1118edca91dd940598df3b09a85ae40cb",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,9 @@
+scheduler.py:114:5: C901 `load` is too complex (15 > 10)
+scheduler.py:121:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+scheduler.py:131:13: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+scheduler.py:176:5: C901 `cmd_add` is too complex (11 > 10)
+scheduler.py:278:89: E501 Line too long (92 > 88)
+scheduler.py:283:89: E501 Line too long (89 > 88)
+scheduler.py:286:89: E501 Line too long (101 > 88)
+scheduler.py:291:89: E501 Line too long (94 > 88)
+Found 8 errors.

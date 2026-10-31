@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "PA5CVQ",
+   "nonce": "1a76b0c6ec90d8483eaa731ca2a96065",
+   "created_at": "2026-10-31T20:23:38.929Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/note-taker",
+     "content_sha": "99f1006837d9b5568a8078bf0bdff92574dab55697d54d4eb40f9f0270363ca5",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

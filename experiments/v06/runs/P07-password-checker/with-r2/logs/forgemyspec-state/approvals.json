@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "XRD24O",
+   "nonce": "bf4942567d6a7cb38d3b5d4f952f5e6e",
+   "created_at": "2026-10-31T20:29:38.652Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/password-checker",
+     "content_sha": "15de59b68a270daa1e3c9671d666a83972f7bb5d1ebe02f9a2481759f1d4ab58",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

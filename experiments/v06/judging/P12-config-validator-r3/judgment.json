@@ -1,0 +1,29 @@
+{
+ "requirements_total": 13,
+ "probes_total": 23,
+ "A": {"probes_passed": 21,
+  "scores": {"functional": 4, "coverage": 5, "security": 5, "robustness": 4, "quality": 4, "tests": 0},
+  "requirements_met": 11, "requirements_partial": 2, "requirements_missing": 0,
+  "issues": [
+   {"severity": "low", "category": "silent", "requirement": "R4", "evidence": "probe p19_enum_bool_vs_int: config {\"v\": true} vs enum [1,2] -> exit 0 'valid' (A/config_validator.py:60 uses Python `in`, True == 1)", "summary": "Enum check accepts boolean true/false for enum values 1/0 because of Python bool/int equality."},
+   {"severity": "low", "category": "functional", "requirement": "R12", "evidence": "probe p21_deep_nesting_no_traceback: 100000-deep array -> RecursionError traceback, exit 1 (load() catches only OSError/ValueError, A/config_validator.py:102-106)", "summary": "Pathologically deep JSON input crashes with a traceback and exit code 1, which collides with the 'validation errors' exit code."},
+   {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt: C901 validate complexity 22, 6x E501", "summary": "Single monolithic validate function with high cyclomatic complexity and long lines."},
+   {"severity": "low", "category": "quality", "requirement": null, "evidence": "ls A/ shows only config_validator.py", "summary": "No automated tests are provided."}
+  ],
+  "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+  "loc": 135},
+ "B": {"probes_passed": 19,
+  "scores": {"functional": 3, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 4},
+  "requirements_met": 11, "requirements_partial": 2, "requirements_missing": 0,
+  "issues": [
+   {"severity": "medium", "category": "silent", "requirement": "R12", "evidence": "probe p17_nonobject_schema_not_silently_ok: schema [1,2] -> stdout 'OK', exit 0 (B/config_validator.py:51-52 returns early on non-dict schema)", "summary": "A schema that is not a JSON object is silently accepted and every config reports OK."},
+   {"severity": "medium", "category": "silent", "requirement": "R3", "evidence": "probe p20_unknown_type_not_silent: {\"type\":\"strng\"} with value 1 -> 'OK', exit 0 (B/config_validator.py:27 'unknown type names are ignored')", "summary": "Misspelled or unsupported type names in the schema are silently ignored, so typos in the schema disable type checking."},
+   {"severity": "low", "category": "silent", "requirement": "R4", "evidence": "probe p23_enum_int_equals_float fails; manual run with schema {\"enum\":[1.0]} and config 1 -> '<root>: value 1 not in enum [1.0]', exit 1 (B/config_validator.py:58 strict type() identity)", "summary": "Enum comparison treats integer 1 and float 1.0 as different, contrary to JSON numeric equality."},
+   {"severity": "low", "category": "functional", "requirement": "R12", "evidence": "probe p21_deep_nesting_no_traceback: 100000-deep array -> RecursionError traceback, exit 1 (_load catches only OSError/ValueError, B/config_validator.py:110-116)", "summary": "Pathologically deep JSON input crashes with a traceback and exit code 1, which collides with the 'validation errors' exit code."},
+   {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt: C901 _validate complexity 19, B904 x2, 14x UP031, E501", "summary": "Old-style % formatting throughout, exception chaining missing, high-complexity validator function."}
+  ],
+  "own_tests": {"present": true, "ran": true, "passed": 9, "failed": 0},
+  "loc": 144},
+ "blinding_guess": {"spec_framework_side": "unsure", "confidence": 0.3, "why": "B ships a unit-test suite and a documented exit-code contract, but nothing distinctive points to a spec framework on either side."},
+ "notes": "Argument order differs (A: CONFIG SCHEMA, B: SCHEMA CONFIG); probes adapted the invocation only. Both implement every listed keyword with dot-notation paths and report all errors at once; A also supports type unions, null, and array items with [i] paths (unrequested, additive). B's tests were run with `PYTHONPATH=. python3 tests/test_config_validator.py` from B/ (9 OK); pytest is not installed. Bandit reports for both sides are empty. LOC counts only config_validator.py (B's tests add 107 lines)."
+}

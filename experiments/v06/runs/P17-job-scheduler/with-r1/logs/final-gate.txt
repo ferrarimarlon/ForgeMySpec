@@ -1,0 +1,12 @@
+ForgeMySpec gate: /private/tmp/fms-v06/runs/P17-job-scheduler/with-r1/forgemyspec-bundle/job-scheduler
+
+  [PASS   ] spec lint
+              score 100/100 (minimum 70)
+  [PASS   ] obligation coverage
+  [PASS   ] spec lock
+  [PASS   ] Python boundary tests
+              8 tests, 0 failed, 0 skipped
+
+RESULT: PASS
+
+  … python-boundary-tests

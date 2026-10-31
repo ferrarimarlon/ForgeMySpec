@@ -1,0 +1,113 @@
+version: "0.1"
+title: "Config validator CLI"
+objective: "A single-file, stdlib-only Python CLI (config_validator.py) that validates a JSON config file against a JSON schema file and reports every error at once."
+execution_mode: critical
+context:
+  system: "Empty Python repository; deliverable is config_validator.py at the repository root, tests under tests/."
+  assumptions:
+    - "Schema dialect is a JSON-Schema-like subset: top-level object schema with properties, required, type, enum, minimum, maximum, minLength, maxLength, pattern; nested objects use properties/required recursively."
+    - "Regex patterns use Python re.search semantics (unanchored, as in JSON Schema)."
+    - "A boolean is not an integer or number; an integer-valued float such as 3.0 is accepted as number but not as integer."
+    - "Exit codes: 0 valid, 1 validation errors, 2 usage or unreadable/invalid JSON input."
+    - "Array items are type-checked only as arrays; no item schemas, minItems or maxItems."
+constraints:
+  - "Python standard library only; no third-party packages."
+  - "All code lives in the single file config_validator.py."
+  - "Out of scope: $ref, oneOf/anyOf/allOf, array item schemas, format, additionalProperties, default values."
+success_criteria:
+  - "Running the CLI on an invalid config prints every violation, one per line, and exits 1."
+  - "Running the CLI on a valid config exits 0."
+hypotheses:
+  - {id: h1, description: "Missing required fields are each reported as an error naming the field's path.", confidence: 0.9}
+  - {id: h2, description: "Values with the wrong type (string, integer, number, boolean, array, object) are reported, with booleans never accepted as numbers.", confidence: 0.9}
+  - {id: h3, description: "Each enum violation, minimum violation and maximum violation is reported as an error.", confidence: 0.9}
+  - {id: h4, description: "Strings shorter than minLength, longer than maxLength or not matching pattern are reported.", confidence: 0.9}
+  - {id: h5, description: "Each error in a nested object is reported with a dot-notation path such as server.port.", confidence: 0.9}
+  - {id: h6, description: "All errors are collected and reported together, and the exit code is 0 for valid, 1 for invalid, 2 for unusable input.", confidence: 0.85}
+required_evidence:
+  - "unittest run of tests/ with all tests passing"
+  - "CLI output on a sample invalid config listing several errors at once"
+actions:
+  - {id: a1, description: "Design the schema subset and error path format", type: design, requires_confirmation: false, supports: [h1, h5]}
+  - {id: a2, description: "Implement type, enum, bounds, length and pattern checks", type: implement, requires_confirmation: false, supports: [h2, h3, h4]}
+  - {id: a4, description: "Implement the CLI collecting all errors with exit codes", type: implement, requires_confirmation: false, supports: [h6]}
+  - {id: a3, description: "Run the unittest suite and the CLI on sample files", type: validate, requires_confirmation: false, supports: [h1, h2, h3, h4, h5, h6]}
+decision_rules:
+  - "If a schema keyword outside the listed subset is needed, stop and ask for a spec amendment."
+  - "If a check cannot be tested at the boundary, stop and escalate."
+metadata:
+  source_prompt: "Build a config validator CLI in Python. Validate a JSON config file against a JSON schema file supporting: required fields, types (string, integer, number, boolean, array, object), enums, min/max for numbers, min/max length for strings, regex patterns, and nested objects addressed with dot notation in error messages. Report all errors at once, not only the first. Single file config_validator.py, stdlib only."
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "required fields"
+      - "types string integer number boolean array object"
+      - "enums"
+      - "min/max for numbers"
+      - "min/max length for strings"
+      - "regex patterns"
+      - "dot notation in error messages"
+      - "report all errors at once"
+      - "single file config_validator.py"
+      - "stdlib only"
+formal:
+  module: ConfigValidator
+  obligations:
+    - id: required_fields
+      kind: boundary
+      statement: "Each missing required field yields an error naming its path."
+      hypotheses: [h1]
+      must_include: ["required fields"]
+      test: "test_config_validator.ValidatorTests.test_required_fields"
+    - id: type_checks
+      kind: boundary
+      statement: "Wrong types for string, integer, number, boolean, array, object are reported; bool is not integer/number."
+      hypotheses: [h2]
+      must_include: ["types string integer number boolean array object"]
+      test: "test_config_validator.ValidatorTests.test_types"
+    - id: enum_check
+      kind: boundary
+      statement: "A value not in the enum list is reported."
+      hypotheses: [h3]
+      must_include: ["enums"]
+      test: "test_config_validator.ValidatorTests.test_enum"
+    - id: number_bounds
+      kind: boundary
+      statement: "Numbers below minimum or above maximum are reported; boundary values are accepted."
+      hypotheses: [h3]
+      must_include: ["min/max for numbers"]
+      test: "test_config_validator.ValidatorTests.test_number_bounds"
+    - id: string_length
+      kind: boundary
+      statement: "Strings shorter than minLength or longer than maxLength are reported; boundary lengths are accepted."
+      hypotheses: [h4]
+      must_include: ["min/max length for strings"]
+      test: "test_config_validator.ValidatorTests.test_string_length"
+    - id: regex_pattern
+      kind: boundary
+      statement: "Strings not matching pattern (re.search) are reported."
+      hypotheses: [h4]
+      must_include: ["regex patterns"]
+      test: "test_config_validator.ValidatorTests.test_pattern"
+    - id: nested_paths
+      kind: boundary
+      statement: "Errors in nested objects are reported with dot-separated paths such as server.port."
+      hypotheses: [h5]
+      must_include: ["dot notation in error messages"]
+      test: "test_config_validator.ValidatorTests.test_nested_paths"
+    - id: all_errors
+      kind: boundary
+      statement: "Multiple violations in one config are all reported, one per line, exit code 1; valid config exits 0; bad input files exit 2."
+      hypotheses: [h6]
+      must_include: ["report all errors at once"]
+      test: "test_config_validator.CliTests.test_all_errors_and_exit_codes"
+    - id: single_file_stdlib
+      kind: boundary
+      statement: "config_validator.py is one file importing only standard library modules."
+      hypotheses: [h6]
+      must_include: ["single file config_validator.py", "stdlib only"]
+      test: "test_config_validator.CliTests.test_stdlib_only"
+scope:
+  paths: ["config_validator.py", "tests/**"]
+  tests: tests
+  pythonpath: ["."]

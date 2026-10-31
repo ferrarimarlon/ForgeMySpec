@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "O46U2E",
+   "nonce": "84935672406f8b3b5cfac5807e6ccb9d",
+   "created_at": "2026-10-31T20:59:27.035Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/config-validator",
+     "content_sha": "b8c3fbd85260e8382418f96cbe3666711047592fbf7cdc8f27a8b19cb14e5c17",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

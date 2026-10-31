@@ -1,0 +1,236 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T21:17:16Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "[LINT-HY-007] hypotheses[1].description: Hypothesis appears to describe what will NOT be built; hypotheses must be affirmative and testable",
+    "[LINT-HY-007] hypotheses[5].description: Hypothesis appears to describe what will NOT be built; hypotheses must be affirmative and testable",
+    "score 90/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "15 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "master_key_env_only": {
+   "kind": "boundary",
+   "statement": "The password is read from VAULT_MASTER_KEY; the CLI has no password option, and a missing variable exits 2.",
+   "must_include": [
+    "VAULT_MASTER_KEY"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "kdf_and_salt": {
+   "kind": "boundary",
+   "statement": "The file starts with a 16-byte random salt (different per vault), the rest decrypts as Fernet with a PBKDF2HMAC SHA-256 key of 200000 iterations, and contains no plaintext value.",
+   "must_include": [
+    "PBKDF2HMAC SHA-256 200000 iterations",
+    "16-byte salt in header"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "key_validation": {
+   "kind": "boundary",
+   "statement": "Keys outside [a-zA-Z0-9_]{1,64} exit 1; valid keys are stored lowercase so set Foo then get FOO works.",
+   "must_include": [
+    "keys match [a-zA-Z0-9_]{1,64} stored lowercase"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "value_size_limit": {
+   "kind": "boundary",
+   "statement": "A value of 4096 UTF-8 bytes is accepted; 4097 bytes (counted in bytes, not characters) exits 1.",
+   "must_include": [
+    "values at most 4096 bytes"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "ttl_iso_default": {
+   "kind": "boundary",
+   "statement": "Without --ttl the stored expiry is now plus 90 days as ISO-8601; --ttl N uses N days; invalid TTL exits 1.",
+   "must_include": [
+    "--ttl default 90 ISO-8601"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "get_value_only": {
+   "kind": "boundary",
+   "statement": "get of a live key prints exactly the value and a newline to stdout, nothing else, exit 0; a missing key exits 1.",
+   "must_include": [
+    "get prints only the value"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "expired_exit_3": {
+   "kind": "boundary",
+   "statement": "get of an expired entry exits 3 and neither stdout nor stderr contains the value.",
+   "must_include": [
+    "exit 3 if expired"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "list_masks_values": {
+   "kind": "boundary",
+   "statement": "list prints each key with value[:4] followed by ***, never the full value, and expired entries show no value characters.",
+   "must_include": [
+    "list shows value[:4]***"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "commands_roundtrip": {
+   "kind": "boundary",
+   "statement": "set, get, list, delete work end to end; delete of a missing key exits 1; rotate replaces the value and resets expiry.",
+   "must_include": [
+    "rotate exits 1 if key missing"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "rotate_missing_exit_1": {
+   "kind": "boundary",
+   "statement": "rotate of a nonexistent key exits 1 and does not create the key.",
+   "must_include": [
+    "rotate exits 1 if key missing"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "audit_tail": {
+   "kind": "boundary",
+   "statement": "Commands append to ~/.vault/audit.log; audit appends its own line and prints only the last 20 lines.",
+   "must_include": [
+    "audit shows last 20 lines"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "no_values_leak": {
+   "kind": "boundary",
+   "statement": "After set, get, rotate, failures and errors, no value appears in audit.log or stderr.",
+   "must_include": [
+    "never write values to audit log or stderr"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "lockout_after_three": {
+   "kind": "boundary",
+   "statement": "Wrong passwords exit 2; the third creates ~/.vault/.lockout; afterwards even the correct password exits 2; a correct password before the third resets the counter.",
+   "must_include": [
+    "3 wrong passwords create .lockout exit 2"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "file_modes": {
+   "kind": "boundary",
+   "statement": "vault.enc has mode 600 and ~/.vault/ has mode 700 after set, including when the directory pre-exists with looser permissions.",
+   "must_include": [
+    "vault.enc chmod 600",
+    "~/.vault chmod 700"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "exit_code_map": {
+   "kind": "boundary",
+   "statement": "Exit codes are 0 for success, 1 for user errors, 2 for auth or lockout, 3 for expired.",
+   "must_include": [
+    "exit 3 if expired"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/secret-vault",
+ "inputs_sha": "d8d344ccdf981b495f0d5540ee3ab16b0f892fd2fb591a39e02ef0d5905a3e09",
+ "schema": 2
+}

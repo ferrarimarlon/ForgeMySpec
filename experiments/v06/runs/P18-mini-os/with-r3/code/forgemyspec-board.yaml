@@ -1,0 +1,10 @@
+- id: R1
+  status: done
+  title: "Mini x86 OS (bootloader + kernel, VGA text, QEMU)"
+  quote: "Build a simple operating system in the current directory: x86 bare-metal, minimalist resources, bootloader + kernel with VGA text output, no external libraries, runnable in QEMU."
+  steps:
+    - {do: "Spec written and linted", check: "cmd: PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec lint forgemyspec-bundle/mini-os/spec.yaml --formal"}
+    - {do: "User approves the spec", ok: true}
+    - {do: "Boot sector, kernel, Makefile and tests written and boot in QEMU", check: "cmd: python3 -m unittest discover -s tests"}
+    - {do: "Gate passes", check: "cmd: PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec gate forgemyspec-bundle/mini-os"}
+  evidence: "gate RESULT: PASS; 5 boundary tests incl. headless QEMU VGA dump"

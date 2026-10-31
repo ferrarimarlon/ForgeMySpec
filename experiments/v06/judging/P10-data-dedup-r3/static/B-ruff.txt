@@ -1,0 +1,11 @@
+data_dedup.py:9:89: E501 Line too long (90 > 88)
+data_dedup.py:28:89: E501 Line too long (92 > 88)
+data_dedup.py:58:89: E501 Line too long (89 > 88)
+data_dedup.py:60:33: B905 `zip()` without an explicit `strict=` parameter
+tests/test_data_dedup.py:5:8: F401 [*] `sys` imported but unused
+tests/test_data_dedup.py:39:89: E501 Line too long (90 > 88)
+tests/test_data_dedup.py:50:89: E501 Line too long (90 > 88)
+tests/test_data_dedup.py:58:89: E501 Line too long (95 > 88)
+tests/test_data_dedup.py:62:89: E501 Line too long (97 > 88)
+Found 9 errors.
+[*] 1 fixable with the `--fix` option (1 hidden fix can be enabled with the `--unsafe-fixes` option).

@@ -1,0 +1,6 @@
+config_validator.py:47:5: C901 `validate` is too complex (23 > 10)
+config_validator.py:72:89: E501 Line too long (90 > 88)
+config_validator.py:77:89: E501 Line too long (92 > 88)
+config_validator.py:81:89: E501 Line too long (95 > 88)
+config_validator.py:87:17: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+Found 5 errors.

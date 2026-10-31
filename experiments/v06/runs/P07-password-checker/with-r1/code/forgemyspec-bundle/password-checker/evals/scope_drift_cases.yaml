@@ -1,0 +1,17 @@
+version: '0.1'
+purpose: Manual eval seeds to detect scope drift in Claude implementations
+source_prompt: 'Build a password policy checker CLI in Python. Check a password against
+  a configurable policy (minimum length, uppercase, lowercase, digits, symbols, forbidden
+  common passwords), report every failed rule, compute the Shannon entropy in bits,
+  and generate random passwords that satisfy the policy. The policy can be loaded
+  from policy.json; subcommands: check, generate, validate-policy. Single file password_checker.py,
+  stdlib only.'
+checks:
+  must_include:
+  - report every failed rule
+  - Shannon entropy in bits
+  - generate passwords satisfying the policy
+  - load policy from policy.json
+  - subcommands check, generate, validate-policy
+  - single file password_checker.py, stdlib only
+cases: []

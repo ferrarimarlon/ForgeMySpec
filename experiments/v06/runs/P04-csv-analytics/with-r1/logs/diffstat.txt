@@ -1,0 +1,9 @@
+ csv_analytics.py                                   | 141 ++++++++++++++++++++
+ .../.claude/commands/implement-from-spec.md        |   8 ++
+ forgemyspec-bundle/csv-analytics/CLAUDE.md         |  51 ++++++++
+ .../csv-analytics/acceptance-checklist.md          |  21 +++
+ .../csv-analytics/evals/scope_drift_cases.yaml     |  14 ++
+ forgemyspec-bundle/csv-analytics/spec.lock         |   5 +
+ forgemyspec-bundle/csv-analytics/spec.yaml         |  96 ++++++++++++++
+ tests/test_csv_analytics.py                        | 142 +++++++++++++++++++++
+ 8 files changed, 478 insertions(+)

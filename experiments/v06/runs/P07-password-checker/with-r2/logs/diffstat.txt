@@ -1,0 +1,10 @@
+ .../.claude/commands/implement-from-spec.md        |   8 +
+ forgemyspec-bundle/password-checker/CLAUDE.md      |  51 +++++
+ .../password-checker/acceptance-checklist.md       |  21 +++
+ .../password-checker/evals/scope_drift_cases.yaml  |  17 ++
+ forgemyspec-bundle/password-checker/spec.lock      |   5 +
+ forgemyspec-bundle/password-checker/spec.yaml      | 112 +++++++++++
+ password_checker.py                                | 206 +++++++++++++++++++++
+ policy.json                                        |   8 +
+ tests/test_password_checker.py                     | 150 +++++++++++++++
+ 9 files changed, 578 insertions(+)

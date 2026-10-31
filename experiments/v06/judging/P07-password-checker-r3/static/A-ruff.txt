@@ -1,0 +1,28 @@
+password_checker.py:29:89: E501 Line too long (93 > 88)
+password_checker.py:45:5: C901 `validate_policy` is too complex (11 > 10)
+password_checker.py:52:27: UP031 Use format specifiers instead of percent format
+password_checker.py:60:27: UP031 Use format specifiers instead of percent format
+password_checker.py:67:27: UP031 Use format specifiers instead of percent format
+password_checker.py:67:89: E501 Line too long (92 > 88)
+password_checker.py:81:13: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+password_checker.py:81:31: UP031 Use format specifiers instead of percent format
+password_checker.py:84:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+password_checker.py:84:27: UP031 Use format specifiers instead of percent format
+password_checker.py:123:27: UP031 Use format specifiers instead of percent format
+password_checker.py:123:89: E501 Line too long (92 > 88)
+password_checker.py:146:11: UP031 Use format specifiers instead of percent format
+password_checker.py:147:11: UP031 Use format specifiers instead of percent format
+password_checker.py:149:15: UP031 Use format specifiers instead of percent format
+password_checker.py:151:19: UP031 Use format specifiers instead of percent format
+password_checker.py:177:89: E501 Line too long (91 > 88)
+password_checker.py:180:89: E501 Line too long (90 > 88)
+password_checker.py:182:89: E501 Line too long (95 > 88)
+password_checker.py:199:15: UP031 Use format specifiers instead of percent format
+tests/test_password_checker.py:43:89: E501 Line too long (93 > 88)
+tests/test_password_checker.py:45:89: E501 Line too long (90 > 88)
+tests/test_password_checker.py:78:89: E501 Line too long (91 > 88)
+tests/test_password_checker.py:116:89: E501 Line too long (97 > 88)
+tests/test_password_checker.py:143:89: E501 Line too long (99 > 88)
+tests/test_password_checker.py:174:89: E501 Line too long (107 > 88)
+Found 26 errors.
+No fixes available (7 hidden fixes can be enabled with the `--unsafe-fixes` option).

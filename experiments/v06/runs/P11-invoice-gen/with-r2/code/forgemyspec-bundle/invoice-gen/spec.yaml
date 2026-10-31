@@ -1,0 +1,128 @@
+version: "0.1"
+title: Invoice generator CLI
+objective: >
+  A single-file, stdlib-only Python CLI (invoice_gen.py) that reads an invoice JSON, validates it reporting
+  all errors at once, computes line totals, subtotal, discount, tax and grand total with correct money
+  rounding, and prints a formatted text invoice or exports JSON.
+execution_mode: critical
+context:
+  system: "Empty Python repository; the deliverable is invoice_gen.py at the repository root, tests in tests/."
+  assumptions:
+    - "Discount is an object {type: percent|fixed, value: number}; percent is 0-100, fixed is >= 0 and <= subtotal."
+    - "Tax is applied to the discounted subtotal (subtotal - discount); tax_rate is a percentage (e.g. 8.25)."
+    - "Money uses decimal.Decimal with ROUND_HALF_UP to 2 places: each line total is rounded, then subtotal is the sum of rounded line totals, discount and tax are rounded once each."
+    - "Input numbers are parsed from JSON as Decimal (no float); quantity may be fractional but must be > 0, unit_price >= 0."
+    - "Customer requires a non-empty name; other customer fields (email, address) are optional strings."
+    - "Single currency, formatted with two decimals and no currency conversion."
+    - "CLI: invoice_gen.py INPUT.json [--format text|json] [--output FILE]; exit 0 ok, 2 invalid input or validation errors."
+constraints:
+  - "Python standard library only; one file invoice_gen.py."
+  - "No floating point arithmetic for money."
+  - "No PDF output, no network, no persistence, no multi-currency or per-item tax rates."
+success_criteria:
+  - "An invalid invoice prints every validation error at once and exits 2."
+  - "Totals for a valid invoice match hand-computed values including half-cent rounding cases."
+  - "Text and JSON outputs show the same computed amounts."
+hypotheses:
+  - id: h1
+    description: "Validation of an invoice with several defects returns every error in one pass, each naming the field path."
+    confidence: 0.9
+  - id: h2
+    description: "Line totals, subtotal, discount, tax and grand total are computed with Decimal and round-half-up to cents."
+    confidence: 0.85
+  - id: h3
+    description: "The text formatter prints customer, aligned item lines and the totals block."
+    confidence: 0.85
+  - id: h4
+    description: "The JSON export contains the inputs and computed amounts as two-decimal strings and round-trips through json.loads."
+    confidence: 0.85
+  - id: h5
+    description: "The CLI reads the file, selects the format, and exits 2 with messages on stderr for unreadable files, bad JSON or validation errors."
+    confidence: 0.85
+required_evidence:
+  - "unittest run of tests/ with all tests passing"
+  - "CLI run on a valid sample printing the text invoice"
+  - "CLI run on an invalid sample listing all errors and exit code 2"
+actions:
+  - id: a1
+    description: "Design validation and money computation functions."
+    type: design
+    requires_confirmation: false
+    supports: [h1, h2]
+  - id: a2
+    description: "Implement validation and money computation in invoice_gen.py."
+    type: implement
+    requires_confirmation: false
+    supports: [h1, h2]
+  - id: a3
+    description: "Implement text and JSON formatters and the CLI in invoice_gen.py."
+    type: implement
+    requires_confirmation: false
+    supports: [h3, h4, h5]
+  - id: a5
+    description: "Write unittest boundary tests for each obligation."
+    type: test
+    requires_confirmation: false
+    supports: [h1, h2, h3, h4, h5]
+  - id: a4
+    description: "Run the gate and the CLI on valid and invalid samples."
+    type: validate
+    requires_confirmation: false
+    supports: [h1, h2, h3, h4, h5]
+decision_rules:
+  - "If the discount or tax semantics in the assumptions are wrong, stop and amend the spec."
+  - "If a rule cannot be tested at the boundary, escalate instead of weakening it."
+metadata:
+  source_prompt: "Build an invoice generator CLI in Python. Read an invoice JSON (customer, items with description, quantity and unit price, tax rate, optional discount), validate it reporting all errors at once, compute line totals, subtotal, discount, tax and grand total with correct money rounding, and print a formatted invoice (text) or export it as JSON. Single file invoice_gen.py, stdlib only."
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "all validation errors at once"
+      - "correct money rounding"
+      - "formatted text invoice"
+      - "JSON export"
+      - "single file invoice_gen.py"
+      - "stdlib only"
+formal:
+  module: InvoiceGen
+  obligations:
+    - id: validation_reports_all
+      kind: boundary
+      statement: "An invoice with several defects (missing customer name, bad quantity, negative price, bad tax rate, bad discount) yields one error per defect, all returned together, each with its field path."
+      hypotheses: [h1]
+      must_include: ["all validation errors at once"]
+      test: "test_invoice_gen.ValidationTests.test_all_errors_reported_together"
+    - id: money_rounding
+      kind: boundary
+      statement: "Half-cent values round up (e.g. 3 x 0.125 = 0.38, tax 8.25% on 10.10 = 0.83), totals are Decimal-exact, and grand total = subtotal - discount + tax."
+      hypotheses: [h2]
+      must_include: ["correct money rounding"]
+      test: "test_invoice_gen.ComputeTests.test_half_cent_rounding_and_grand_total"
+    - id: text_output
+      kind: boundary
+      statement: "The text output lists customer, each item with quantity, unit price and line total, then subtotal, discount, tax and total lines."
+      hypotheses: [h3]
+      must_include: ["formatted text invoice"]
+      test: "test_invoice_gen.FormatTests.test_text_invoice_layout"
+    - id: json_output
+      kind: boundary
+      statement: "The JSON export parses with json.loads and carries the same computed amounts as two-decimal strings."
+      hypotheses: [h4]
+      must_include: ["JSON export"]
+      test: "test_invoice_gen.FormatTests.test_json_export_matches_computation"
+    - id: cli_exit_codes
+      kind: boundary
+      statement: "The CLI exits 0 on a valid file and 2 with all errors on stderr on invalid JSON, a missing file or validation errors."
+      hypotheses: [h5]
+      must_include: ["all validation errors at once"]
+      test: "test_invoice_gen.CliTests.test_exit_codes"
+    - id: single_file_stdlib
+      kind: boundary
+      statement: "invoice_gen.py is the only module of the tool and imports only standard library modules."
+      hypotheses: [h5]
+      must_include: ["single file invoice_gen.py", "stdlib only"]
+      test: "test_invoice_gen.ConstraintTests.test_stdlib_only_single_file"
+scope:
+  paths: ["invoice_gen.py", "tests/**"]
+  tests: tests
+  pythonpath: ["."]

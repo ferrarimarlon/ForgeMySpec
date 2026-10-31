@@ -1,0 +1,26 @@
+{
+ "requirements_total": 14,
+ "probes_total": 22,
+ "A": {"probes_passed": 22,
+  "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 4, "quality": 4, "tests": 0},
+  "requirements_met": 14, "requirements_partial": 0, "requirements_missing": 0,
+  "issues": [
+   {"severity": "low", "category": "silent", "requirement": "R8", "evidence": "manual: new $'line1\\nline2' writes raw newline inside quoted title (A/note_taker.py:36); show prints title '\"line1'", "summary": "_quote does not escape newlines, so a multi-line title is written as broken YAML and read back truncated."},
+   {"severity": "low", "category": "scope", "requirement": "R6", "evidence": "manual: new 'Project plan'; delete plan --yes -> 'deleted project-plan' (A/note_taker.py:145-147)", "summary": "show/edit/delete resolve notes by id prefix or title substring, so a loose identifier can delete a note the user did not name exactly."},
+   {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt F401 note_taker.py:14", "summary": "Unused tempfile import and a few long lines."}
+  ],
+  "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+  "loc": 307},
+ "B": {"probes_passed": 20,
+  "scores": {"functional": 4, "coverage": 4, "security": 5, "robustness": 3, "quality": 4, "tests": 4},
+  "requirements_met": 12, "requirements_partial": 2, "requirements_missing": 0,
+  "issues": [
+   {"severity": "medium", "category": "functional", "requirement": "R14", "evidence": "p18_list_with_bad_file_no_crash: list with a non-UTF-8 .md in the dir -> UnicodeDecodeError traceback (B/note_taker.py:147)", "summary": "One unreadable file in the notes directory makes list (and therefore all search) crash with a traceback."},
+   {"severity": "low", "category": "silent", "requirement": "R10", "evidence": "p19_handwritten_yaml_block_tags: 'tags:\\n  - alpha\\n  - beta' not matched by list --tag beta (B/note_taker.py:62-72)", "summary": "Frontmatter parser ignores YAML block-sequence tags, so hand-edited notes silently drop out of tag searches."},
+   {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt B904 note_taker.py:111, UP031 x8, E501 x7", "summary": "Exception re-raised without 'from', percent-format strings and long lines."}
+  ],
+  "own_tests": {"present": true, "ran": true, "passed": 7, "failed": 0},
+  "loc": 222},
+ "blinding_guess": {"spec_framework_side": "unsure", "confidence": 0.3, "why": "Both are similar idiomatic single-file argparse CLIs; B ships tests and strict id validation, but that alone does not reveal how either was produced."},
+ "notes": "Probes ran with HOME set to a temp dir so both sides wrote to the real ~/.note-taker path the task names, and a stub $EDITOR script made edit non-interactive. Both sides honour NOTE_TAKER_DIR as an override. Bandit reports only low-severity subprocess warnings for the $EDITOR launch on both sides, and neither uses a shell, so these are acceptable. B adds a whitelist regex for ids that blocks path traversal; A only resolves ids against files listed in the notes dir, so it is also safe (p12 passes for both). The environment's Python is 3.9.6, so the stdlib probe uses a fixed module allowlist."
+}

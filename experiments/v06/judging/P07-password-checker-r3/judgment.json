@@ -1,0 +1,29 @@
+{
+ "requirements_total": 17,
+ "probes_total": 33,
+ "A": {"probes_passed": 32,
+   "scores": {"functional": 4, "coverage": 5, "security": 4, "robustness": 4, "quality": 4, "tests": 4},
+   "requirements_met": 16, "requirements_partial": 1, "requirements_missing": 0,
+   "issues": [
+     {"severity": "low", "category": "silent", "requirement": "R4", "evidence": "P33_unicode_upper_symbol; A/password_checker.py:34-37 (check 'Ébcdefgh1!xy' and 'Abcdefgh1€xy' -> FAIL: 1 rule(s) failed)", "summary": "Character classes are ASCII-only, so non-ASCII uppercase letters and symbols such as É or € are not counted toward the requirements."},
+     {"severity": "low", "category": "security", "requirement": null, "evidence": "A/password_checker.py:139", "summary": "When no password argument is given, it is read with stdin.readline even on a TTY, so the typed password is echoed (getpass is not used)."},
+     {"severity": "low", "category": "quality", "requirement": "R11", "evidence": "{\"min_length\":8} validates OK and 'Ébcdefgh1!xy' passes; A/password_checker.py:106 policy.get(flag, False)", "summary": "Omitted require_* fields silently default to False in a policy file, while the built-in default policy has them True, which may surprise users."},
+     {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt", "summary": "Ruff reports 26 style findings: percent-formatting, long lines, and missing raise-from."}
+   ],
+   "own_tests": {"present": true, "ran": true, "passed": 13, "failed": 0},
+   "loc": 204},
+ "B": {"probes_passed": 32,
+   "scores": {"functional": 4, "coverage": 5, "security": 5, "robustness": 4, "quality": 4, "tests": 0},
+   "requirements_met": 17, "requirements_partial": 0, "requirements_missing": 0,
+   "issues": [
+     {"severity": "low", "category": "silent", "requirement": "R13", "evidence": "P32_generate_bad_count; 'generate --count -1' prints nothing, rc=0 (B/password_checker.py:191)", "summary": "A zero or negative --count silently produces no passwords and exits 0."},
+     {"severity": "low", "category": "quality", "requirement": null, "evidence": "B/password_checker.py:29,72,95", "summary": "Contains dead code (if ...: pass), a stale SCHEMA comment, and a function-local import of os."},
+     {"severity": "low", "category": "quality", "requirement": "R15", "evidence": "B/password_checker.py:240", "summary": "validate-policy takes a positional file, while check and generate use -p/--policy, so the interface is inconsistent."},
+     {"severity": "low", "category": "quality", "requirement": null, "evidence": "B/ has no test files", "summary": "No automated tests are provided."},
+     {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt", "summary": "Ruff reports 12 findings: long lines, missing raise-from, and complexity."}
+   ],
+   "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+   "loc": 255},
+ "blinding_guess": {"spec_framework_side": "unsure", "confidence": 0.3, "why": "Both are similarly structured single files; A ships a unit-test suite and stricter validation, which weakly hints at a process-driven side, but the evidence is thin."},
+ "notes": "Both implementations meet all core requirements and pass 32 of 33 probes; each fails a different low-severity edge probe. The validate-policy invocation was adapted (A: --policy PATH, B: positional PATH); expectations were identical. B adds unrequested but harmless extras (max_length, --json, --show-entropy, getpass prompt). A's tests pass with 'cd A && python3 -m unittest discover -s tests'; pytest was not installed. Bandit reports for both sides are empty."
+}

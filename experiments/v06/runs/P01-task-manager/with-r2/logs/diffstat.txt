@@ -1,0 +1,9 @@
+ .../.claude/commands/implement-from-spec.md        |   8 +
+ forgemyspec-bundle/task-manager/CLAUDE.md          |  51 ++++++
+ .../task-manager/acceptance-checklist.md           |  22 +++
+ .../task-manager/evals/scope_drift_cases.yaml      |  20 ++
+ forgemyspec-bundle/task-manager/spec.lock          |   5 +
+ forgemyspec-bundle/task-manager/spec.yaml          | 107 +++++++++++
+ task_manager.py                                    | 201 +++++++++++++++++++++
+ tests/test_task_manager.py                         | 126 +++++++++++++
+ 8 files changed, 540 insertions(+)

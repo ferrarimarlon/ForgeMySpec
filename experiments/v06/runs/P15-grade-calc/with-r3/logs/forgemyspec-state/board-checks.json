@@ -1,0 +1,50 @@
+{
+ "cmd: PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec lock --check forgemyspec-bundle/grade-calc": {
+  "passed": true,
+  "fingerprint": "8dcb03e9f6afbe59dbcccf4d8e4aba4308582b32d446948837c4cffbde74f214",
+  "ran_at": "2026-10-31T21:06:07.202Z",
+  "seconds": 0.1
+ },
+ "test: test_grade_calc.GradeCalcTests.test_weights_normalized_to_100": {
+  "passed": true,
+  "fingerprint": "8dcb03e9f6afbe59dbcccf4d8e4aba4308582b32d446948837c4cffbde74f214",
+  "ran_at": "2026-10-31T21:06:07.239Z",
+  "seconds": 0.0
+ },
+ "test: test_grade_calc.GradeCalcTests.test_weighted_final_grade": {
+  "passed": true,
+  "fingerprint": "8dcb03e9f6afbe59dbcccf4d8e4aba4308582b32d446948837c4cffbde74f214",
+  "ran_at": "2026-10-31T21:06:07.273Z",
+  "seconds": 0.0
+ },
+ "test: test_grade_calc.GradeCalcTests.test_letter_and_gpa_boundaries": {
+  "passed": true,
+  "fingerprint": "8dcb03e9f6afbe59dbcccf4d8e4aba4308582b32d446948837c4cffbde74f214",
+  "ran_at": "2026-10-31T21:06:07.308Z",
+  "seconds": 0.0
+ },
+ "test: test_grade_calc.GradeCalcTests.test_class_statistics": {
+  "passed": true,
+  "fingerprint": "8dcb03e9f6afbe59dbcccf4d8e4aba4308582b32d446948837c4cffbde74f214",
+  "ran_at": "2026-10-31T21:06:07.342Z",
+  "seconds": 0.0
+ },
+ "test: test_grade_calc.GradeCalcTests.test_invalid_input_exits_2": {
+  "passed": true,
+  "fingerprint": "8dcb03e9f6afbe59dbcccf4d8e4aba4308582b32d446948837c4cffbde74f214",
+  "ran_at": "2026-10-31T21:06:07.379Z",
+  "seconds": 0.0
+ },
+ "test: test_grade_calc.GradeCalcTests.test_cli_end_to_end": {
+  "passed": true,
+  "fingerprint": "8dcb03e9f6afbe59dbcccf4d8e4aba4308582b32d446948837c4cffbde74f214",
+  "ran_at": "2026-10-31T21:06:07.433Z",
+  "seconds": 0.1
+ },
+ "cmd: PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec gate forgemyspec-bundle/grade-calc": {
+  "passed": true,
+  "fingerprint": "8dcb03e9f6afbe59dbcccf4d8e4aba4308582b32d446948837c4cffbde74f214",
+  "ran_at": "2026-10-31T21:06:07.590Z",
+  "seconds": 0.2
+ }
+}

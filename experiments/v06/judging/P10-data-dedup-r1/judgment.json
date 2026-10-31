@@ -1,0 +1,25 @@
+{
+ "requirements_total": 15,
+ "probes_total": 14,
+ "A": {"probes_passed": 14,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 5, "quality": 4, "tests": 0},
+       "requirements_met": 15, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt: B904 at data_dedup.py:36, 10x E501, B905 at :100", "summary": "Minor lint findings: raise without 'from' and long lines."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "ls A/ shows only data_dedup.py", "summary": "No automated tests shipped."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 124},
+ "B": {"probes_passed": 13,
+       "scores": {"functional": 4, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 4},
+       "requirements_met": 14, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "functional", "requirement": "R4", "evidence": "probe P12_bom_input; manual run on a BOM-prefixed CSV: 'error: unknown key column(s): id' rc=2 (data_dedup.py:31 uses encoding='utf-8', not utf-8-sig)", "summary": "Input CSVs that start with a UTF-8 BOM (as Excel writes them) fail because the first header name keeps the BOM."},
+        {"severity": "low", "category": "silent", "requirement": "R12", "evidence": "blank-line input 'id,n\\n1,a\\n\\n2,b\\n\\n' -> 'duplicates found: 1, removed: 1' and an empty row written to output (data_dedup.py:37 keeps empty rows)", "summary": "Blank lines are treated as data rows, so they are counted as duplicates and one is written to the output."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt: E501 x4, B905 at data_dedup.py:55", "summary": "Minor lint findings."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 7, "failed": 0},
+       "loc": 72},
+ "blinding_guess": {"spec_framework_side": "unsure", "confidence": 0.3, "why": "B ships tests and a terser design, while A has richer validation; neither shows clear signs of a spec framework."},
+ "notes": "Both sides meet every core requirement: keep-first and keep-last on single and composite keys, error mode exits non-zero and lists the duplicates, and both print a found/removed summary. The probes used the same expectations on both sides; only the composite-key syntax differed (A: -k a -k b, B: -k a b). Bandit reported nothing for either side. B's tests ran with 'python3 -m unittest discover -s tests' because pytest is not installed; all 7 passed. A also handles a custom delimiter and encoding, ambiguous header columns, and refuses to overwrite its input file; none of these were requested."
+}

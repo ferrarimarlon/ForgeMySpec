@@ -1,0 +1,142 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:20:37Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "score 100/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "8 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "create_post": {
+   "kind": "boundary",
+   "statement": "POST /posts with valid JSON returns 201 and the stored post.",
+   "must_include": [
+    "CRUD for posts"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "read_posts": {
+   "kind": "boundary",
+   "statement": "GET /posts lists posts; GET /posts/{id} returns one or 404.",
+   "must_include": [
+    "CRUD for posts"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "update_post": {
+   "kind": "boundary",
+   "statement": "PUT /posts/{id} replaces title and content, 404 when missing.",
+   "must_include": [
+    "CRUD for posts"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "delete_post": {
+   "kind": "boundary",
+   "statement": "DELETE /posts/{id} returns 204 and the post is gone; 404 when missing.",
+   "must_include": [
+    "CRUD for posts"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "auth_required": {
+   "kind": "boundary",
+   "statement": "Missing or wrong X-API-Key on any route returns 401 and leaves data unchanged.",
+   "must_include": [
+    "X-API-Key auth"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "json_validation": {
+   "kind": "boundary",
+   "statement": "Malformed JSON or missing/empty title returns 400 with a JSON error; responses are JSON.",
+   "must_include": [
+    "JSON bodies"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "bind_localhost": {
+   "kind": "boundary",
+   "statement": "The server binds 127.0.0.1 on port 8080 by default.",
+   "must_include": [
+    "localhost:8080"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "stdlib_single_file": {
+   "kind": "boundary",
+   "statement": "blog_api.py imports only standard library modules and no other project module.",
+   "must_include": [
+    "standard library only",
+    "single file blog_api.py"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/blog-api",
+ "inputs_sha": "9dd78f1b9bd3f69e36028e7cf52628a2abeb0bbbabe228f97f637a6bd2809b78",
+ "schema": 2
+}

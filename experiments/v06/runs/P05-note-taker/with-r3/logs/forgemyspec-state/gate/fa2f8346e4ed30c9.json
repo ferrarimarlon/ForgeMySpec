@@ -1,0 +1,104 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:31:30Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "score 100/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "5 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "new_writes_note": {
+   "kind": "boundary",
+   "statement": "new writes <id>.md with YAML frontmatter and body into the notes directory, creating it if missing; distinct ids for colliding titles.",
+   "must_include": [
+    ".md files with YAML frontmatter",
+    "stored in ~/.note-taker/"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "show_roundtrip": {
+   "kind": "boundary",
+   "statement": "show returns the title, tags and body that new stored.",
+   "must_include": [
+    "subcommands new, list, show, edit, delete"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "list_and_search": {
+   "kind": "boundary",
+   "statement": "list shows all notes; --tag and --search filter to matching notes only.",
+   "must_include": [
+    "search by tag or keyword"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "edit_and_delete": {
+   "kind": "boundary",
+   "statement": "edit runs $EDITOR on the file and rejects broken frontmatter; delete removes only the named note; unknown ids exit 1.",
+   "must_include": [
+    "subcommands new, list, show, edit, delete"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "single_file_stdlib": {
+   "kind": "boundary",
+   "statement": "note_taker.py is one file and imports only standard-library modules.",
+   "must_include": [
+    "single file note_taker.py",
+    "stdlib only"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/note-taker",
+ "inputs_sha": "baf54a3edb53ffb145f3468363ca0f3803893b48ba37c8b7d994bc2cdc6382e6",
+ "schema": 2
+}

@@ -1,0 +1,12 @@
+organizer.py:2:89: E501 Line too long (93 > 88)
+organizer.py:48:45: UP031 Use format specifiers instead of percent format
+organizer.py:57:18: UP031 Use format specifiers instead of percent format
+organizer.py:73:19: UP031 Use format specifiers instead of percent format
+organizer.py:92:89: E501 Line too long (96 > 88)
+organizer.py:93:89: E501 Line too long (100 > 88)
+organizer.py:96:89: E501 Line too long (95 > 88)
+organizer.py:97:89: E501 Line too long (101 > 88)
+organizer.py:101:15: UP031 Use format specifiers instead of percent format
+tests/test_organizer.py:50:89: E501 Line too long (91 > 88)
+Found 10 errors.
+No fixes available (3 hidden fixes can be enabled with the `--unsafe-fixes` option).

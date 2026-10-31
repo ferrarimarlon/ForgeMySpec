@@ -1,0 +1,26 @@
+{
+ "requirements_total": 19,
+ "probes_total": 18,
+ "A": {"probes_passed": 18,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 5, "quality": 4, "tests": 0},
+       "requirements_met": 19, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt: C901 validate complexity 33, E731 lambda assignment, E741 ambiguous 'l'", "summary": "validate() is a single 100-line function with complexity 33 plus minor lint issues."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "ls A/ -> only invoice_gen.py", "summary": "No automated tests are shipped."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 343},
+ "B": {"probes_passed": 17,
+       "scores": {"functional": 4, "coverage": 4, "security": 5, "robustness": 5, "quality": 4, "tests": 4},
+       "requirements_met": 18, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "quality", "requirement": "R17", "evidence": "probe p_text_alignment; text output shows summary amounts ending 4 columns left of the Total column (fixed widths w+18/12 vs w+35)", "summary": "Summary amounts in the text invoice do not line up with the line-total column."},
+        {"severity": "low", "category": "silent", "requirement": "R17", "evidence": "input quantity 1.5, unit_price 3.333: text/JSON show unit price 3.33 but line total 5.00 (computed from 3.333)", "summary": "Sub-cent unit prices are displayed rounded while totals use the exact value, so displayed qty x price does not match the line total."},
+        {"severity": "low", "category": "scope", "requirement": "R5", "evidence": "{\"customer\":\"Bob\",...} -> 'customer: required object', rc=1", "summary": "A plain-string customer is rejected; only an object with a name is accepted."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt: UP031 percent-formatting x many, E741, C901 validate 16", "summary": "Minor style lint (old-style % formatting, ambiguous variable names)."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 10, "failed": 0},
+       "loc": 225},
+ "blinding_guess": {"spec_framework_side": "unsure", "confidence": 0.3, "why": "Both are similarly structured single files with Decimal parsing and all-errors validation; B shipping tests is the only weak signal of a more process-driven approach."},
+ "notes": "Both implementations pass all core probes: Decimal parsing (no float artifacts), half-up cent rounding of lines/discount/tax, multi-error validation, graceful bad-JSON/missing-file handling, text and JSON output. The only probe difference is cosmetic text alignment in B. A additionally supports -o output files, currency symbol, and string customers; B ships 10 passing unittest tests (run with python3 -m unittest under Python 3.9.6, pytest unavailable). Bandit reported no issues for either side. B loc excludes its 157-line test file."
+}

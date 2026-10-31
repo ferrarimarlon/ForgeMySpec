@@ -1,0 +1,15 @@
+version: '0.1'
+purpose: Manual eval seeds to detect scope drift in Claude implementations
+source_prompt: Build an invoice generator CLI in Python. Read an invoice JSON (customer,
+  items with description, quantity and unit price, tax rate, optional discount), validate
+  it reporting all errors at once, compute line totals, subtotal, discount, tax and
+  grand total with correct money rounding, and print a formatted invoice (text) or
+  export it as JSON. Single file invoice_gen.py, stdlib only.
+checks:
+  must_include:
+  - all validation errors reported at once
+  - half-up money rounding
+  - text invoice or JSON export
+  - single file stdlib only
+  - exit codes for bad input
+cases: []

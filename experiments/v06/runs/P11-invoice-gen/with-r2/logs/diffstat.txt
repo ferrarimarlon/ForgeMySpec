@@ -1,0 +1,9 @@
+ .../.claude/commands/implement-from-spec.md        |   8 +
+ forgemyspec-bundle/invoice-gen/CLAUDE.md           |  49 ++++++
+ .../invoice-gen/acceptance-checklist.md            |  20 +++
+ .../invoice-gen/evals/scope_drift_cases.yaml       |  16 ++
+ forgemyspec-bundle/invoice-gen/spec.lock           |   5 +
+ forgemyspec-bundle/invoice-gen/spec.yaml           | 128 ++++++++++++++
+ invoice_gen.py                                     | 195 +++++++++++++++++++++
+ tests/test_invoice_gen.py                          | 125 +++++++++++++
+ 8 files changed, 546 insertions(+)

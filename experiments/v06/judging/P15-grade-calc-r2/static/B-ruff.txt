@@ -1,0 +1,12 @@
+grade_calc.py:38:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+grade_calc.py:44:5: C901 `load_weights` is too complex (13 > 10)
+grade_calc.py:63:89: E501 Line too long (101 > 88)
+grade_calc.py:84:5: C901 `load_scores` is too complex (13 > 10)
+grade_calc.py:91:13: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+grade_calc.py:93:89: E501 Line too long (90 > 88)
+grade_calc.py:97:89: E501 Line too long (91 > 88)
+grade_calc.py:100:89: E501 Line too long (96 > 88)
+grade_calc.py:106:89: E501 Line too long (99 > 88)
+grade_calc.py:111:30: B905 `zip()` without an explicit `strict=` parameter
+Found 10 errors.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).

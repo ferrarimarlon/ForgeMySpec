@@ -1,0 +1,116 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:19:05Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "score 100/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "6 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "create_and_read": {
+   "kind": "boundary",
+   "statement": "POST /posts returns 201 with the post and id; GET /posts lists posts; GET /posts/<id> returns it or 404.",
+   "must_include": [
+    "CRUD for posts"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "update_and_delete": {
+   "kind": "boundary",
+   "statement": "PUT updates and DELETE removes a post; both return 404 for an unknown id.",
+   "must_include": [
+    "CRUD for posts"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "api_key_required": {
+   "kind": "boundary",
+   "statement": "A missing or wrong X-API-Key yields 401 on every route and leaves the data unchanged.",
+   "must_include": [
+    "X-API-Key auth"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "json_bodies": {
+   "kind": "boundary",
+   "statement": "Bodies are JSON; malformed JSON or a missing title yields 400 with a JSON error.",
+   "must_include": [
+    "JSON bodies"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "binds_localhost_8080": {
+   "kind": "boundary",
+   "statement": "The default server address is 127.0.0.1:8080.",
+   "must_include": [
+    "localhost:8080"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "stdlib_single_file": {
+   "kind": "boundary",
+   "statement": "blog_api.py imports only standard-library modules and the whole app is that one file.",
+   "must_include": [
+    "standard library only",
+    "single file blog_api.py"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/blog-api",
+ "inputs_sha": "4dc9925e688094851f6824722563a219848818c7fccbd2ed4138b8d97a213d05",
+ "schema": 2
+}

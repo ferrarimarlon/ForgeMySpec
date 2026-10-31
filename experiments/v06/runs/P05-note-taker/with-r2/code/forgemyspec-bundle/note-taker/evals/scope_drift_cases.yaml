@@ -1,0 +1,12 @@
+version: '0.1'
+purpose: Manual eval seeds to detect scope drift in Claude implementations
+source_prompt: 'Build a Markdown Note-Taking CLI. Subcommands: new, list, show, edit,
+  delete. Store notes as .md files with YAML frontmatter in ~/.note-taker/. Search
+  by tag or keyword. Single file note_taker.py, stdlib only.'
+checks:
+  must_include:
+  - subcommands new list show edit delete
+  - notes stored as .md with YAML frontmatter in ~/.note-taker
+  - search by tag or keyword
+  - single file note_taker.py stdlib only
+cases: []

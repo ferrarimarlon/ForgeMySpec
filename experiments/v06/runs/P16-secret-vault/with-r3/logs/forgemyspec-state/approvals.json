@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "RI2XYT",
+   "nonce": "5f7c346e2f09c59034c75895b2df51ae",
+   "created_at": "2026-10-31T21:15:29.088Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/secret-vault",
+     "content_sha": "f1d46947183b5a024a7b9435dc9f96510a43abe54eefff9aba365a3d3e5a285d",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,42 @@
+{
+ "A": {
+  "P1_single_file_stdlib": "pass",
+  "P2_validate_good": "pass",
+  "P3_unknown_target_state": "pass",
+  "P4_unknown_source_state": "pass",
+  "P5_unreachable_state": "pass",
+  "P6_missing_initial": "pass",
+  "P7_unknown_initial": "pass",
+  "P8_unknown_final": "pass",
+  "P9_run_events_guard_pass": "pass",
+  "P10_guard_blocks": "pass",
+  "P11_history_printed": "pass",
+  "P12_unknown_event_no_crash": "pass",
+  "P13_missing_file": "pass",
+  "P14_malformed_json": "pass",
+  "P15_reports_final_state": "pass",
+  "P16_guard_no_code_exec": "pass",
+  "P17_malformed_def_no_traceback": "fail",
+  "P18_run_rejects_invalid_def": "pass"
+ },
+ "B": {
+  "P1_single_file_stdlib": "fail",
+  "P2_validate_good": "fail",
+  "P3_unknown_target_state": "fail",
+  "P4_unknown_source_state": "fail",
+  "P5_unreachable_state": "fail",
+  "P6_missing_initial": "fail",
+  "P7_unknown_initial": "fail",
+  "P8_unknown_final": "fail",
+  "P9_run_events_guard_pass": "fail",
+  "P10_guard_blocks": "fail",
+  "P11_history_printed": "fail",
+  "P12_unknown_event_no_crash": "fail",
+  "P13_missing_file": "fail",
+  "P14_malformed_json": "fail",
+  "P15_reports_final_state": "fail",
+  "P16_guard_no_code_exec": "fail",
+  "P17_malformed_def_no_traceback": "fail",
+  "P18_run_rejects_invalid_def": "fail"
+ }
+}

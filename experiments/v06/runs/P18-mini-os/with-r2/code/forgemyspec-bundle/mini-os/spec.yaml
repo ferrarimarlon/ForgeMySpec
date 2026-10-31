@@ -1,0 +1,100 @@
+version: "0.1"
+title: Mini x86 bare-metal OS
+objective: Build a minimal x86 operating system (NASM bootloader plus freestanding C kernel) that prints text through VGA text mode, uses no external libraries and boots in QEMU.
+execution_mode: critical
+context:
+  system: "Empty repository on macOS (Darwin). Toolchain present: nasm, i686-elf-gcc, qemu-system-i386. Sources go in os/, tests in tests_os/."
+  assumptions:
+    - "Target is 32-bit x86 BIOS boot, run with qemu-system-i386 (no UEFI)."
+    - "Tools nasm, i686-elf-gcc, i686-elf-ld, i686-elf-objcopy and qemu-system-i386 are on PATH."
+    - "Kernel is small enough to be loaded by the boot sector via BIOS int 13h (at most 32 sectors)."
+    - "No keyboard input, interrupts, filesystem or multitasking: minimalist scope."
+constraints:
+  - "No external libraries: freestanding C (-ffreestanding -nostdlib), no libc, no GRUB."
+  - "No interrupts, paging, drivers other than VGA text, filesystem or userspace."
+  - "Image fits a floppy-style raw disk image; no cross-platform support beyond x86 BIOS."
+success_criteria:
+  - "make builds os.img from the bootloader and kernel without warnings-as-errors failing."
+  - "qemu-system-i386 boots os.img and VGA text memory at 0xB8000 shows the kernel banner."
+hypotheses:
+  - id: h1
+    description: "The bootloader is a 512-byte boot sector ending in the 0x55AA signature that loads the kernel from disk and switches to 32-bit protected mode."
+    confidence: 0.9
+  - id: h2
+    description: "The kernel is freestanding C with a VGA text driver that clears the screen, writes characters with attributes, handles newline and scrolls at the 25th row."
+    confidence: 0.85
+  - id: h3
+    description: "Booting os.img in QEMU shows the kernel banner text in VGA text memory."
+    confidence: 0.85
+  - id: h4
+    description: "One make command builds os.img using only nasm and the i686-elf toolchain."
+    confidence: 0.9
+required_evidence:
+  - "Output of make showing os.img produced."
+  - "Unittest run output for tests_os passing, including the QEMU boot test."
+  - "QEMU monitor memory dump of 0xB8000 containing the banner text."
+actions:
+  - id: a1
+    description: "Write the boot sector in NASM: BIOS disk read, A20, GDT, protected mode switch, jump to kernel."
+    type: implement
+    requires_confirmation: false
+    supports: [h1]
+  - id: a2
+    description: "Write the freestanding C kernel with VGA text driver and banner."
+    type: implement
+    requires_confirmation: false
+    supports: [h2, h3]
+  - id: a3
+    description: "Write Makefile and linker script producing os.img."
+    type: implement
+    requires_confirmation: false
+    supports: [h4]
+  - id: a4
+    description: "Write unittest boundary tests: image layout, freestanding build, headless QEMU boot and VGA memory dump."
+    type: test
+    requires_confirmation: false
+    supports: [h1, h2, h3, h4]
+decision_rules:
+  - "If a toolchain tool is missing, stop and ask the user."
+  - "Any feature beyond VGA text output is a spec amendment."
+metadata:
+  source_prompt: "Build a simple operating system in the current directory: x86 bare-metal, minimalist resources, bootloader + kernel with VGA text output, no external libraries, runnable in QEMU."
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "512-byte boot sector with 0x55AA signature"
+      - "kernel written in freestanding C"
+      - "VGA text output at 0xB8000"
+      - "no external libraries"
+      - "boots in QEMU"
+formal:
+  module: MiniOs
+  obligations:
+    - id: boot_sector_layout
+      kind: boundary
+      statement: "The first 512 bytes of os.img are the boot sector and bytes 510-511 are 0x55 0xAA."
+      hypotheses: [h1]
+      must_include: ["512-byte boot sector with 0x55AA signature"]
+      test: "test_os.OsTests.test_boot_sector_signature"
+    - id: freestanding_kernel
+      kind: boundary
+      statement: "Kernel C sources compile with -ffreestanding -nostdlib and the linked kernel has no undefined symbols or libc includes."
+      hypotheses: [h2, h4]
+      must_include: ["kernel written in freestanding C", "no external libraries"]
+      test: "test_os.OsTests.test_kernel_is_freestanding"
+    - id: vga_driver
+      kind: boundary
+      statement: "The kernel writes to VGA text memory at 0xB8000 (80x25 cells, character plus attribute)."
+      hypotheses: [h2]
+      must_include: ["VGA text output at 0xB8000"]
+      test: "test_os.OsTests.test_kernel_uses_vga_buffer"
+    - id: qemu_boot_banner
+      kind: boundary
+      statement: "Running os.img headless in qemu-system-i386 leaves the banner text in VGA memory at 0xB8000."
+      hypotheses: [h3]
+      must_include: ["boots in QEMU"]
+      test: "test_os.OsTests.test_qemu_boot_shows_banner"
+scope:
+  paths: ["os/**", "Makefile", "tests_os/**", "README.md"]
+  tests: tests_os
+  pythonpath: [tests_os]

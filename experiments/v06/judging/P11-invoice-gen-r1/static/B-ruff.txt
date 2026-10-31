@@ -1,0 +1,35 @@
+invoice_gen.py:34:22: UP031 Use format specifiers instead of percent format
+invoice_gen.py:45:5: C901 `validate` is too complex (32 > 10)
+invoice_gen.py:62:31: UP031 Use format specifiers instead of percent format
+invoice_gen.py:86:17: UP031 Use format specifiers instead of percent format
+invoice_gen.py:88:31: UP031 Use format specifiers instead of percent format
+invoice_gen.py:91:31: UP031 Use format specifiers instead of percent format
+invoice_gen.py:94:31: UP031 Use format specifiers instead of percent format
+invoice_gen.py:96:31: UP031 Use format specifiers instead of percent format
+invoice_gen.py:98:31: UP031 Use format specifiers instead of percent format
+invoice_gen.py:101:31: UP031 Use format specifiers instead of percent format
+invoice_gen.py:103:31: UP031 Use format specifiers instead of percent format
+invoice_gen.py:105:31: UP031 Use format specifiers instead of percent format
+invoice_gen.py:120:89: E501 Line too long (94 > 88)
+invoice_gen.py:145:41: E741 Ambiguous variable name: `l`
+invoice_gen.py:175:16: UP032 [*] Use f-string instead of `format` call
+invoice_gen.py:176:12: UP032 [*] Use f-string instead of `format` call
+invoice_gen.py:187:20: UP031 Use format specifiers instead of percent format
+invoice_gen.py:189:16: UP031 Use format specifiers instead of percent format
+invoice_gen.py:192:24: UP031 Use format specifiers instead of percent format
+invoice_gen.py:197:53: E741 Ambiguous variable name: `l`
+invoice_gen.py:201:89: E501 Line too long (95 > 88)
+invoice_gen.py:202:11: UP032 [*] Use f-string instead of `format` call
+invoice_gen.py:211:20: UP031 Use format specifiers instead of percent format
+invoice_gen.py:218:22: UP031 Use format specifiers instead of percent format
+invoice_gen.py:220:13: UP031 Use format specifiers instead of percent format
+invoice_gen.py:239:15: E741 Ambiguous variable name: `l`
+invoice_gen.py:260:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+invoice_gen.py:260:26: UP031 Use format specifiers instead of percent format
+invoice_gen.py:265:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+invoice_gen.py:265:26: UP031 Use format specifiers instead of percent format
+invoice_gen.py:278:26: UP031 Use format specifiers instead of percent format
+invoice_gen.py:281:30: UP031 Use format specifiers instead of percent format
+invoice_gen.py:291:30: UP031 Use format specifiers instead of percent format
+Found 33 errors.
+[*] 3 fixable with the `--fix` option (20 hidden fixes can be enabled with the `--unsafe-fixes` option).

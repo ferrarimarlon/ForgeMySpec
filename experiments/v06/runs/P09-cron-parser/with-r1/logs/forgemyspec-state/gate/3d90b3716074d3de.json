@@ -1,0 +1,130 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:33:32Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "[LINT-HY-007] hypotheses[5].description: Hypothesis appears to describe what will NOT be built; hypotheses must be affirmative and testable",
+    "score 95/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "7 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "field_syntax": {
+   "kind": "boundary",
+   "statement": "Five fields accept *, comma lists, ranges and steps (*/n, a-b/n, a/n); out-of-range values, step 0, reversed ranges, malformed tokens and a field count other than 5 are rejected.",
+   "must_include": [
+    "5-field cron expressions",
+    "lists, ranges and steps"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "names": {
+   "kind": "boundary",
+   "statement": "JAN-DEC and SUN-SAT are accepted case-insensitively in single values, lists and ranges; unknown names are rejected; day-of-week 7 equals Sunday.",
+   "must_include": [
+    "month and day names"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "validate_cli": {
+   "kind": "boundary",
+   "statement": "validate exits 0 and prints one explanation line per field for a valid expression; for an invalid one it exits 1 and the message names the offending field.",
+   "must_include": [
+    "validate explains each field or reports the error"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "next_cli": {
+   "kind": "boundary",
+   "statement": "next -n N prints exactly N run times strictly after the given now, ascending, each matching the expression; default N=1; N<1 is a usage error.",
+   "must_include": [
+    "next -n N run times from now"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "invalid_dates": {
+   "kind": "boundary",
+   "statement": "February 30 and April 31 are never produced, February 29 only in leap years, and an expression that can never match (0 0 30 2 *) is reported as an error with exit 1 by both validate and next.",
+   "must_include": [
+    "invalid dates such as February 30"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "dom_dow_or": {
+   "kind": "boundary",
+   "statement": "With both day-of-month and day-of-week restricted a date matches if either matches; with one of them * only the restricted one applies.",
+   "must_include": [
+    "invalid dates such as February 30"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "single_file_stdlib": {
+   "kind": "boundary",
+   "statement": "cron_parser.py imports only standard library modules and runs as a script with no sibling module.",
+   "must_include": [
+    "single file cron_parser.py, stdlib only"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/cron",
+ "inputs_sha": "b7d676f5a89b6b6dd364fcdaedf8a5c12707055a5fdd194268d867e9194f588b",
+ "schema": 2
+}

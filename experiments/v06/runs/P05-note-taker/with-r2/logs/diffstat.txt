@@ -1,0 +1,9 @@
+ .../.claude/commands/implement-from-spec.md        |   8 +
+ forgemyspec-bundle/note-taker/CLAUDE.md            |  47 +++++
+ .../note-taker/acceptance-checklist.md             |  18 ++
+ .../note-taker/evals/scope_drift_cases.yaml        |  12 ++
+ forgemyspec-bundle/note-taker/spec.lock            |   5 +
+ forgemyspec-bundle/note-taker/spec.yaml            |  84 ++++++++
+ .../note-taker/tests/test_note_taker.py            | 110 ++++++++++
+ note_taker.py                                      | 231 +++++++++++++++++++++
+ 8 files changed, 515 insertions(+)

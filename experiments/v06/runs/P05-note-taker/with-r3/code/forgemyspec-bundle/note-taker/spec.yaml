@@ -1,0 +1,88 @@
+version: "0.1"
+title: "Markdown note-taking CLI"
+objective: "A single-file, stdlib-only Python CLI (note_taker.py) with subcommands new, list, show, edit and delete that stores notes as .md files with YAML frontmatter in ~/.note-taker/ and searches them by tag or keyword."
+execution_mode: critical
+context:
+  system: "Empty repository apart from ForgeMySpec tooling. Python 3 standard library only; note_taker.py at the repository root; tests under tests/."
+  assumptions:
+    - "The notes directory is ~/.note-taker/, overridable by the NOTE_TAKER_DIR environment variable so tests never touch the real home."
+    - "Frontmatter holds id, title, tags and created; it is a small YAML subset written and parsed by the script itself, since PyYAML is not stdlib."
+    - "A note is identified by its slug id, which is also its filename stem (<id>.md)."
+    - "edit opens the note in $EDITOR (falling back to $VISUAL, then vi) and re-validates the frontmatter afterwards."
+    - "Keyword search is a case-insensitive substring match over title and body; tag search is a case-insensitive exact match."
+constraints:
+  - "Single file note_taker.py; no third-party packages."
+  - "Notes live only in the notes directory; the tool never writes elsewhere."
+  - "No sync, encryption, templates, rendering of Markdown or other subcommands."
+  - "delete never removes anything but the one named note file."
+success_criteria:
+  - "new creates a .md file with frontmatter and prints its id."
+  - "list shows all notes and filters by --tag and --search."
+  - "show prints one note; edit and delete act on one note by id."
+  - "Unknown ids exit with status 1 and a message on stderr."
+hypotheses:
+  - {id: h1, description: "new writes <id>.md in the notes directory with YAML frontmatter (title, tags, created) followed by the body, creating the directory when missing.", confidence: 0.9}
+  - {id: h2, description: "A note written by new is read back by show with identical title, tags and body.", confidence: 0.85}
+  - {id: h3, description: "list prints every note, and --tag or --search restrict it to matching notes only.", confidence: 0.85}
+  - {id: h4, description: "edit launches the configured editor on the note file and rejects a result with broken frontmatter.", confidence: 0.75}
+  - {id: h5, description: "delete removes exactly the named note, and any command on an unknown id exits 1 with an error on stderr.", confidence: 0.85}
+  - {id: h6, description: "Titles that collide get distinct ids, so every new note is written to its own file and existing notes keep their content.", confidence: 0.8}
+required_evidence:
+  - "unittest run of tests/ showing every boundary test passing"
+  - "gate output ending in RESULT: PASS"
+actions:
+  - {id: a1, description: "Design the frontmatter format and id/slug scheme", type: design, requires_confirmation: false, supports: [h1, h2, h6]}
+  - {id: a2, description: "Implement note_taker.py with the five subcommands", type: implement, requires_confirmation: false, supports: [h1, h2, h3, h4]}
+  - {id: a4, description: "Implement id collision handling and unknown-id errors", type: implement, requires_confirmation: false, supports: [h5, h6]}
+  - {id: a3, description: "Write unittest boundary tests against a temporary NOTE_TAKER_DIR", type: validate, requires_confirmation: false, supports: [h1, h2, h3, h4, h5, h6]}
+decision_rules:
+  - "If a requirement needs a dependency outside the standard library, stop and ask."
+  - "If the frontmatter format must handle full YAML, stop and ask for an amendment."
+metadata:
+  source_prompt: "Build a Markdown Note-Taking CLI. Subcommands: new, list, show, edit, delete. Store notes as .md files with YAML frontmatter in ~/.note-taker/. Search by tag or keyword. Single file note_taker.py, stdlib only."
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "subcommands new, list, show, edit, delete"
+      - ".md files with YAML frontmatter"
+      - "stored in ~/.note-taker/"
+      - "search by tag or keyword"
+      - "single file note_taker.py"
+      - "stdlib only"
+formal:
+  module: NoteTaker
+  obligations:
+    - id: new_writes_note
+      kind: boundary
+      statement: "new writes <id>.md with YAML frontmatter and body into the notes directory, creating it if missing; distinct ids for colliding titles."
+      hypotheses: [h1, h6]
+      must_include: [".md files with YAML frontmatter", "stored in ~/.note-taker/"]
+      test: "test_note_taker.NoteTests.test_new_writes_md_with_frontmatter"
+    - id: show_roundtrip
+      kind: boundary
+      statement: "show returns the title, tags and body that new stored."
+      hypotheses: [h2]
+      must_include: ["subcommands new, list, show, edit, delete"]
+      test: "test_note_taker.NoteTests.test_show_roundtrip"
+    - id: list_and_search
+      kind: boundary
+      statement: "list shows all notes; --tag and --search filter to matching notes only."
+      hypotheses: [h3]
+      must_include: ["search by tag or keyword"]
+      test: "test_note_taker.NoteTests.test_list_filters_by_tag_and_keyword"
+    - id: edit_and_delete
+      kind: boundary
+      statement: "edit runs $EDITOR on the file and rejects broken frontmatter; delete removes only the named note; unknown ids exit 1."
+      hypotheses: [h4, h5]
+      must_include: ["subcommands new, list, show, edit, delete"]
+      test: "test_note_taker.NoteTests.test_edit_and_delete"
+    - id: single_file_stdlib
+      kind: boundary
+      statement: "note_taker.py is one file and imports only standard-library modules."
+      hypotheses: [h1]
+      must_include: ["single file note_taker.py", "stdlib only"]
+      test: "test_note_taker.NoteTests.test_stdlib_only_imports"
+scope:
+  paths: ["note_taker.py", "tests/**"]
+  tests: tests
+  pythonpath: ["."]

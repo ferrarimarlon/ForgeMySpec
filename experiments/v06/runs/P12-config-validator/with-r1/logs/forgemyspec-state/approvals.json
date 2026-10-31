@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "F5LSVS",
+   "nonce": "e43e70192537afb312f839e151ac880d",
+   "created_at": "2026-10-31T20:39:30.583Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/config-validator",
+     "content_sha": "bffc1bd4ba18ab7cbebb3ea0e4fe5c9adaf7462b7a713e14c5844cefcadb1f7e",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,111 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T21:12:06Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "[LINT-HY-007] hypotheses[4].description: Hypothesis appears to describe what will NOT be built; hypotheses must be affirmative and testable",
+    "score 95/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "5 tests, 0 failed, 0 skipped"
+   ]
+  },
+  {
+   "name": "verify-command",
+   "status": "PASS",
+   "details": [
+    "command: make (exit 0)",
+    "dafny│ make: Nothing to be done for `all'."
+   ]
+  }
+ ],
+ "evidence": {
+  "boot_sector_512": {
+   "kind": "boundary",
+   "statement": "The built boot sector binary is exactly 512 bytes and its last two bytes are 0x55 0xAA.",
+   "must_include": [
+    "512-byte boot sector"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "enters_protected_mode": {
+   "kind": "boundary",
+   "statement": "The boot sector sets CR0.PE, loads a GDT and far-jumps to the kernel; the disk image holds the kernel after sector 1.",
+   "must_include": [
+    "protected mode"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "vga_text_output": {
+   "kind": "boundary",
+   "statement": "The kernel sources write character and attribute cells to 0xB8000 and implement clear, print, newline and scroll.",
+   "must_include": [
+    "VGA text output at 0xB8000"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "no_external_libs": {
+   "kind": "boundary",
+   "statement": "Sources include no standard or third-party headers other than freestanding ones, and the build uses -ffreestanding and -nostdlib.",
+   "must_include": [
+    "no external libraries"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "boots_in_qemu": {
+   "kind": "boundary",
+   "statement": "Booting the image headless in qemu-system-i386 leaves the kernel banner in VGA memory at 0xB8000.",
+   "must_include": [
+    "runs in QEMU"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/mini-os",
+ "inputs_sha": "9fee7d9007f7e31a510ac492011d11f83f1aaf30d657f41afd9053952682effb",
+ "schema": 2
+}

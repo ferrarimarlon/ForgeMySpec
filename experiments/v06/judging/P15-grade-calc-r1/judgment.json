@@ -1,0 +1,26 @@
+{
+ "requirements_total": 15,
+ "probes_total": 22,
+ "A": {"probes_passed": 21,
+       "scores": {"functional": 4, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 0},
+       "requirements_met": 14, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "silent", "requirement": "R15", "evidence": "P17_score_over_100_not_silent; score 150 on a 100 scale -> 'Ana 80.00 B-' with exit 0 (A/grade_calc.py:129-133 checks only v<0)", "summary": "Scores above --max-score are accepted without warning and inflate the final grade."},
+        {"severity": "low", "category": "silent", "requirement": "R4", "evidence": "row 'Ana,100,50,999' under a 3-column header -> 65.00, no warning (A/grade_calc.py:124 zip without strict)", "summary": "Extra cells in long rows are silently dropped."},
+        {"severity": "low", "category": "quality", "requirement": "R5", "evidence": "weights file with header 'assessment,weight' -> \"error: invalid number for weight of 'assessment': 'weight'\"", "summary": "A weights CSV with a header line is rejected, which is surprising for a CSV-style weights file."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt: B904 x3, C901 x2, B905", "summary": "Minor lint findings: exception chaining and complexity."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 253},
+ "B": {"probes_passed": 22,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 4, "quality": 4, "tests": 4},
+       "requirements_met": 15, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "silent", "requirement": "R4", "evidence": "header 'student,hw,exam,hw' row 'Ana,100,50,0' -> 65.00, no error (B/grade_calc.py:72 header.index takes the first match)", "summary": "Duplicate assessment columns are not detected; the first column is used silently."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt: E501 x5, B904 x2, C901 x1", "summary": "Minor lint findings: long lines and exception chaining."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 5, "failed": 0},
+       "loc": 137},
+ "blinding_guess": {"spec_framework_side": "B", "confidence": 0.4, "why": "B is terse, has strict validation, ships a focused unittest suite, and fixes the input formats (weights header, exit code 2), which suggests a spec-driven process; A is a feature-rich single-pass build with no tests."},
+ "notes": "The probes adapt only the invocation and the weights-file format (A: '--weights-file' with name,weight lines; B: positional weights CSV with an 'assessment,weight' header). Probe expectations accept either population or sample std dev and either a plain or a +/- letter scale, because the task specifies neither. Two probe bugs (wrong expected std dev, and sys.stdlib_module_names missing on Python 3.9) were fixed before the final run. Both sides were run with Python 3.9.6, and bandit reported nothing for either. A offers more features (inline weights, --max-score, --skip-missing, --population, normalization notice) but has no tests and silently accepts scores above the maximum."
+}

@@ -1,0 +1,9 @@
+ data_dedup.py                                      |  98 +++++++++++++++++
+ .../.claude/commands/implement-from-spec.md        |   8 ++
+ forgemyspec-bundle/csv-dedup/CLAUDE.md             |  48 +++++++++
+ .../csv-dedup/acceptance-checklist.md              |  19 ++++
+ .../csv-dedup/evals/scope_drift_cases.yaml         |  19 ++++
+ forgemyspec-bundle/csv-dedup/spec.lock             |   5 +
+ forgemyspec-bundle/csv-dedup/spec.yaml             | 107 ++++++++++++++++++
+ tests/test_data_dedup.py                           | 120 +++++++++++++++++++++
+ 8 files changed, 424 insertions(+)

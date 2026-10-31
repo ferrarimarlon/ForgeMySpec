@@ -1,0 +1,154 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T21:00:07Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "score 100/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "9 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "required_fields": {
+   "kind": "boundary",
+   "statement": "A required field absent from the config yields an error naming its dotted path.",
+   "must_include": [
+    "required fields"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "types_checked": {
+   "kind": "boundary",
+   "statement": "Each of string, integer, number, boolean, array, object is checked; booleans are rejected as integer and number.",
+   "must_include": [
+    "types string integer number boolean array object"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "enum_checked": {
+   "kind": "boundary",
+   "statement": "A value not in the enum list yields an error.",
+   "must_include": [
+    "enums"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "number_bounds": {
+   "kind": "boundary",
+   "statement": "A number below minimum or above maximum yields an error; boundary values are accepted.",
+   "must_include": [
+    "min/max for numbers"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "string_length": {
+   "kind": "boundary",
+   "statement": "A string shorter than minLength or longer than maxLength yields an error; boundary lengths are accepted.",
+   "must_include": [
+    "min/max length for strings"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "pattern_checked": {
+   "kind": "boundary",
+   "statement": "A string not matching the regex pattern (re.search) yields an error.",
+   "must_include": [
+    "regex patterns"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "nested_dot_paths": {
+   "kind": "boundary",
+   "statement": "Errors inside nested objects are prefixed with the dotted path, for example db.port.",
+   "must_include": [
+    "dot notation nested errors"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "all_errors_reported": {
+   "kind": "boundary",
+   "statement": "A config with several violations yields every error in one run; CLI exits 0 when valid and 1 when invalid.",
+   "must_include": [
+    "report all errors at once"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "io_errors": {
+   "kind": "boundary",
+   "statement": "Missing file, malformed JSON or wrong argument count exits 2 with a message and no traceback.",
+   "must_include": [
+    "single file config_validator.py stdlib only"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/config-validator",
+ "inputs_sha": "aeef9039fb904a3ca176334633097ded4cdf20b0c27a31b340bb738a9d6d7ada",
+ "schema": 2
+}

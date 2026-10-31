@@ -1,0 +1,18 @@
+{
+ "A": {
+  "P1": "mkdir -p build\nnasm -f bin -DKSECTORS=32 boot/boot.asm -o build/boot.bin\nnasm -f elf32 kernel/entry.asm -o build/entry.o\ni686-elf-gcc -std=c99 -m32 -ffreestanding -nostdlib -fno-pic -fno-stack-protector -O2 -Wall -Wextra -Werror -c kernel/kernel.c -o build/kernel.o\ni686-elf-gcc -std=c99 -m32 -ffreestanding -nostdlib -fno-pic -fno-stack-protector -O2 -Wall -Wextra -Werror -c kernel/vga.c -o build/vga.o\ni686-elf-ld -m elf_i386 -nostdlib -T kernel/linker.ld -o build/kernel.elf build/entry.o build/kernel.o build/vga.o\ni686-elf-objcopy -O binary build/kernel.elf build/kernel.bin\ncat build/boot.bin build/kernel.bin > build/os.img\ntruncate -s $(( (1 + 32) * 512 )) build/os.img\ni686-elf-ld: warning: build/kernel.elf has a LOAD segment with RWX permissions\n",
+  "P4": [],
+  "P5": [],
+  "size": 16896,
+  "vga": "MiniOS booted: protected mode, VGA text output.                                 Bootloader + kernel, no external libraries.                                                                                                                                                                                                                                                                                     ",
+  "eip": "00001007"
+ },
+ "B": {
+  "P1": "nasm -f bin boot.asm -o boot.bin\nnasm -f elf32 entry.asm -o entry.o\ni686-elf-gcc -m32 -ffreestanding -fno-pic -fno-stack-protector -O2 -Wall -Wextra -nostdlib -c kernel.c -o kernel.o\ni686-elf-ld -m elf_i386 -T link.ld --oformat binary entry.o kernel.o -o kernel.bin\ncat boot.bin kernel.bin > os.img\ntruncate -s 1M os.img\n",
+  "P4": [],
+  "P5": [],
+  "size": 1048576,
+  "vga": "MiniOS v0.1 - 32-bit protected mode                                             Type 'help' for commands.                                                                                                                                       >                                                                                                                                                               ",
+  "eip": "00001272"
+ }
+}

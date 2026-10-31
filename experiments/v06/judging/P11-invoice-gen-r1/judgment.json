@@ -1,0 +1,33 @@
+{
+ "requirements_total": 18,
+ "probes_total": 20,
+ "A": {"probes_passed": 0,
+       "scores": {"functional": 0, "coverage": 0, "security": 0, "robustness": 0, "quality": 0, "tests": 0},
+       "requirements_met": 0, "requirements_partial": 0, "requirements_missing": 18,
+       "issues": [{"severity": "critical", "category": "scope", "requirement": "R2",
+                   "evidence": "ls -la A -> empty directory; probes P01-P20 all fail",
+                   "summary": "A contains no files; no implementation was delivered."}],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 0},
+ "B": {"probes_passed": 18,
+       "scores": {"functional": 4, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 0},
+       "requirements_met": 17, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "functional", "requirement": "R17",
+         "evidence": "P20: customer {\"name\":\"A\",\"id\":42} with -f json -> TypeError: Object of type Decimal is not JSON serializable (B/invoice_gen.py:233,249)",
+         "summary": "JSON export crashes with a traceback when the customer object holds any numeric field, because it is parsed as Decimal and echoed verbatim."},
+        {"severity": "medium", "category": "functional", "requirement": "R18",
+         "evidence": "P18: unit_price 1e40 -> decimal.InvalidOperation traceback at B/invoice_gen.py:30 (quantize exceeds context precision)",
+         "summary": "Very large amounts pass validation but crash in money() with an uncaught InvalidOperation instead of a validation error."},
+        {"severity": "low", "category": "quality", "requirement": null,
+         "evidence": "static/B-ruff.txt: 33 findings (C901 validate complexity 32, E741 ambiguous 'l', B904, UP031)",
+         "summary": "Style/lint issues: overly complex validate(), ambiguous variable names, percent-formatting."},
+        {"severity": "low", "category": "quality", "requirement": "R16",
+         "evidence": "unit_price 1e-40 text output shows 'Unit Price 1E-40' (B/invoice_gen.py:176)",
+         "summary": "Sub-cent unit prices may render in scientific notation in the text invoice."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 299},
+ "blinding_guess": {"spec_framework_side": "unsure", "confidence": 0.1, "why": "A is empty, so there is nothing to compare stylistically against B."},
+ "notes": "Directory A/ is empty, so A scores 0 everywhere and fails all probes. B is a solid Decimal-based implementation with half-up rounding, aggregated validation, text and JSON output, and clean error handling for bad/missing files. B's two medium defects are uncaught crashes (numeric customer fields in JSON export, huge amounts overflowing quantize). Bandit reported no issues for B; neither side ships tests. Probe environment was Python 3.9.6, so the stdlib check uses a fallback allowlist."
+}

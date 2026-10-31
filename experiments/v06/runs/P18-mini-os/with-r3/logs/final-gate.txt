@@ -1,0 +1,16 @@
+ForgeMySpec gate: /private/tmp/fms-v06/runs/P18-mini-os/with-r3/forgemyspec-bundle/mini-os
+
+  [PASS   ] spec lint
+              score 100/100 (minimum 70)
+  [PASS   ] obligation coverage
+  [PASS   ] spec lock
+  [PASS   ] Python boundary tests
+              5 tests, 0 failed, 0 skipped
+  [PASS   ] verify command
+              command: make (exit 0)
+              dafny│ make: Nothing to be done for `all'.
+
+RESULT: PASS
+
+  … python-boundary-tests
+  … verify-command

@@ -1,0 +1,27 @@
+{
+ "requirements_total": 13,
+ "probes_total": 25,
+ "A": {"probes_passed": 24,
+       "scores": {"functional": 4, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 4},
+       "requirements_met": 12, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "functional", "requirement": "R8", "evidence": "probe huge_amount_no_crash; `add 1e30 food 2026-10-05` -> decimal.InvalidOperation traceback from budget_tracker.py:26", "summary": "Large-exponent amounts crash with an uncaught decimal.InvalidOperation traceback instead of a clean error."},
+        {"severity": "low", "category": "silent", "requirement": "R10", "evidence": "set-budget 2026-10 food 100; add 95 food 2026-11-05 -> rc=0, no alert; report 2026-11 shows budget '-'", "summary": "Budgets are per specific month and category validity is checked across any month, so expenses in a month without a budget are accepted with no alert."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "data file with expense lacking 'date' -> KeyError traceback (budget_tracker.py:139)", "summary": "Malformed expense entries in the JSON file crash with a traceback."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt: 26 findings (B904, UP031, E501, unused import in tests)", "summary": "Style lint findings, mostly exception chaining and %-formatting."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 7, "failed": 0},
+       "loc": 189},
+ "B": {"probes_passed": 24,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 0},
+       "requirements_met": 12, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "functional", "requirement": "R8", "evidence": "probe huge_amount_no_crash; `add 1e30 food --date 2026-10-05` -> decimal.InvalidOperation traceback from budget_tracker.py:36", "summary": "Large-exponent amounts crash with an uncaught decimal.InvalidOperation traceback instead of a clean error."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "data file with expense lacking 'date' -> KeyError traceback (budget_tracker.py:102)", "summary": "Malformed expense entries in the JSON file crash with a traceback."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt: 7 findings (B904, E501)", "summary": "Minor lint findings on exception chaining and line length."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 186},
+ "blinding_guess": {"spec_framework_side": "unsure", "confidence": 0.3, "why": "Both are similarly structured single-file argparse/Decimal implementations; only A ships tests, which is weak evidence either way."},
+ "notes": "Interfaces differ (A: set-budget MONTH CAT AMT, positional date/note; B: recurring set-budget CAT AMT, --date/--note/--month), so probes adapt only invocation. Both pass all probes except the huge-amount crash shared by both. A models budgets per specific calendar month; B models one recurring monthly budget per category; both are defensible readings of 'monthly budgets'. Bandit reports are empty for both. A's 7 unittest tests pass; B has no tests."
+}

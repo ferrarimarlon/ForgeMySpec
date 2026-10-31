@@ -1,0 +1,19 @@
+[
+ {"id":"R1","text":"Python CLI program"},
+ {"id":"R2","text":"Add a task"},
+ {"id":"R3","text":"List tasks"},
+ {"id":"R4","text":"Update a task"},
+ {"id":"R5","text":"Delete a task"},
+ {"id":"R6","text":"Task has fields id, title, description, priority, status, due_date"},
+ {"id":"R7","text":"Priority restricted to low/medium/high"},
+ {"id":"R8","text":"Status restricted to todo/in-progress/done"},
+ {"id":"R9","text":"Persist data in SQLite across invocations"},
+ {"id":"R10","text":"Use raw sqlite3, no ORM"},
+ {"id":"R11","text":"Filter tasks by status"},
+ {"id":"R12","text":"Filter tasks by priority"},
+ {"id":"R13","text":"Mark task as done"},
+ {"id":"R14","text":"Output as formatted table in terminal"},
+ {"id":"R15","text":"Single-file CLI entry point named task_manager.py"},
+ {"id":"R16","text":"No external dependencies beyond stdlib"},
+ {"id":"R17","text":"Errors (invalid id, invalid values) reported clearly with nonzero exit (implied)"}
+]

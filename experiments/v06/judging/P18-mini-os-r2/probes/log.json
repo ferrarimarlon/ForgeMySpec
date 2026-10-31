@@ -1,0 +1,16 @@
+{
+ "A": {
+  "P01": "mkdir -p os/build\nnasm -f bin os/boot.asm -o os/build/boot.bin\ni686-elf-gcc -std=c11 -m32 -ffreestanding -nostdlib -fno-pic -fno-stack-protector -O2 -Wall -Wextra -c os/kernel.c -o os/build/kernel.o\ni686-elf-ld -m elf_i386 -T os/linker.ld -nostdlib -o os/build/kernel.elf os/build/kernel.o\ni686-elf-objcopy -O binary os/build/kernel.elf os/build/kernel.bin\ndd if=/dev/zero of=os/build/kernel.bin bs=512 count=0 seek=32 2>/dev/null\ncat os/build/boot.bin os/build/kernel.bin > os/build/os.img\ni686-elf-ld: warning: os/build/kernel.elf has a LOAD segment with RWX permissions\n",
+  "P04": [],
+  "P06": "MiniOS 0.1 - booted in 32-bit protected mode                                    VGA text output works. Halting.                                                                                                                                 ",
+  "P07": "SeaBIOS (version rel-1.17.0-0-gb52ca86e094d-prebuilt.qemu.org)                                                                                                                                                                                  ",
+  "P10": 16384
+ },
+ "B": {
+  "P01": "i686-elf-ld -m elf_i386 -T src/link.ld --oformat binary -o build/kernel.bin build/entry.o build/kernel.o\ncat build/boot.bin build/kernel.bin > os.img\ntruncate -s 1474560 os.img\n",
+  "P04": [],
+  "P06": "MiniOS v0.1                                                                     Type 'help' for commands.                                                                                                                                       ",
+  "P07": "MiniOS v0.1                                                                     Type 'help' for commands.                                                                                                                                       ",
+  "P10": 1889
+ }
+}

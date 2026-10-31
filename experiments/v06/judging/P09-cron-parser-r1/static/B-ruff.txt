@@ -1,0 +1,9 @@
+cron_parser.py:7:89: E501 Line too long (93 > 88)
+cron_parser.py:18:89: E501 Line too long (95 > 88)
+cron_parser.py:26:89: E501 Line too long (90 > 88)
+cron_parser.py:146:89: E501 Line too long (99 > 88)
+cron_parser.py:160:89: E501 Line too long (93 > 88)
+tests/test_cron_parser.py:10:89: E501 Line too long (97 > 88)
+tests/test_cron_parser.py:88:40: E741 Ambiguous variable name: `l`
+tests/test_cron_parser.py:88:89: E501 Line too long (95 > 88)
+Found 8 errors.

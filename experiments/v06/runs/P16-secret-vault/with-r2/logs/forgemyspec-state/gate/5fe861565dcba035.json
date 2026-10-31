@@ -1,0 +1,233 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T21:12:07Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "[LINT-HY-007] hypotheses[7].description: Hypothesis appears to describe what will NOT be built; hypotheses must be affirmative and testable",
+    "score 95/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "15 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "master_from_env": {
+   "kind": "boundary",
+   "statement": "The password is read from VAULT_MASTER_KEY; a missing one exits 2 and no CLI option accepts it.",
+   "must_include": [
+    "master password from VAULT_MASTER_KEY"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "kdf_params": {
+   "kind": "boundary",
+   "statement": "The key derivation uses PBKDF2HMAC SHA-256 with 200000 iterations.",
+   "must_include": [
+    "PBKDF2HMAC SHA-256 200000 iterations"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "salt_header": {
+   "kind": "boundary",
+   "statement": "The file header holds a 16-byte salt that differs between vaults, and the body decrypts as Fernet with the derived key.",
+   "must_include": [
+    "random 16-byte salt in file header"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "key_lowercase": {
+   "kind": "boundary",
+   "statement": "Keys matching [a-zA-Z0-9_]{1,64} are stored lowercase; others exit 1.",
+   "must_include": [
+    "keys stored lowercase"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "value_limit": {
+   "kind": "boundary",
+   "statement": "A 4096-byte UTF-8 value is accepted and 4097 bytes exits 1.",
+   "must_include": [
+    "values at most 4096 bytes"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "ttl_default": {
+   "kind": "boundary",
+   "statement": "Without --ttl the expiry is 90 days ahead; --ttl DAYS overrides it and invalid DAYS exit 1.",
+   "must_include": [
+    "--ttl DAYS default 90"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "expiry_iso": {
+   "kind": "boundary",
+   "statement": "The stored expiry parses with datetime.fromisoformat.",
+   "must_include": [
+    "expiry stored as ISO-8601"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "get_expired": {
+   "kind": "boundary",
+   "statement": "get prints only the value on success; for an expired key it exits 3 with the value absent from stdout and stderr.",
+   "must_include": [
+    "get exits 3 if expired"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "list_masked": {
+   "kind": "boundary",
+   "statement": "list shows value[:4] then *** and never the full value, including for short values.",
+   "must_include": [
+    "list shows value[:4]***"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "rotate_missing": {
+   "kind": "boundary",
+   "statement": "rotate on a missing key exits 1; on an existing key it replaces value and expiry.",
+   "must_include": [
+    "rotate exits 1 if key missing"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "audit_tail": {
+   "kind": "boundary",
+   "statement": "Commands append to ~/.vault/audit.log and audit prints only the last 20 lines.",
+   "must_include": [
+    "audit shows last 20 lines"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "lockout": {
+   "kind": "boundary",
+   "statement": "Three wrong passwords create .lockout and exit 2; afterwards even the right password exits 2.",
+   "must_include": [
+    "3 wrong passwords create .lockout"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "no_value_leak": {
+   "kind": "boundary",
+   "statement": "Secret values and the master password appear neither in audit.log nor in stderr across success and failure paths.",
+   "must_include": [
+    "never write values to audit log or stderr"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "permissions": {
+   "kind": "boundary",
+   "statement": "vault.enc has mode 600 and ~/.vault has mode 700, also after rewrites.",
+   "must_include": [
+    "vault.enc chmod 600 and .vault chmod 700"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "exit_codes": {
+   "kind": "boundary",
+   "statement": "Exit codes are 0 ok, 1 user error, 2 auth or lockout, 3 expired.",
+   "must_include": [
+    "exit codes 0 1 2 3"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/vault",
+ "inputs_sha": "4c41d2452f49a469a1c6225dcc600c014737b928e5f712ff37515d50c97928ae",
+ "schema": 2
+}

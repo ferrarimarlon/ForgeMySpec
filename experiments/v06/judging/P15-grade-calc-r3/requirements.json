@@ -1,0 +1,17 @@
+[
+ {"id":"R1","text":"Python CLI program"},
+ {"id":"R2","text":"Single file grade_calc.py"},
+ {"id":"R3","text":"Standard library only"},
+ {"id":"R4","text":"Reads a CSV of students and assessment scores"},
+ {"id":"R5","text":"Reads a weights definition"},
+ {"id":"R6","text":"Normalizes weights that do not sum to 100%"},
+ {"id":"R7","text":"Computes each student's weighted final grade"},
+ {"id":"R8","text":"Computes each student's letter grade"},
+ {"id":"R9","text":"Computes each student's GPA points"},
+ {"id":"R10","text":"Prints class mean"},
+ {"id":"R11","text":"Prints class median"},
+ {"id":"R12","text":"Prints class standard deviation"},
+ {"id":"R13","text":"Prints class highest"},
+ {"id":"R14","text":"Prints class lowest"},
+ {"id":"R15","text":"Handles invalid input (missing file, bad scores, missing columns) with clear errors, not tracebacks (implied)"}
+]

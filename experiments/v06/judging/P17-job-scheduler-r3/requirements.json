@@ -1,0 +1,18 @@
+[
+ {"id":"R1","text":"Single file scheduler.py, Python stdlib only"},
+ {"id":"R2","text":"Job id must be alphanumeric/underscore, 1-32 chars; invalid ids rejected"},
+ {"id":"R3","text":"Job has name, priority 1-10 (out of range rejected), depends_on list of ids"},
+ {"id":"R4","text":"Reject duplicate id on add"},
+ {"id":"R5","text":"Reject self-dependency on add"},
+ {"id":"R6","text":"Reject unknown dependency on add"},
+ {"id":"R7","text":"Reject any add that would create a cycle"},
+ {"id":"R8","text":"Execution order: topological with priority tiebreak (higher first)"},
+ {"id":"R9","text":"Job is ready when pending and all depends_on are done; recomputed on load"},
+ {"id":"R10","text":"When a job fails, all transitive dependents become cancelled"},
+ {"id":"R11","text":"Status values limited to pending, ready, running, done, failed, cancelled"},
+ {"id":"R12","text":"run-next takes highest-priority ready job, marks running then done"},
+ {"id":"R13","text":"Persistence in scheduler.json"},
+ {"id":"R14","text":"ready is never persisted; recomputed on load"},
+ {"id":"R15","text":"Commands available: add, run-next, fail <id>, status, report"},
+ {"id":"R16","text":"Errors reported with non-zero exit code and no state corruption (implied)"}
+]

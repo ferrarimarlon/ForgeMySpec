@@ -1,0 +1,22 @@
+version: '0.1'
+purpose: Manual eval seeds to detect scope drift in Claude implementations
+source_prompt: Build a Priority Job Scheduler CLI in Python (single file scheduler.py,
+  stdlib only) with jobs (id, name, priority 1-10, depends_on), validation, cycle
+  detection, topological order with priority tiebreak, ready computation, failure
+  propagation, statuses, run-next, persistence in scheduler.json and commands add,
+  run-next, fail <id>, status, report.
+checks:
+  must_include:
+  - id alphanumeric and underscore 1-32 chars
+  - priority 1-10
+  - reject duplicate id
+  - reject self-dependency
+  - reject unknown dependency
+  - reject cycle
+  - topological order priority tiebreak
+  - ready recomputed on load
+  - failure cancels transitive dependents
+  - run-next highest-priority ready job
+  - ready never persisted
+  - commands add run-next fail status report
+cases: []

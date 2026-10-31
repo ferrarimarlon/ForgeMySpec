@@ -1,0 +1,26 @@
+{
+ "requirements_total": 13,
+ "probes_total": 27,
+ "A": {"probes_passed": 27,
+  "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 4},
+  "requirements_met": 13, "requirements_partial": 0, "requirements_missing": 0,
+  "issues": [
+   {"severity": "medium", "category": "functional", "requirement": "R13", "evidence": "schema {\"properties\":{\"a\":{\"minimum\":\"1\"}}} -> TypeError traceback (A/config_validator.py:54)", "summary": "A malformed schema keyword value (non-numeric minimum) crashes with an uncaught traceback instead of a clean error."},
+   {"severity": "low", "category": "silent", "requirement": "R3", "evidence": "schema type 'strnig' -> 'a: expected type strnig, got integer' exit 1 (A/config_validator.py:27)", "summary": "An unknown type name in the schema is reported as a config validation error rather than a schema error."},
+   {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt: C901, B904, UP031; tests/test_config_validator.py:6 F401", "summary": "Minor lint issues; also prints nothing on success, relying only on exit code."}
+  ],
+  "own_tests": {"present": true, "ran": true, "passed": 9, "failed": 0},
+  "loc": 143},
+ "B": {"probes_passed": 25,
+  "scores": {"functional": 4, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 0},
+  "requirements_met": 12, "requirements_partial": 1, "requirements_missing": 0,
+  "issues": [
+   {"severity": "medium", "category": "functional", "requirement": "R13", "evidence": "P21_malformed_subschema_no_traceback: properties {\"a\":\"string\"} -> AttributeError: 'str' object has no attribute 'get' (B/config_validator.py:62)", "summary": "A non-object subschema crashes with an uncaught traceback; the catch in main only covers ValueError/re.error/TypeError."},
+   {"severity": "low", "category": "silent", "requirement": "R4", "evidence": "P20_enum_true_not_1: config {\"flag\":true}, enum [1] -> 'valid' rc=0 (B/config_validator.py:69)", "summary": "Enum check uses Python 'in', so true matches 1 (and false matches 0)."},
+   {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt: C901, many E501/UP031", "summary": "Minor lint issues (long lines, percent formatting, complex validate function)."}
+  ],
+  "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+  "loc": 141},
+ "blinding_guess": {"spec_framework_side": "unsure", "confidence": 0.3, "why": "A ships a unit test suite and handles bool/int enum edge cases with care, which may hint at a more process-driven approach, but the evidence is weak."},
+ "notes": "Both implementations are compact, stdlib-only single files with the same message format, and both pass all core requirement probes (types, enum, min/max, lengths, pattern, dot paths, reporting all errors). The differences are in edge cases: B lets true match an enum of [1], and it crashes on non-object subschemas. A crashes on non-numeric min/max values in the schema. B adds array 'items' and 'null' support, which was not requested but does no harm, and it prints a summary line. Bandit reported nothing for either side; A's 9 unittest tests pass (pytest is not installed, so I ran them with unittest)."
+}

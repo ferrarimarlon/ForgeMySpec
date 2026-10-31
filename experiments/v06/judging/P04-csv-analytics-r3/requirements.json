@@ -1,0 +1,15 @@
+[
+ {"id":"R1","text":"Reads CSV files (header row, values)"},
+ {"id":"R2","text":"Per-column stat: count"},
+ {"id":"R3","text":"Per-column stat: min"},
+ {"id":"R4","text":"Per-column stat: max"},
+ {"id":"R5","text":"Per-column stat: mean"},
+ {"id":"R6","text":"Per-column stat: median"},
+ {"id":"R7","text":"Per-column stat: stdev"},
+ {"id":"R8","text":"Filter rows by a condition"},
+ {"id":"R9","text":"Select a subset of columns"},
+ {"id":"R10","text":"Export a JSON report of the stats"},
+ {"id":"R11","text":"Single file named csv_analytics.py"},
+ {"id":"R12","text":"Python standard library only"},
+ {"id":"R13","text":"Implied: handle non-numeric/missing values and errors (missing file, bad column) gracefully"}
+]

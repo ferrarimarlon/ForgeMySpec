@@ -1,0 +1,13 @@
+version: '0.1'
+purpose: Manual eval seeds to detect scope drift in Claude implementations
+source_prompt: 'Build a simple operating system in the current directory: x86 bare-metal,
+  minimalist resources, bootloader + kernel with VGA text output, no external libraries,
+  runnable in QEMU.'
+checks:
+  must_include:
+  - 512-byte boot sector with 0x55AA
+  - protected mode
+  - VGA text output at 0xB8000
+  - no external libraries
+  - boots in QEMU
+cases: []

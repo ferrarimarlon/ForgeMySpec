@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "DKA3YB",
+   "nonce": "b46b7bbbd59385e2df3aab0cc82cf531",
+   "created_at": "2026-10-31T20:41:01.396Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/config-validator",
+     "content_sha": "96b4edb1d08390a8b163045da0d44908224f0a69e5b91146d62073117d813528",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

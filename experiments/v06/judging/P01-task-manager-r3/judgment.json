@@ -1,0 +1,32 @@
+{
+ "requirements_total": 16,
+ "probes_total": 26,
+ "A": {"probes_passed": 26,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 4, "quality": 4, "tests": 0},
+       "requirements_met": 16, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "A/task_manager.py:79,123,135,143 use `with connect() as conn` which commits but never closes the connection",
+         "summary": "SQLite connections are opened via the context manager without being closed (relies on process exit)."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt: F401 unused `date`, E731 lambda, E741 `l`, 7x E501",
+         "summary": "Minor lint issues: unused import, lambda assignment, ambiguous variable name."},
+        {"severity": "low", "category": "scope", "requirement": "R8", "evidence": "A/task_manager.py:12 default DB_PATH is dirname(__file__)/tasks.db",
+         "summary": "Default database is written next to the script rather than a user data location (overridable via TASK_DB)."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 165},
+ "B": {"probes_passed": 25,
+       "scores": {"functional": 3, "coverage": 4, "security": 5, "robustness": 4, "quality": 4, "tests": 4},
+       "requirements_met": 15, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "functional", "requirement": "R5", "evidence": "probe desc_visible fails; B/task_manager.py:136-137 COLUMNS omit description and there is no show command",
+         "summary": "Task description is stored but can never be viewed through the CLI; the list table omits it."},
+        {"severity": "low", "category": "silent", "requirement": "R3", "evidence": "`task_manager.py update 1` with no fields -> 'Updated task 1', rc=0",
+         "summary": "Update with no fields reports success although nothing changed."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt: 13x UP031 percent formatting, B904, E501",
+         "summary": "Minor lint issues (percent formatting, raise without from)."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 8, "failed": 0},
+       "loc": 176},
+ "blinding_guess": {"spec_framework_side": "B", "confidence": 0.55, "why": "B separates a library-style API from the CLI, adds a --db flag and ships a unittest suite including a stdlib-imports check, which suggests a more process-driven build."},
+ "notes": "Both sides pass all CRUD, filter, validation, persistence and SQL-injection probes (run under Python 3.9.6 with TASK_DB pointed at temp dirs). The bandit B608 hit on each side is a false positive: column names in the dynamic UPDATE come from a fixed whitelist and values are parameterized. The only probe difference is description visibility, which B never displays. B's 8 unittest tests pass via `python3 -m unittest discover -s tests`; pytest isn't installed. A has no tests."
+}

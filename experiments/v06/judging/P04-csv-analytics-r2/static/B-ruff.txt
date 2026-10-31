@@ -1,0 +1,5 @@
+csv_analytics.py:108:52: B905 `zip()` without an explicit `strict=` parameter
+csv_analytics.py:124:89: E501 Line too long (91 > 88)
+csv_analytics.py:138:89: E501 Line too long (92 > 88)
+Found 3 errors.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).

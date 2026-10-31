@@ -1,0 +1,42 @@
+{
+ "A": {
+  "p_single_stdlib": "pass",
+  "p_text_basic": "pass",
+  "p_json_basic": "pass",
+  "p_no_discount": "pass",
+  "p_multi_errors": "pass",
+  "p_half_up_line": "pass",
+  "p_half_up_tax": "pass",
+  "p_float_artifact": "pass",
+  "p_fixed_discount": "pass",
+  "p_bad_json": "pass",
+  "p_missing_file": "pass",
+  "p_type_errors": "pass",
+  "p_toplevel_array": "pass",
+  "p_missing_fields": "pass",
+  "p_bad_discount": "pass",
+  "p_nan": "pass",
+  "p_discount_exceeds": "pass",
+  "p_text_alignment": "pass"
+ },
+ "B": {
+  "p_single_stdlib": "pass",
+  "p_text_basic": "pass",
+  "p_json_basic": "pass",
+  "p_no_discount": "pass",
+  "p_multi_errors": "pass",
+  "p_half_up_line": "pass",
+  "p_half_up_tax": "pass",
+  "p_float_artifact": "pass",
+  "p_fixed_discount": "pass",
+  "p_bad_json": "pass",
+  "p_missing_file": "pass",
+  "p_type_errors": "pass",
+  "p_toplevel_array": "pass",
+  "p_missing_fields": "pass",
+  "p_bad_discount": "pass",
+  "p_nan": "pass",
+  "p_discount_exceeds": "pass",
+  "p_text_alignment": "fail"
+ }
+}

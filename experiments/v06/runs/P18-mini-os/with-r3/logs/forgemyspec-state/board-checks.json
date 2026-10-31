@@ -1,0 +1,20 @@
+{
+ "cmd: PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec lint forgemyspec-bundle/mini-os/spec.yaml --formal": {
+  "passed": true,
+  "fingerprint": "ecb3bcb91a7683b57bed2c2529ba11538908786d855acdfe2e5d5da276886757",
+  "ran_at": "2026-10-31T21:21:31.837Z",
+  "seconds": 0.1
+ },
+ "cmd: python3 -m unittest discover -s tests": {
+  "passed": true,
+  "fingerprint": "ecb3bcb91a7683b57bed2c2529ba11538908786d855acdfe2e5d5da276886757",
+  "ran_at": "2026-10-31T21:21:33.898Z",
+  "seconds": 2.1
+ },
+ "cmd: PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec gate forgemyspec-bundle/mini-os": {
+  "passed": true,
+  "fingerprint": "ecb3bcb91a7683b57bed2c2529ba11538908786d855acdfe2e5d5da276886757",
+  "ran_at": "2026-10-31T21:21:36.056Z",
+  "seconds": 2.2
+ }
+}

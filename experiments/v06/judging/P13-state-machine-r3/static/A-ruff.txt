@@ -1,0 +1,19 @@
+state_machine.py:89:5: C901 `validate` is too complex (27 > 10)
+state_machine.py:96:89: E501 Line too long (97 > 88)
+state_machine.py:142:89: E501 Line too long (92 > 88)
+state_machine.py:191:89: E501 Line too long (98 > 88)
+state_machine.py:198:89: E501 Line too long (97 > 88)
+state_machine.py:201:89: E501 Line too long (105 > 88)
+state_machine.py:203:89: E501 Line too long (117 > 88)
+state_machine.py:244:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+state_machine.py:246:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+state_machine.py:249:5: C901 `main` is too complex (13 > 10)
+state_machine.py:250:89: E501 Line too long (95 > 88)
+state_machine.py:253:89: E501 Line too long (99 > 88)
+state_machine.py:254:89: E501 Line too long (92 > 88)
+state_machine.py:256:89: E501 Line too long (97 > 88)
+state_machine.py:275:13: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+state_machine.py:283:46: E741 Ambiguous variable name: `l`
+state_machine.py:283:89: E501 Line too long (99 > 88)
+state_machine.py:285:17: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+Found 18 errors.

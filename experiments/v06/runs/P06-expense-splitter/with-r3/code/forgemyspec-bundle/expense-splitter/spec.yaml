@@ -1,0 +1,99 @@
+version: "0.1"
+title: "CLI expense splitter"
+objective: "A single-file, stdlib-only Python CLI (expense_splitter.py) that records group expenses split equally, persists them in a JSON file, shows balances and computes a greedy settlement plan."
+execution_mode: critical
+context:
+  system: "Empty Python repository; deliverable is expense_splitter.py at the repo root with unittest tests in tests/."
+  assumptions:
+    - "Amounts are decimal with at most 2 places and are stored as integer cents to avoid float error."
+    - "When an amount does not divide evenly, leftover cents go one each to the first participants in listed order, so shares always sum to the amount."
+    - "The payer need not be a participant; a payer outside the participant list pays without owing a share."
+    - "The data file defaults to expenses.json in the current directory and is overridable with --file."
+    - "Greedy means repeatedly matching the largest debtor with the largest creditor; it is not guaranteed globally minimal for every input."
+constraints:
+  - "Python standard library only; no third-party packages."
+  - "All code lives in the single file expense_splitter.py."
+  - "No networking, currencies, or recurring expenses; no unequal or percentage splits."
+  - "Floats are never used to store or sum money."
+success_criteria:
+  - "Adding expenses then running balances prints each person's net balance, and balances sum to zero."
+  - "The settlement plan, when applied, brings every balance to zero."
+  - "Data survives across separate CLI invocations via the JSON file."
+hypotheses:
+  - {id: h1, description: "The add command records an expense with payer, amount, description and participants and appends it to the JSON file.", confidence: 0.9}
+  - {id: h2, description: "Each expense is split equally among its participants, with shares summing exactly to the amount in cents.", confidence: 0.85}
+  - {id: h3, description: "The balances command prints each person's net balance (paid minus owed) and the balances sum to zero.", confidence: 0.9}
+  - {id: h4, description: "The settle command outputs a greedy plan of transfers that zeroes every balance, using at most one fewer transfer than the number of people with nonzero balance.", confidence: 0.8}
+  - {id: h5, description: "Invalid input (bad amount, empty participants, corrupt JSON) exits non-zero with a message and leaves the file byte-identical.", confidence: 0.85}
+required_evidence:
+  - "unittest run output of tests/ showing all tests pass"
+  - "CLI transcript of add, balances and settle on a temporary JSON file"
+actions:
+  - {id: a1, description: "Design the JSON schema and CLI subcommands", type: design, requires_confirmation: false, supports: [h1, h5]}
+  - {id: a2, description: "Implement add and equal-split logic in cents", type: implement, requires_confirmation: false, supports: [h1, h2]}
+  - {id: a3, description: "Implement balances and greedy settlement", type: implement, requires_confirmation: false, supports: [h3, h4]}
+  - {id: a4, description: "Run unit and CLI tests", type: test, requires_confirmation: false, supports: [h1, h2, h3, h4, h5]}
+decision_rules:
+  - "If a requirement needs a non-stdlib package, stop and ask."
+  - "If rounding policy conflicts with the user's expectation, escalate."
+metadata:
+  source_prompt: "Build a CLI expense splitter in Python. Record expenses for a group (payer, amount, description, participants; split equally among participants), persist them in a JSON file, show each person's balance, and compute a settlement plan with the minimum number of transfers using a greedy algorithm. Single file expense_splitter.py, stdlib only."
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "record expenses with payer, amount, description, participants"
+      - "split equally among participants"
+      - "persist in a JSON file"
+      - "show each person's balance"
+      - "settlement plan with greedy algorithm"
+      - "single file expense_splitter.py, stdlib only"
+      - "invalid input rejected without changing the file"
+formal:
+  module: ExpenseSplitter
+  obligations:
+    - id: add_records_expense
+      kind: boundary
+      statement: "add stores payer, amount, description and participants as an expense in the JSON file."
+      hypotheses: [h1]
+      must_include: ["record expenses with payer, amount, description, participants"]
+      test: "test_expense_splitter.AddTests.test_add_records_expense"
+    - id: json_persistence
+      kind: boundary
+      statement: "Expenses written by one invocation are read back by a later invocation from the JSON file."
+      hypotheses: [h1]
+      must_include: ["persist in a JSON file"]
+      test: "test_expense_splitter.AddTests.test_persists_across_invocations"
+    - id: equal_split
+      kind: boundary
+      statement: "Shares among participants differ by at most one cent and sum exactly to the amount."
+      hypotheses: [h2]
+      must_include: ["split equally among participants"]
+      test: "test_expense_splitter.SplitTests.test_equal_split_sums_to_amount"
+    - id: balances_net
+      kind: boundary
+      statement: "balances prints paid minus owed per person, and the values sum to zero."
+      hypotheses: [h3]
+      must_include: ["show each person's balance"]
+      test: "test_expense_splitter.BalanceTests.test_balances_sum_to_zero"
+    - id: greedy_settlement
+      kind: boundary
+      statement: "settle pairs largest debtor with largest creditor; applying the transfers zeroes all balances in at most n-1 transfers."
+      hypotheses: [h4]
+      must_include: ["settlement plan with greedy algorithm"]
+      test: "test_expense_splitter.SettleTests.test_settlement_zeroes_balances"
+    - id: invalid_input_rejected
+      kind: boundary
+      statement: "Bad amount, empty participants or corrupt JSON exits non-zero and leaves the file unchanged."
+      hypotheses: [h5]
+      must_include: ["invalid input rejected without changing the file"]
+      test: "test_expense_splitter.ErrorTests.test_invalid_input_leaves_file_unchanged"
+    - id: single_file_stdlib
+      kind: boundary
+      statement: "expense_splitter.py imports only standard library modules."
+      hypotheses: [h1]
+      must_include: ["single file expense_splitter.py, stdlib only"]
+      test: "test_expense_splitter.StructureTests.test_stdlib_only"
+scope:
+  paths: ["expense_splitter.py", "tests/**", "forgemyspec-board.yaml"]
+  tests: tests
+  pythonpath: ["."]

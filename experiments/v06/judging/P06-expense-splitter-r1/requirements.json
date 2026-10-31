@@ -1,0 +1,14 @@
+[
+ {"id": "R1", "text": "CLI program in Python"},
+ {"id": "R2", "text": "Record an expense with payer, amount, description, participants"},
+ {"id": "R3", "text": "Expense amount is split equally among participants"},
+ {"id": "R4", "text": "Expenses persist in a JSON file across invocations"},
+ {"id": "R5", "text": "Show each person's balance (net paid minus owed)"},
+ {"id": "R6", "text": "Compute a settlement plan of transfers that settles all balances"},
+ {"id": "R7", "text": "Settlement uses a greedy algorithm aiming at minimum number of transfers (largest debtor/creditor matching)"},
+ {"id": "R8", "text": "Single file named expense_splitter.py"},
+ {"id": "R9", "text": "Uses Python standard library only"},
+ {"id": "R10", "text": "Supports a group of people (multiple persons, payer may or may not be a participant)"},
+ {"id": "R11", "text": "Invalid input (non-positive/non-numeric amount, no participants) rejected with error, not crash or silent corruption"},
+ {"id": "R12", "text": "Monetary rounding handled so balances sum to zero and settlement is exact (e.g. 10 split 3 ways)"}
+]

@@ -1,0 +1,38 @@
+{
+ "requirements_total": 17,
+ "probes_total": 26,
+ "A": {"probes_passed": 26,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 4, "quality": 4, "tests": 0},
+       "requirements_met": 17, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "silent", "requirement": "R2",
+         "evidence": "TASK_DB=... task_manager.py add '   ' -> 'Added task 2.' rc=0; blank row in list",
+         "summary": "Blank or whitespace-only titles are accepted and stored as empty-looking tasks."},
+        {"severity": "low", "category": "quality", "requirement": null,
+         "evidence": "A/task_manager.py:84 'with connect() as conn' (sqlite3 context manager commits but never closes)",
+         "summary": "Connections are committed but never explicitly closed; static/A-ruff.txt shows 8 minor lint findings."},
+        {"severity": "low", "category": "quality", "requirement": "R15",
+         "evidence": "A/task_manager.py:22-24",
+         "summary": "The default DB is written next to the script rather than in the CWD or a user data directory, which can fail when the install location is read-only."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 205},
+ "B": {"probes_passed": 25,
+       "scores": {"functional": 3, "coverage": 4, "security": 5, "robustness": 5, "quality": 4, "tests": 4},
+       "requirements_met": 16, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "functional", "requirement": "R14",
+         "evidence": "probe P04_list_shows_description fail; B/task_manager.py:11-12 COLUMNS omits description and there is no show command",
+         "summary": "The description is stored but no command ever displays it, so users cannot read it back."},
+        {"severity": "low", "category": "quality", "requirement": "R7",
+         "evidence": "B/task_manager.py:142-148 (no argparse choices); list has only --status/--priority with no short flags",
+         "summary": "Allowed priority/status values do not appear in --help because validation happens only after parsing."},
+        {"severity": "low", "category": "quality", "requirement": null,
+         "evidence": "static/B-ruff.txt: 25 findings (UP031 percent formatting, E731 lambda, E741)",
+         "summary": "Minor style lint: percent-formatting throughout and a lambda assigned to a name."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 7, "failed": 0},
+       "loc": 327},
+ "blinding_guess": {"spec_framework_side": "B", "confidence": 0.4, "why": "B ships a test suite with one test per requirement area (including a stdlib-only/single-file check) and separates the domain functions from the CLI, which looks like a spec-driven process."},
+ "notes": "Probes ran with Python 3.11 because system Python 3.9 lacks sys.stdlib_module_names; both sides accept $TASK_DB, so the invocation was identical. Bandit's B608 on both sides is a false positive: the UPDATE column names come from a fixed whitelist and the values are parameterized (probe P21 confirms SQL-like text is stored literally). A has no tests but is functionally complete, and its table also shows the description. B's main gap is that the description can never be displayed, though its input validation is stricter (blank titles, compact dates)."
+}

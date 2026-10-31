@@ -1,0 +1,28 @@
+budget_tracker.py:23:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+budget_tracker.py:23:28: UP031 Use format specifiers instead of percent format
+budget_tracker.py:25:28: UP031 Use format specifiers instead of percent format
+budget_tracker.py:27:28: UP031 Use format specifiers instead of percent format
+budget_tracker.py:35:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+budget_tracker.py:35:28: UP031 Use format specifiers instead of percent format
+budget_tracker.py:45:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+budget_tracker.py:45:28: UP031 Use format specifiers instead of percent format
+budget_tracker.py:55:89: E501 Line too long (99 > 88)
+budget_tracker.py:58:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+budget_tracker.py:58:28: UP031 Use format specifiers instead of percent format
+budget_tracker.py:99:16: UP031 Use format specifiers instead of percent format
+budget_tracker.py:101:12: UP031 Use format specifiers instead of percent format
+budget_tracker.py:114:11: UP031 Use format specifiers instead of percent format
+budget_tracker.py:124:28: UP031 Use format specifiers instead of percent format
+budget_tracker.py:128:11: UP031 Use format specifiers instead of percent format
+budget_tracker.py:140:11: UP031 Use format specifiers instead of percent format
+budget_tracker.py:146:19: UP031 Use format specifiers instead of percent format
+budget_tracker.py:148:15: UP031 Use format specifiers instead of percent format
+budget_tracker.py:148:89: E501 Line too long (92 > 88)
+budget_tracker.py:183:15: UP031 Use format specifiers instead of percent format
+tests/test_budget_tracker.py:6:8: F401 [*] `sys` imported but unused
+tests/test_budget_tracker.py:35:89: E501 Line too long (100 > 88)
+tests/test_budget_tracker.py:47:89: E501 Line too long (106 > 88)
+tests/test_budget_tracker.py:74:23: E741 Ambiguous variable name: `l`
+tests/test_budget_tracker.py:78:22: E741 Ambiguous variable name: `l`
+Found 26 errors.
+[*] 1 fixable with the `--fix` option (13 hidden fixes can be enabled with the `--unsafe-fixes` option).

@@ -1,0 +1,24 @@
+tests/test_time_tracker.py:30:89: E501 Line too long (113 > 88)
+tests/test_time_tracker.py:42:89: E501 Line too long (91 > 88)
+tests/test_time_tracker.py:43:89: E501 Line too long (91 > 88)
+tests/test_time_tracker.py:44:89: E501 Line too long (91 > 88)
+tests/test_time_tracker.py:63:89: E501 Line too long (91 > 88)
+tests/test_time_tracker.py:64:89: E501 Line too long (91 > 88)
+tests/test_time_tracker.py:65:89: E501 Line too long (91 > 88)
+time_tracker.py:13:89: E501 Line too long (92 > 88)
+time_tracker.py:18:12: UP031 Use format specifiers instead of percent format
+time_tracker.py:57:5: C901 `main` is too complex (12 > 10)
+time_tracker.py:76:19: UP031 Use format specifiers instead of percent format
+time_tracker.py:76:89: E501 Line too long (111 > 88)
+time_tracker.py:78:89: E501 Line too long (91 > 88)
+time_tracker.py:80:15: UP031 Use format specifiers instead of percent format
+time_tracker.py:89:15: UP031 Use format specifiers instead of percent format
+time_tracker.py:89:89: E501 Line too long (102 > 88)
+time_tracker.py:94:19: UP031 Use format specifiers instead of percent format
+time_tracker.py:96:89: E501 Line too long (105 > 88)
+time_tracker.py:98:19: UP031 Use format specifiers instead of percent format
+time_tracker.py:106:19: UP031 Use format specifiers instead of percent format
+time_tracker.py:108:19: UP031 Use format specifiers instead of percent format
+time_tracker.py:108:89: E501 Line too long (108 > 88)
+Found 22 errors.
+No fixes available (5 hidden fixes can be enabled with the `--unsafe-fixes` option).

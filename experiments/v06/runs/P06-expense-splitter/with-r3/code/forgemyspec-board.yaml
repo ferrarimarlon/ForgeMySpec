@@ -1,0 +1,9 @@
+- id: R1
+  status: done
+  title: "CLI expense splitter"
+  quote: "Build a CLI expense splitter in Python. Record expenses, persist in JSON, show balances, greedy settlement plan. Single file expense_splitter.py, stdlib only."
+  steps:
+    - {do: "Spec written and linted", check: "cmd: PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec lint forgemyspec-bundle/expense-splitter/spec.yaml --formal"}
+    - {do: "User approved the spec", ok: true}
+    - {do: "Implemented; gate passes", check: "cmd: PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec gate forgemyspec-bundle/expense-splitter"}
+  evidence: "gate RESULT: PASS, 13 boundary tests"

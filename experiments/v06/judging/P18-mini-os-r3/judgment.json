@@ -1,0 +1,30 @@
+{
+ "requirements_total": 9,
+ "probes_total": 12,
+ "A": {"probes_passed": 12,
+   "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 4, "quality": 4, "tests": 4},
+   "requirements_met": 9, "requirements_partial": 0, "requirements_missing": 0,
+   "issues": [
+     {"severity": "low", "category": "silent", "requirement": "R6", "evidence": "A/Makefile:24 `truncate -s $(( (1 + $(KSECTORS)) * 512 ))` with no size check on kernel.bin",
+      "summary": "If the kernel grows past 32 sectors, truncate silently cuts it and the bootloader loads a partial kernel; no build-time guard."},
+     {"severity": "low", "category": "quality", "requirement": null, "evidence": "A/tests/test_os.py:32-36 regex checks on boot.asm source; static/A-ruff.txt E401/E501",
+      "summary": "Part of the test suite asserts source text patterns rather than behaviour, plus minor lint findings."}
+   ],
+   "own_tests": {"present": true, "ran": true, "passed": 5, "failed": 0},
+   "loc": 269},
+ "B": {"probes_passed": 12,
+   "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 4, "quality": 4, "tests": 0},
+   "requirements_met": 9, "requirements_partial": 0, "requirements_missing": 0,
+   "issues": [
+     {"severity": "low", "category": "silent", "requirement": null, "evidence": "interactive QEMU run: `mem` -> 'Extended memory: 65535 KB' on default 128 MiB VM; B/kernel.c:99-100 reads CMOS 0x30/0x31 (16-bit, saturates)",
+      "summary": "The extra `mem` shell command reports a capped, wrong memory size."},
+     {"severity": "low", "category": "quality", "requirement": null, "evidence": "interactive QEMU run: `ticks` -> 'TSC high: 0x00000000'; B/kernel.c:90 comment says PIT latch but code uses rdtsc high word",
+      "summary": "The `ticks` command prints only the TSC high dword (always 0 shortly after boot) and its comment misdescribes the mechanism."},
+     {"severity": "low", "category": "quality", "requirement": null, "evidence": "ls B/: os.img, *.o, *.bin alongside sources",
+      "summary": "Build artifacts mixed into the source directory, and no automated tests are provided."}
+   ],
+   "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+   "loc": 260},
+ "blinding_guess": {"spec_framework_side": "A", "confidence": 0.55, "why": "A has a requirement-shaped test suite (boot signature, freestanding flags, VGA banner via QEMU monitor) and a tidier layout, while B is a single-file build with an unrequested shell and no tests."},
+ "notes": "Both sides build cleanly with i686-elf toolchain, boot in QEMU to 32-bit protected mode (CR0.PE=1) and print text to 0xB8000 with no libraries or unresolved symbols; all 12 probes pass on both. Probe P4 initially false-failed B because `test ... -le 16384` in its Makefile matched a -l flag regex; the check was narrowed to $(CC)/$(LD) lines for both sides and re-run. B additionally provides a PS/2 polled keyboard shell (help/clear/mem/color/ticks/halt), verified working via sendkey, with minor inaccuracies in mem/ticks output. A omits A20 enabling but loads everything below 1 MiB, so it is not an issue. A's 5 own tests pass; B has none."
+}

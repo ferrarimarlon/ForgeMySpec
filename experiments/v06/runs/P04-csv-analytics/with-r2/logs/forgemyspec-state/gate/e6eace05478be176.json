@@ -1,0 +1,117 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:24:58Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "score 100/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "6 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "read_csv": {
+   "kind": "boundary",
+   "statement": "read_csv(path) returns the header and rows as dicts keyed by header names; a missing file or empty file raises a clear error and the CLI exits 2.",
+   "must_include": [
+    "read CSV files"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "column_stats": {
+   "kind": "boundary",
+   "statement": "column_stats returns count, min, max, mean, median and sample stdev per column, ignoring empty cells; stdev is null for fewer than 2 values.",
+   "must_include": [
+    "per-column stats",
+    "count, min, max, mean, median, stdev"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "filter_rows": {
+   "kind": "boundary",
+   "statement": "filter_rows keeps exactly the rows satisfying all COLUMN OP VALUE expressions (==, !=, <, <=, >, >=); an unknown column or bad expression raises an error.",
+   "must_include": [
+    "filter rows"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "select_columns": {
+   "kind": "boundary",
+   "statement": "select_columns keeps only the requested columns in the requested order; an unknown column raises an error.",
+   "must_include": [
+    "select columns"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "json_report": {
+   "kind": "boundary",
+   "statement": "build_report and the CLI produce valid JSON with row counts and stats of the selected columns on the filtered rows, written to --output or stdout.",
+   "must_include": [
+    "export JSON report"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "single_file_stdlib": {
+   "kind": "boundary",
+   "statement": "csv_analytics.py is the only module of the tool and imports only standard library modules.",
+   "must_include": [
+    "single file csv_analytics.py",
+    "stdlib only"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/csv-analytics",
+ "inputs_sha": "2131bf77bec651f2ca73052031b8e5b4c5bcd1e666da58e1960f152797529914",
+ "schema": 2
+}

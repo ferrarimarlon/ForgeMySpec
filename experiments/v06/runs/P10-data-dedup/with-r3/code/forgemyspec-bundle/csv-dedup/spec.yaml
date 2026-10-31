@@ -1,0 +1,112 @@
+version: "0.1"
+title: CSV deduplicator CLI
+objective: Single-file stdlib Python CLI (data_dedup.py) that removes duplicate CSV rows by a composite key using keep-first, keep-last or error strategies, writes an output CSV and prints a summary.
+execution_mode: critical
+context:
+  system: Empty Python repository; deliverable is data_dedup.py at the repository root with unittest tests in tests/.
+  assumptions:
+    - "The input CSV has a header row; key columns are named by header."
+    - "Keys compare exact string values (case-sensitive, no trimming)."
+    - "Duplicates found means rows beyond the first occurrence of each key."
+    - "Surviving rows keep their original relative order; keep-last keeps the position of the last occurrence."
+    - "Exit codes: 0 success, 1 duplicates found under the error strategy, 2 usage or input problems."
+constraints:
+  - "Python standard library only, no third-party packages."
+  - "Everything lives in the single file data_dedup.py."
+  - "No fuzzy or normalized matching, no in-place modification of the input file."
+  - "The error strategy writes no output file."
+success_criteria:
+  - "Unit tests pass for all three strategies, composite keys, summary and error exit."
+hypotheses:
+  - id: h1
+    description: "Rows sharing the same values in all key columns are treated as duplicates, with one or more key columns."
+    confidence: 0.9
+  - id: h2
+    description: "The keep-first strategy retains the first row of each key and the keep-last strategy retains the last row, both writing the output CSV with the header."
+    confidence: 0.9
+  - id: h3
+    description: "The error strategy exits non-zero, reports the duplicated keys and writes no output."
+    confidence: 0.9
+  - id: h4
+    description: "The CLI prints a summary line stating the count of duplicates found and the count removed."
+    confidence: 0.85
+  - id: h5
+    description: "A missing key column or unreadable input exits with code 2 and a clear message."
+    confidence: 0.85
+required_evidence:
+  - "Output of python3 -m unittest discover tests showing all tests passing."
+  - "Output of a sample CLI run showing the summary line and the output CSV."
+actions:
+  - {id: a1, description: "Implement dedup logic and strategies in data_dedup.py.", type: implement, requires_confirmation: false, supports: [h1, h2, h3]}
+  - {id: a2, description: "Implement argparse CLI, summary and input validation in data_dedup.py.", type: implement, requires_confirmation: false, supports: [h4, h5]}
+  - {id: a3, description: "Write unittest tests and run the suite plus a sample CLI run.", type: test, requires_confirmation: false, supports: [h1, h2, h3, h4, h5]}
+decision_rules:
+  - "If a behavior is not covered by an obligation, ask for a spec amendment before adding it."
+metadata:
+  source_prompt: "Build a CSV deduplicator CLI in Python. Remove duplicate rows by a key made of one or more columns (composite keys), with three strategies: keep first, keep last, or error (exit non-zero and report duplicates). Write the result to an output CSV and print a summary of how many duplicates were found and removed. Single file data_dedup.py, stdlib only."
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "composite key"
+      - "keep first"
+      - "keep last"
+      - "error strategy exits non-zero"
+      - "output CSV"
+      - "summary of duplicates found and removed"
+      - "single file data_dedup.py"
+      - "stdlib only"
+formal:
+  module: DataDedup
+  obligations:
+    - id: composite_key
+      kind: boundary
+      statement: "Rows are duplicates when all key columns (one or more) match exactly; differing in any key column keeps them distinct."
+      hypotheses: [h1]
+      must_include: ["composite key"]
+      test: "test_data_dedup.DedupTests.test_composite_key"
+    - id: keep_first
+      kind: boundary
+      statement: "keep-first retains the first row per key in original order."
+      hypotheses: [h2]
+      must_include: ["keep first"]
+      test: "test_data_dedup.DedupTests.test_keep_first"
+    - id: keep_last
+      kind: boundary
+      statement: "keep-last retains the last row per key, ordered by position of that last row."
+      hypotheses: [h2]
+      must_include: ["keep last"]
+      test: "test_data_dedup.DedupTests.test_keep_last"
+    - id: output_csv
+      kind: boundary
+      statement: "The result is written to the output CSV path with the original header."
+      hypotheses: [h2]
+      must_include: ["output CSV"]
+      test: "test_data_dedup.DedupTests.test_output_csv_written"
+    - id: error_strategy
+      kind: boundary
+      statement: "With the error strategy and duplicates present the CLI exits 1, lists the duplicated keys on stderr and writes no output file; without duplicates it exits 0."
+      hypotheses: [h3]
+      must_include: ["error strategy exits non-zero"]
+      test: "test_data_dedup.DedupTests.test_error_strategy_exits_nonzero"
+    - id: summary
+      kind: boundary
+      statement: "Stdout contains the number of duplicates found and the number removed."
+      hypotheses: [h4]
+      must_include: ["summary of duplicates found and removed"]
+      test: "test_data_dedup.DedupTests.test_summary"
+    - id: bad_input
+      kind: boundary
+      statement: "A missing key column or unreadable input file exits 2 with a message on stderr."
+      hypotheses: [h5]
+      must_include: ["composite key"]
+      test: "test_data_dedup.DedupTests.test_missing_column_exits_2"
+    - id: single_file_stdlib
+      kind: boundary
+      statement: "data_dedup.py imports only standard library modules and runs standalone."
+      hypotheses: [h5]
+      must_include: ["single file data_dedup.py", "stdlib only"]
+      test: "test_data_dedup.DedupTests.test_stdlib_only"
+scope:
+  paths: ["data_dedup.py", "tests/**"]
+  tests: tests
+  pythonpath: ["."]

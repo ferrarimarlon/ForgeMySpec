@@ -1,0 +1,129 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T21:03:57Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "[LINT-HY-007] hypotheses[3].description: Hypothesis appears to describe what will NOT be built; hypotheses must be affirmative and testable",
+    "score 95/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "7 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "budget_persisted": {
+   "kind": "boundary",
+   "statement": "set-budget stores an amount for a category and month in the JSON file; a new process reads it back.",
+   "must_include": [
+    "monthly budget per category"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "expense_saved": {
+   "kind": "boundary",
+   "statement": "add stores amount, category, date and note as an expense entry in the JSON file.",
+   "must_include": [
+    "expense with amount, category, date and note saved to JSON"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "unknown_category_rejected": {
+   "kind": "boundary",
+   "statement": "add with a category without a budget exits nonzero with an error and leaves the file unchanged.",
+   "must_include": [
+    "unknown category rejected"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "invalid_amount_rejected": {
+   "kind": "boundary",
+   "statement": "add with zero, negative, non-numeric, NaN, infinite or more-than-2-decimals amount exits nonzero and leaves the file unchanged.",
+   "must_include": [
+    "invalid amount rejected"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "report_per_category": {
+   "kind": "boundary",
+   "statement": "report for a month prints spent, budget and percent for each category, summing only that month's expenses.",
+   "must_include": [
+    "spending per category against budget"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "alert_thresholds": {
+   "kind": "boundary",
+   "statement": "Spending below 80% gives no alert, from 80% up to below 100% a warning, and 100% or more an exceeded alert, shown by report and by add.",
+   "must_include": [
+    "alert at 80% and 100%"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "single_file_stdlib": {
+   "kind": "boundary",
+   "statement": "budget_tracker.py imports only standard library modules and is the only module the tests import.",
+   "must_include": [
+    "single file stdlib only"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/budget-tracker",
+ "inputs_sha": "c83a123ac3a40e54bb333f43dce1f76943d250ca5a1e71de08ef1e5e7653c371",
+ "schema": 2
+}

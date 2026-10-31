@@ -1,0 +1,24 @@
+{
+ "requirements_total": 13,
+ "probes_total": 15,
+ "A": {"probes_passed": 14,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 0},
+       "requirements_met": 12, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "functional", "requirement": "R13", "evidence": "probe P12: start='not-a-date' -> 'ValueError: Invalid isoformat string' traceback (A/time_tracker.py:63)", "summary": "load() checks keys and JSON syntax but not timestamp format, so `log` crashes with a traceback when a timestamp is malformed."},
+        {"severity": "low", "category": "functional", "requirement": "R13", "evidence": "active session with naive start '2026-01-01T09:00:00' -> `stop` raises TypeError: can't compare offset-naive and offset-aware datetimes", "summary": "A hand-edited timestamp with no timezone makes `stop` crash, because the code compares it with the timezone-aware current time."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 190},
+ "B": {"probes_passed": 15,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 5, "quality": 4, "tests": 5},
+       "requirements_met": 13, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "B/time_tracker.py:89 tmp = f\"{path}.tmp\"", "summary": "The atomic save uses a fixed '.tmp' name and does not clean it up if the write fails, so concurrent runs could collide on it."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt: 18 findings (E501, E741), mostly in tests", "summary": "Ruff reports lint issues: long lines and ambiguous variable names."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 11, "failed": 0},
+       "loc": 219},
+ "blinding_guess": {"spec_framework_side": "B", "confidence": 0.55, "why": "B has a documented exit-code contract, a validation layer for the data file, an injectable clock and a test suite, which looks like spec-driven work; A is a leaner single-pass build."},
+ "notes": "Both meet every functional requirement in TASK.md; probes ran on Python 3.9.6. Probe P11's stdlib check originally used sys.stdlib_module_names, which this Python lacks, so it now uses an explicit allowlist of the modules both sides import. A also refuses to start a session that would overlap a future-dated one; B only flags overlaps in `log`, not in `report`. Bandit reported nothing for either side. B's default data file is ./time_tracker.json in the current directory, while A's is ~/.time_tracker.json; neither probe touched the home directory because both were run with --file."
+}

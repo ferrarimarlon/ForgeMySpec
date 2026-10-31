@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "24OMMP",
+   "nonce": "4f766e5693cfb686be8c0596e2c30617",
+   "created_at": "2026-10-31T20:26:00.415Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/csv-analytics",
+     "content_sha": "0105f7e425ead19b839ce1215dc11bb59b82038b8ac94c0e736c09fee2d5b303",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

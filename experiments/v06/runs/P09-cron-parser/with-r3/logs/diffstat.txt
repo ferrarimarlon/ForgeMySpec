@@ -1,0 +1,10 @@
+ cron_parser.py                                     | 261 +++++++++++++++++++++
+ .../.claude/commands/implement-from-spec.md        |   8 +
+ forgemyspec-bundle/cron-parser/CLAUDE.md           |  48 ++++
+ .../cron-parser/acceptance-checklist.md            |  21 ++
+ .../cron-parser/evals/scope_drift_cases.yaml       |  17 ++
+ forgemyspec-bundle/cron-parser/spec.lock           |   5 +
+ forgemyspec-bundle/cron-parser/spec.yaml           |  99 ++++++++
+ tests/__init__.py                                  |   0
+ tests/test_cron_parser.py                          | 145 ++++++++++++
+ 9 files changed, 604 insertions(+)

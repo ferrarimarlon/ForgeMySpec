@@ -1,0 +1,20 @@
+cron_parser.py:12:22: F401 [*] `datetime.date` imported but unused
+cron_parser.py:34:26: UP031 Use format specifiers instead of percent format
+cron_parser.py:62:32: UP031 Use format specifiers instead of percent format
+cron_parser.py:65:32: UP031 Use format specifiers instead of percent format
+cron_parser.py:69:5: C901 `parse_field` is too complex (12 > 10)
+cron_parser.py:76:35: UP031 Use format specifiers instead of percent format
+cron_parser.py:81:39: UP031 Use format specifiers instead of percent format
+cron_parser.py:94:39: UP031 Use format specifiers instead of percent format
+cron_parser.py:109:25: UP031 Use format specifiers instead of percent format
+cron_parser.py:111:49: B905 `zip()` without an explicit `strict=` parameter
+cron_parser.py:181:16: UP031 Use format specifiers instead of percent format
+cron_parser.py:183:12: UP031 Use format specifiers instead of percent format
+cron_parser.py:188:40: B905 `zip()` without an explicit `strict=` parameter
+cron_parser.py:189:22: UP031 Use format specifiers instead of percent format
+cron_parser.py:200:22: UP031 Use format specifiers instead of percent format
+cron_parser.py:204:13: UP031 Use format specifiers instead of percent format
+cron_parser.py:256:15: UP031 Use format specifiers instead of percent format
+tests/test_cron_parser.py:88:29: E741 Ambiguous variable name: `l`
+Found 18 errors.
+[*] 1 fixable with the `--fix` option (12 hidden fixes can be enabled with the `--unsafe-fixes` option).

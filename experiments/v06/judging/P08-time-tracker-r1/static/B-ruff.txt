@@ -1,0 +1,19 @@
+tests/test_time_tracker.py:61:89: E501 Line too long (94 > 88)
+tests/test_time_tracker.py:64:89: E501 Line too long (90 > 88)
+tests/test_time_tracker.py:70:89: E501 Line too long (92 > 88)
+tests/test_time_tracker.py:75:89: E501 Line too long (104 > 88)
+tests/test_time_tracker.py:90:89: E501 Line too long (105 > 88)
+tests/test_time_tracker.py:91:89: E501 Line too long (105 > 88)
+tests/test_time_tracker.py:95:78: E741 Ambiguous variable name: `l`
+tests/test_time_tracker.py:95:89: E501 Line too long (103 > 88)
+tests/test_time_tracker.py:104:89: E501 Line too long (105 > 88)
+tests/test_time_tracker.py:112:89: E501 Line too long (105 > 88)
+tests/test_time_tracker.py:126:89: E501 Line too long (98 > 88)
+tests/test_time_tracker.py:133:89: E501 Line too long (120 > 88)
+tests/test_time_tracker.py:134:89: E501 Line too long (121 > 88)
+tests/test_time_tracker.py:139:48: E741 Ambiguous variable name: `l`
+tests/test_time_tracker.py:163:89: E501 Line too long (102 > 88)
+time_tracker.py:48:89: E501 Line too long (91 > 88)
+time_tracker.py:190:89: E501 Line too long (105 > 88)
+time_tracker.py:191:89: E501 Line too long (109 > 88)
+Found 18 errors.

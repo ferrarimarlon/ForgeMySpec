@@ -1,0 +1,13 @@
+tests/test_os.py:1:1: E401 [*] Multiple imports on one line
+tests/test_os.py:13:5: S603 `subprocess` call: check for execution of untrusted input
+tests/test_os.py:13:20: S607 Starting a process with a partial executable path
+tests/test_os.py:29:15: S603 `subprocess` call: check for execution of untrusted input
+tests/test_os.py:29:30: S607 Starting a process with a partial executable path
+tests/test_os.py:29:89: E501 Line too long (99 > 88)
+tests/test_os.py:65:13: S603 `subprocess` call: check for execution of untrusted input
+tests/test_os.py:66:13: S607 Starting a process with a partial executable path
+tests/test_os.py:66:89: E501 Line too long (92 > 88)
+tests/test_os.py:68:89: E501 Line too long (96 > 88)
+tests/test_os.py:75:89: E501 Line too long (92 > 88)
+Found 11 errors.
+[*] 1 fixable with the `--fix` option.

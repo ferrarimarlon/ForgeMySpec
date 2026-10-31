@@ -1,0 +1,17 @@
+blog_api.py:92:13: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+blog_api.py:101:13: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+blog_api.py:103:9: C901 `_dispatch` is too complex (11 > 10)
+blog_api.py:130:5: E731 Do not assign a `lambda` expression, use a `def`
+blog_api.py:131:5: E731 Do not assign a `lambda` expression, use a `def`
+blog_api.py:132:5: E731 Do not assign a `lambda` expression, use a `def`
+blog_api.py:133:5: E731 Do not assign a `lambda` expression, use a `def`
+blog_api.py:134:5: E731 Do not assign a `lambda` expression, use a `def`
+blog_api.py:146:89: E501 Line too long (98 > 88)
+tests/test_blog_api.py:27:89: E501 Line too long (92 > 88)
+tests/test_blog_api.py:38:89: E501 Line too long (96 > 88)
+tests/test_blog_api.py:39:15: S310 Audit URL open for permitted schemes. Allowing use of `file:` or custom schemes is often unexpected.
+tests/test_blog_api.py:45:18: S310 Audit URL open for permitted schemes. Allowing use of `file:` or custom schemes is often unexpected.
+tests/test_blog_api.py:70:89: E501 Line too long (93 > 88)
+tests/test_blog_api.py:74:89: E501 Line too long (93 > 88)
+Found 15 errors.
+No fixes available (5 hidden fixes can be enabled with the `--unsafe-fixes` option).

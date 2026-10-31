@@ -1,0 +1,115 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T21:04:06Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "score 100/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "6 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "weights_normalized": {
+   "kind": "boundary",
+   "statement": "Weights not summing to 100 are scaled so they sum to 100; weights 1,1 equal weights 50,50 and give identical results.",
+   "must_include": [
+    "weights normalized to 100%"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "final_grade": {
+   "kind": "boundary",
+   "statement": "A student's final grade is the sum of score times normalized weight over all assessments.",
+   "must_include": [
+    "weighted final grade"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "letter_gpa": {
+   "kind": "boundary",
+   "statement": "Final grades 90, 89.99, 80, 70, 60, 59.99 map to A/4.0, B/3.0, B/3.0, C/2.0, D/1.0, F/0.0 as in the scale.",
+   "must_include": [
+    "letter grade and GPA points"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "class_stats": {
+   "kind": "boundary",
+   "statement": "The output reports mean, median, population standard deviation, highest and lowest of the final grades, for odd and even student counts.",
+   "must_include": [
+    "class statistics: mean, median, standard deviation, highest, lowest"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "invalid_input": {
+   "kind": "boundary",
+   "statement": "Missing file, assessment without weight, missing or non-numeric score, and non-positive or non-numeric weight each exit 2 with a message on stderr.",
+   "must_include": [
+    "invalid input exits 2"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "single_file_stdlib": {
+   "kind": "boundary",
+   "statement": "grade_calc.py is the single module and imports only standard-library modules.",
+   "must_include": [
+    "single file grade_calc.py, stdlib only"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/grade-calc",
+ "inputs_sha": "bda5aff85efc7abfc0d9c0f145b1f33317a4f06413a5199d3f19396b42549f0d",
+ "schema": 2
+}

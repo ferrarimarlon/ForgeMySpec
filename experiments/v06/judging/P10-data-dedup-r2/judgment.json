@@ -1,0 +1,26 @@
+{
+ "requirements_total": 15,
+ "probes_total": 17,
+ "A": {"probes_passed": 16,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 4, "quality": 4, "tests": 0},
+       "requirements_met": 14, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "quality", "requirement": "R15", "evidence": "P16_bad_encoding_no_traceback: UnicodeDecodeError traceback on non-UTF-8 input", "summary": "Decoding errors while reading are not caught, so the user sees a raw traceback."},
+        {"severity": "low", "category": "silent", "requirement": null, "evidence": "rag.csv (row '1' with 1 field, row with 3 fields) -> rc=0, written unchanged", "summary": "Ragged rows are accepted silently; only the key column positions are checked."},
+        {"severity": "low", "category": "silent", "requirement": "R7", "evidence": "l.csv -s last -> output order '1,c,z' then '2,b,y' (A/data_dedup.py:36)", "summary": "Keep-last puts the kept row at the key's first-seen position, not at its original position; this is not documented."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 111},
+ "B": {"probes_passed": 14,
+       "scores": {"functional": 4, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 4},
+       "requirements_met": 13, "requirements_partial": 2, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "functional", "requirement": "R12", "evidence": "P14_bom_header: 'error: key column(s) not found in header: id' rc=2 on a UTF-8 BOM file (B/data_dedup.py:44 encoding='utf-8')", "summary": "Files with a UTF-8 BOM (common from Excel) fail, because the first header name gets the BOM prepended."},
+        {"severity": "low", "category": "functional", "requirement": null, "evidence": "P15_blank_line: 'error: row 2 has 0 fields, expected 2' rc=2", "summary": "Any blank line in the input makes the whole run fail."},
+        {"severity": "low", "category": "quality", "requirement": "R15", "evidence": "P16_bad_encoding_no_traceback: UnicodeDecodeError traceback", "summary": "Decoding errors are not caught, so the user sees a raw traceback."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 9, "failed": 0},
+       "loc": 98},
+ "blinding_guess": {"spec_framework_side": "unsure", "confidence": 0.3, "why": "Only B ships tests, and its stricter row validation hints at a more process-driven approach, but neither side shows clear spec artifacts."},
+ "notes": "Both sides implement every core requirement correctly (first/last/error, composite keys, summary, quoting). A is more tolerant of real-world input (BOM, blank lines, stdin/stdout, delimiter), but it accepts ragged rows silently. B is stricter (it rejects ragged rows) but fails on BOM files and blank lines. B's 9 unittest tests pass; pytest is not installed, so they were run with unittest. Bandit reported no issues for either side; ruff reported only style findings."
+}

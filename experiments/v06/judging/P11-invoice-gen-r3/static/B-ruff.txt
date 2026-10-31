@@ -1,0 +1,31 @@
+invoice_gen.py:2:89: E501 Line too long (89 > 88)
+invoice_gen.py:32:5: C901 `validate` is too complex (16 > 10)
+invoice_gen.py:46:31: UP031 Use format specifiers instead of percent format
+invoice_gen.py:50:27: UP031 Use format specifiers instead of percent format
+invoice_gen.py:57:17: UP031 Use format specifiers instead of percent format
+invoice_gen.py:59:31: UP031 Use format specifiers instead of percent format
+invoice_gen.py:62:31: UP031 Use format specifiers instead of percent format
+invoice_gen.py:65:31: UP031 Use format specifiers instead of percent format
+invoice_gen.py:68:31: UP031 Use format specifiers instead of percent format
+invoice_gen.py:120:41: E741 Ambiguous variable name: `l`
+invoice_gen.py:145:60: E741 Ambiguous variable name: `l`
+invoice_gen.py:156:26: UP031 Use format specifiers instead of percent format
+invoice_gen.py:159:20: UP031 Use format specifiers instead of percent format
+invoice_gen.py:161:16: UP031 Use format specifiers instead of percent format
+invoice_gen.py:164:24: UP031 Use format specifiers instead of percent format
+invoice_gen.py:166:40: E741 Ambiguous variable name: `l`
+invoice_gen.py:167:11: UP032 [*] Use f-string instead of `format` call
+invoice_gen.py:170:9: E741 Ambiguous variable name: `l`
+invoice_gen.py:172:89: E501 Line too long (97 > 88)
+invoice_gen.py:177:18: UP031 Use format specifiers instead of percent format
+invoice_gen.py:180:20: UP031 Use format specifiers instead of percent format
+invoice_gen.py:180:50: UP032 [*] Use f-string instead of `format` call
+invoice_gen.py:198:15: UP031 Use format specifiers instead of percent format
+invoice_gen.py:201:15: UP031 Use format specifiers instead of percent format
+invoice_gen.py:206:15: UP031 Use format specifiers instead of percent format
+invoice_gen.py:206:89: E501 Line too long (95 > 88)
+invoice_gen.py:221:22: UP031 Use format specifiers instead of percent format
+tests/test_invoice_gen.py:55:89: E501 Line too long (95 > 88)
+tests/test_invoice_gen.py:120:89: E501 Line too long (109 > 88)
+Found 29 errors.
+[*] 2 fixable with the `--fix` option (14 hidden fixes can be enabled with the `--unsafe-fixes` option).

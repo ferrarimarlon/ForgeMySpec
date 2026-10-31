@@ -1,0 +1,84 @@
+version: "0.1"
+title: "Markdown note-taking CLI"
+objective: "A single-file, stdlib-only Python CLI (note_taker.py) with subcommands new, list, show, edit and delete that stores notes as .md files with YAML frontmatter in ~/.note-taker/ and finds notes by tag or keyword."
+execution_mode: critical
+context:
+  system: "Empty Python repository on macOS; deliverable is note_taker.py at the repository root plus unittest tests under forgemyspec-bundle/note-taker/tests."
+  assumptions:
+    - "Notes dir is ~/.note-taker/, overridable by the NOTE_TAKER_DIR environment variable so tests never touch the real home."
+    - "A note is identified by a slug id derived from its title, used as the file name <id>.md."
+    - "Frontmatter is a simple subset of YAML (title, tags as a flow list, created) written and parsed by hand, since PyYAML is not stdlib."
+    - "edit opens the note in $EDITOR (fallback vi); tests set EDITOR to a script."
+    - "Python 3.9 or newer."
+constraints:
+  - "Standard library only; no third-party imports."
+  - "All code lives in the single file note_taker.py."
+  - "No sync, encryption, rendering to HTML or network access."
+  - "No notes are stored outside the notes directory."
+success_criteria:
+  - "All five subcommands work end to end against a temporary notes directory."
+  - "Unit tests for every obligation pass."
+hypotheses:
+  - {id: h1, description: "new creates <id>.md in the notes directory with YAML frontmatter (title, tags, created) followed by the body, creating the directory if missing.", confidence: 0.9}
+  - {id: h2, description: "list prints one line per note and filters by --tag and by --search keyword (case-insensitive, matching title or body).", confidence: 0.85}
+  - {id: h3, description: "show prints the note's frontmatter and body for a given id and exits 1 with a message for an unknown id.", confidence: 0.9}
+  - {id: h4, description: "edit opens the note file in $EDITOR and validates the frontmatter afterwards; delete removes the file.", confidence: 0.8}
+  - {id: h5, description: "The tool uses only the standard library and lives in the single file note_taker.py.", confidence: 0.95}
+required_evidence:
+  - "Output of python3 -m unittest showing all note_taker tests passing."
+  - "Gate report with RESULT: PASS."
+actions:
+  - {id: a1, description: "Implement new with frontmatter writing in note_taker.py.", type: implement, requires_confirmation: false, supports: [h1]}
+  - {id: a2, description: "Implement list with tag and keyword filtering.", type: implement, requires_confirmation: false, supports: [h2]}
+  - {id: a3, description: "Implement show, edit and delete.", type: implement, requires_confirmation: false, supports: [h3, h4]}
+  - {id: a4, description: "Keep the tool in one stdlib-only file.", type: implement, requires_confirmation: false, supports: [h5]}
+  - {id: a5, description: "Write unittest boundary tests using a temporary NOTE_TAKER_DIR.", type: validate, requires_confirmation: false, supports: [h1, h2, h3, h4, h5]}
+decision_rules:
+  - "If a requirement needs a non-stdlib module, stop and ask."
+  - "If a new subcommand or storage format is wanted, amend the spec first."
+metadata:
+  source_prompt: "Build a Markdown Note-Taking CLI. Subcommands: new, list, show, edit, delete. Store notes as .md files with YAML frontmatter in ~/.note-taker/. Search by tag or keyword. Single file note_taker.py, stdlib only."
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "subcommands new list show edit delete"
+      - "notes stored as .md with YAML frontmatter in ~/.note-taker"
+      - "search by tag or keyword"
+      - "single file note_taker.py stdlib only"
+formal:
+  module: NoteTaker
+  obligations:
+    - id: new_writes_frontmatter_note
+      kind: boundary
+      statement: "new creates <id>.md with YAML frontmatter (title, tags, created) and the body in the notes directory, creating it if missing."
+      hypotheses: [h1]
+      must_include: ["notes stored as .md with YAML frontmatter in ~/.note-taker"]
+      test: "test_note_taker.NoteTakerTests.test_new_writes_frontmatter_note"
+    - id: list_search_filters
+      kind: boundary
+      statement: "list --tag filters by tag and list --search filters by case-insensitive keyword in title or body."
+      hypotheses: [h2]
+      must_include: ["search by tag or keyword"]
+      test: "test_note_taker.NoteTakerTests.test_list_search_filters"
+    - id: show_prints_or_fails
+      kind: boundary
+      statement: "show prints the note and exits 1 for an unknown id."
+      hypotheses: [h3]
+      must_include: ["subcommands new list show edit delete"]
+      test: "test_note_taker.NoteTakerTests.test_show_prints_or_fails"
+    - id: edit_and_delete
+      kind: boundary
+      statement: "edit launches $EDITOR on the note file and delete removes it; both exit 1 for an unknown id."
+      hypotheses: [h4]
+      must_include: ["subcommands new list show edit delete"]
+      test: "test_note_taker.NoteTakerTests.test_edit_and_delete"
+    - id: single_file_stdlib
+      kind: boundary
+      statement: "note_taker.py imports only standard library modules."
+      hypotheses: [h5]
+      must_include: ["single file note_taker.py stdlib only"]
+      test: "test_note_taker.NoteTakerTests.test_single_file_stdlib"
+scope:
+  paths: ["note_taker.py", "forgemyspec-bundle/note-taker/tests/**"]
+  tests: forgemyspec-bundle/note-taker/tests
+  pythonpath: ["."]

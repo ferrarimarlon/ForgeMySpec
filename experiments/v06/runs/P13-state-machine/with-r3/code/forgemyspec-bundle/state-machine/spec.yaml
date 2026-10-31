@@ -1,0 +1,106 @@
+version: "0.1"
+title: "State machine CLI"
+objective: "A single-file, stdlib-only Python CLI (state_machine.py) that loads a state machine definition from JSON, validates it, runs a sequence of events with guards evaluated on a context, and prints the history of transitions."
+execution_mode: critical
+context:
+  system: "Empty Python repository; deliverable is state_machine.py at the repository root, tests in tests/ using unittest."
+  assumptions:
+    - "Definition JSON keys: states (list of names), initial (name), finals (list of names), transitions (list of objects with from, event, to and optional guard)."
+    - "A guard is an object with key, op and value (or a list of them, all must hold), with op in ==, !=, <, <=, >, >=, in; evaluated on the context dict without eval."
+    - "A missing context key makes a guard false."
+    - "When several transitions from the current state match the event, the first one in definition order whose guard holds is taken."
+    - "An event with no enabled transition is rejected: the run stops, the rejection is reported, and the exit code is 1."
+    - "Exit codes: 0 success, 1 rejected event, 2 invalid definition or bad input."
+    - "Context is given as JSON via --context (default empty object); events are positional arguments after the definition file; transitions never modify the context."
+    - "Unreachable means not reachable from the initial state following transitions, ignoring guards."
+constraints:
+  - "Single file state_machine.py, Python standard library only."
+  - "No eval or exec of guard text."
+  - "No persistence, no network, no context mutation by transitions, no actions or hooks on transitions."
+success_criteria:
+  - "A valid definition runs an event sequence and prints each transition as from, event, to."
+  - "Invalid definitions are reported with all problems and exit 2."
+  - "All boundary tests pass."
+hypotheses:
+  - {id: h1, description: "Loading a JSON definition with states, initial, finals and transitions with optional guards succeeds, and malformed JSON or wrong shape exits 2.", confidence: 0.9}
+  - {id: h2, description: "Validation reports unknown states, unreachable states and a missing initial state.", confidence: 0.9}
+  - {id: h3, description: "Running events follows enabled transitions, picks the first whose guard holds on the context, and rejects an event with no enabled transition.", confidence: 0.85}
+  - {id: h4, description: "The CLI prints a history listing each transition that was taken, in order.", confidence: 0.9}
+required_evidence:
+  - "unittest run of tests/ with all tests passing"
+  - "gate report ending in RESULT: PASS"
+actions:
+  - {id: a1, description: "Implement definition loading and validation", type: implement, requires_confirmation: false, supports: [h1, h2]}
+  - {id: a2, description: "Implement the runner with guards and history printing", type: implement, requires_confirmation: false, supports: [h3, h4]}
+  - {id: a3, description: "Run the unittest suite and the gate", type: validate, requires_confirmation: false, supports: [h1, h2, h3, h4]}
+decision_rules:
+  - "If a requirement needs behavior outside the obligations, stop and amend the spec."
+  - "Stop and ask when guard semantics or exit codes conflict with the request."
+metadata:
+  source_prompt: "Build a state machine CLI in Python. Load a machine definition from JSON (states, initial state, final states, transitions with events and optional guard conditions on a context), validate it (unknown states, unreachable states, missing initial state), run a sequence of events against it, and keep a history of transitions that can be printed. Single file state_machine.py, stdlib only."
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "load definition from JSON"
+      - "unknown states rejected"
+      - "unreachable states reported"
+      - "missing initial state reported"
+      - "guards evaluated on context"
+      - "event sequence run"
+      - "transition history printed"
+      - "single file stdlib only"
+formal:
+  module: StateMachineCore
+  obligations:
+    - id: load_json
+      kind: boundary
+      statement: "A valid JSON definition loads; malformed JSON or wrong shape exits 2."
+      hypotheses: [h1]
+      must_include: ["load definition from JSON"]
+      test: "test_state_machine.LoadTests.test_load_and_bad_input"
+    - id: unknown_states
+      kind: boundary
+      statement: "States referenced by initial, finals or transitions but not declared are reported and exit 2."
+      hypotheses: [h2]
+      must_include: ["unknown states rejected"]
+      test: "test_state_machine.ValidateTests.test_unknown_states"
+    - id: unreachable_states
+      kind: boundary
+      statement: "Declared states not reachable from the initial state are reported and exit 2."
+      hypotheses: [h2]
+      must_include: ["unreachable states reported"]
+      test: "test_state_machine.ValidateTests.test_unreachable_states"
+    - id: missing_initial
+      kind: boundary
+      statement: "A definition without an initial state is reported and exits 2."
+      hypotheses: [h2]
+      must_include: ["missing initial state reported"]
+      test: "test_state_machine.ValidateTests.test_missing_initial"
+    - id: guards
+      kind: boundary
+      statement: "A guarded transition is taken only when its guard holds on the context; the first enabled transition wins; a missing key is false."
+      hypotheses: [h3]
+      must_include: ["guards evaluated on context"]
+      test: "test_state_machine.RunTests.test_guards"
+    - id: run_events
+      kind: boundary
+      statement: "Events are applied in order; an event with no enabled transition stops the run with exit 1."
+      hypotheses: [h3]
+      must_include: ["event sequence run"]
+      test: "test_state_machine.RunTests.test_run_and_reject"
+    - id: history
+      kind: boundary
+      statement: "Each taken transition is recorded and the CLI prints the history as from, event, to lines."
+      hypotheses: [h4]
+      must_include: ["transition history printed"]
+      test: "test_state_machine.HistoryTests.test_history_printed"
+    - id: single_file
+      kind: boundary
+      statement: "state_machine.py imports only standard library modules."
+      hypotheses: [h1]
+      must_include: ["single file stdlib only"]
+      test: "test_state_machine.PackagingTests.test_stdlib_only"
+scope:
+  paths: ["state_machine.py", "tests/**"]
+  tests: tests
+  pythonpath: ["."]

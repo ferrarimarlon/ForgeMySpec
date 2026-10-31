@@ -1,0 +1,9 @@
+ .../.claude/commands/implement-from-spec.md        |   8 ++
+ forgemyspec-bundle/time-tracker/CLAUDE.md          |  46 +++++++++
+ .../time-tracker/acceptance-checklist.md           |  18 ++++
+ .../time-tracker/evals/scope_drift_cases.yaml      |  15 +++
+ forgemyspec-bundle/time-tracker/spec.lock          |   5 +
+ forgemyspec-bundle/time-tracker/spec.yaml          |  89 ++++++++++++++++
+ tests/test_time_tracker.py                         |  84 +++++++++++++++
+ time_tracker.py                                    | 113 +++++++++++++++++++++
+ 8 files changed, 378 insertions(+)

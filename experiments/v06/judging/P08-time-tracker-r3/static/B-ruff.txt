@@ -1,0 +1,6 @@
+time_tracker.py:80:13: B007 Loop control variable `s1` not used within loop body
+time_tracker.py:81:17: B007 Loop control variable `e2` not used within loop body
+time_tracker.py:128:89: E501 Line too long (91 > 88)
+time_tracker.py:172:89: E501 Line too long (90 > 88)
+Found 4 errors.
+No fixes available (2 hidden fixes can be enabled with the `--unsafe-fixes` option).

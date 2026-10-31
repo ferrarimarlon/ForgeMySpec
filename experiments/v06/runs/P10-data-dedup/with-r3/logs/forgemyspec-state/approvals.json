@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "GJNSJZ",
+   "nonce": "2ec490bcb5e8fd4bd53dad885e0aba23",
+   "created_at": "2026-10-31T20:37:38.628Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/csv-dedup",
+     "content_sha": "55ca422c66175f1a6f40a6e89baa9c05934ae4cecdd920495c21ea41b9fa0ee5",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

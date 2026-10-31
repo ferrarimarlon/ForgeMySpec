@@ -1,0 +1,8 @@
+vault.py:83:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+vault.py:96:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+vault.py:112:89: E501 Line too long (92 > 88)
+vault.py:118:89: E501 Line too long (93 > 88)
+vault.py:155:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+vault.py:258:89: E501 Line too long (98 > 88)
+vault.py:278:89: E501 Line too long (93 > 88)
+Found 7 errors.

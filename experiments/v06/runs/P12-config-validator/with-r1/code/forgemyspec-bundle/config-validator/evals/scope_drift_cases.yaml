@@ -1,0 +1,21 @@
+version: '0.1'
+purpose: Manual eval seeds to detect scope drift in Claude implementations
+source_prompt: 'Build a config validator CLI in Python. Validate a JSON config file
+  against a JSON schema file supporting: required fields, types (string, integer,
+  number, boolean, array, object), enums, min/max for numbers, min/max length for
+  strings, regex patterns, and nested objects addressed with dot notation in error
+  messages. Report all errors at once, not only the first. Single file config_validator.py,
+  stdlib only.'
+checks:
+  must_include:
+  - required fields
+  - types string integer number boolean array object
+  - enums
+  - min/max for numbers
+  - min/max length for strings
+  - regex patterns
+  - dot notation in error messages
+  - report all errors at once
+  - single file config_validator.py
+  - stdlib only
+cases: []

@@ -1,0 +1,30 @@
+{
+ "requests": [
+  {
+   "code": "7JI3YV",
+   "nonce": "679d5c9227f909d269f305612f4ae9af",
+   "created_at": "2026-10-31T20:38:40.560Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/invoice-gen",
+     "content_sha": "9dc9453f6d4874b20149a01ecb7e949906194d6d8b1d53320dc557a79893d4a5",
+     "used_at": null
+    }
+   ]
+  },
+  {
+   "code": "46BXPE",
+   "nonce": "944aad6c0004824545505d12435dc0dc",
+   "created_at": "2026-10-31T20:38:45.104Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/invoice-gen",
+     "content_sha": "79b3e59af9c0baa02f33d9c950a5e8402cd3bd4fc6bed9c8b92bf62c526980b2",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,17 @@
+version: '0.1'
+purpose: Manual eval seeds to detect scope drift in Claude implementations
+source_prompt: 'Build a Directory Organizer in Python. Watch a target directory and
+  move files into subdirectories by extension. Two modes: --watch and --once. Log
+  moves to organizer.log. Skip files already in subdirs and hidden files. Single file
+  organizer.py, stdlib only.'
+checks:
+  must_include:
+  - move files into subdirectories by extension
+  - --once mode
+  - --watch mode
+  - log moves to organizer.log
+  - skip files already in subdirs
+  - skip hidden files
+  - single file organizer.py
+  - stdlib only
+cases: []

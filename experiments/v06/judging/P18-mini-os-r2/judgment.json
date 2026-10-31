@@ -1,0 +1,38 @@
+{
+ "requirements_total": 8,
+ "probes_total": 12,
+ "A": {"probes_passed": 10,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 4},
+       "requirements_met": 8, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "silent", "requirement": "R8",
+         "evidence": "A/Makefile:20 `dd ... count=0 seek=32` — verified a 20000-byte file is cut to 16384 bytes with no error",
+         "summary": "The padding step truncates a kernel over 16 KiB without warning, so a larger kernel would build an image with a cut-off kernel and no error."},
+        {"severity": "low", "category": "quality", "requirement": "R6",
+         "evidence": "P07_qemu_i386_floppy_banner: screen stays on SeaBIOS banner when booted with if=floppy",
+         "summary": "The bootloader uses only the INT 13h extended read, so it boots as a hard disk (`make run`) but not as a floppy."},
+        {"severity": "low", "category": "quality", "requirement": null,
+         "evidence": "P02_no_warnings: 'i686-elf-ld: warning: os/build/kernel.elf has a LOAD segment with RWX permissions'",
+         "summary": "The build prints a linker warning about an RWX segment."},
+        {"severity": "low", "category": "quality", "requirement": null,
+         "evidence": "static/A-ruff.txt: E501, UP031, S603/S607 in tests_os/test_os.py; test run prints ResourceWarning for an unclosed qemu stdin",
+         "summary": "The test script has minor lint findings and leaks a file handle."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 4, "failed": 0},
+       "loc": 266},
+ "B": {"probes_passed": 12,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 5, "quality": 4, "tests": 0},
+       "requirements_met": 8, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "scope", "requirement": "R7",
+         "evidence": "B/src/kernel.c:48-113; sendkey probe showed '> help' -> 'Commands: help clear about color reboot halt'",
+         "summary": "Adds a polled-keyboard shell with commands the task did not ask for (it works, but goes beyond a minimal VGA output kernel)."},
+        {"severity": "low", "category": "quality", "requirement": null,
+         "evidence": "ls B/: Makefile, build/, os.img, src/ only — no README or test files",
+         "summary": "There is no documentation and no tests."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 238},
+ "blinding_guess": {"spec_framework_side": "A", "confidence": 0.55, "why": "A has a README, a dedicated test suite, and a tidier build layout, which suggests a more process-driven workflow; B is a bare build without docs or tests."},
+ "notes": "Both images build from a clean copy with i686-elf-gcc and nasm, boot in qemu-system-i386 and x86_64, and show their banner in VGA memory at 0xB8000. Neither has undefined external symbols. A's only failed probes are its floppy boot (it targets hard-disk boot, which `make run` uses) and a linker RWX warning. P10 originally measured A's padded kernel.bin against a strict '< 16 KiB' limit; I changed it to '<= 16 KiB' for both sides before the final run. Python security findings apply only to A's test harness (bandit Low), not to the OS code."
+}

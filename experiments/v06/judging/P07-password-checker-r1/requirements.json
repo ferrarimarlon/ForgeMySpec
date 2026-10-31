@@ -1,0 +1,19 @@
+[
+ {"id":"R1","text":"Python CLI implemented as a single file password_checker.py"},
+ {"id":"R2","text":"Uses Python standard library only (no third-party imports)"},
+ {"id":"R3","text":"Policy rule: minimum length is checked and configurable"},
+ {"id":"R4","text":"Policy rule: require uppercase letter (configurable)"},
+ {"id":"R5","text":"Policy rule: require lowercase letter (configurable)"},
+ {"id":"R6","text":"Policy rule: require digit (configurable)"},
+ {"id":"R7","text":"Policy rule: require symbol (configurable)"},
+ {"id":"R8","text":"Policy rule: forbid common passwords (configurable list)"},
+ {"id":"R9","text":"check reports every failed rule, not just the first"},
+ {"id":"R10","text":"Compute and report Shannon entropy in bits"},
+ {"id":"R11","text":"generate subcommand produces random passwords that satisfy the policy (cryptographically secure randomness implied)"},
+ {"id":"R12","text":"Policy can be loaded from policy.json"},
+ {"id":"R13","text":"check subcommand exists"},
+ {"id":"R14","text":"generate subcommand exists"},
+ {"id":"R15","text":"validate-policy subcommand exists and reports invalid policy files"},
+ {"id":"R16","text":"check signals pass/fail (e.g., exit status) so it is usable as a CLI tool"},
+ {"id":"R17","text":"Errors (missing/malformed policy file, impossible policy) handled gracefully without traceback"}
+]

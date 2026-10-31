@@ -1,0 +1,10 @@
+cron_parser.py:92:40: B905 `zip()` without an explicit `strict=` parameter
+cron_parser.py:103:89: E501 Line too long (96 > 88)
+cron_parser.py:133:89: E501 Line too long (92 > 88)
+cron_parser.py:135:42: B905 `zip()` without an explicit `strict=` parameter
+cron_parser.py:142:89: E501 Line too long (90 > 88)
+tests/test_cron_parser.py:105:27: B905 `zip()` without an explicit `strict=` parameter
+tests/test_cron_parser.py:105:89: E501 Line too long (97 > 88)
+tests/test_cron_parser.py:126:89: E501 Line too long (92 > 88)
+Found 8 errors.
+No fixes available (3 hidden fixes can be enabled with the `--unsafe-fixes` option).

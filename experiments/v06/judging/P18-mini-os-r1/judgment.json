@@ -1,0 +1,91 @@
+{
+ "requirements_total": 9,
+ "probes_total": 14,
+ "A": {
+  "probes_passed": 14,
+  "scores": {
+   "functional": 5,
+   "coverage": 5,
+   "security": 5,
+   "robustness": 5,
+   "quality": 4,
+   "tests": 5
+  },
+  "requirements_met": 9,
+  "requirements_partial": 0,
+  "requirements_missing": 0,
+  "issues": [
+   {
+    "severity": "low",
+    "category": "quality",
+    "requirement": "R7",
+    "evidence": "probes/A_raw.json build log: 'i686-elf-ld: warning: build/kernel.elf has a LOAD segment with RWX permissions'",
+    "summary": "Linker script merges text/data into one RWX segment, producing a build warning."
+   },
+   {
+    "severity": "low",
+    "category": "quality",
+    "requirement": null,
+    "evidence": "ls A/build (os.img, *.o, kernel.elf checked into the working tree)",
+    "summary": "Build artifacts are shipped alongside sources."
+   }
+  ],
+  "own_tests": {
+   "present": true,
+   "ran": true,
+   "passed": 5,
+   "failed": 0
+  },
+  "loc": 323
+ },
+ "B": {
+  "probes_passed": 14,
+  "scores": {
+   "functional": 5,
+   "coverage": 5,
+   "security": 5,
+   "robustness": 4,
+   "quality": 4,
+   "tests": 0
+  },
+  "requirements_met": 9,
+  "requirements_partial": 0,
+  "requirements_missing": 0,
+  "issues": [
+   {
+    "severity": "low",
+    "category": "quality",
+    "requirement": "R7",
+    "evidence": "B/Makefile:15 uses `stat -f %z kernel.bin` (BSD/macOS stat syntax)",
+    "summary": "Sector-count computation relies on BSD stat flags, so the build is not portable to GNU coreutils hosts."
+   },
+   {
+    "severity": "low",
+    "category": "robustness",
+    "requirement": "R6",
+    "evidence": "B/boot.asm int 13h AH=42h with no AH=41h check; booting B/os.img with -boot a -drive if=floppy prints 'Disk read error'",
+    "summary": "Bootloader assumes BIOS LBA extensions and has no CHS fallback, so it only boots as a hard disk image."
+   },
+   {
+    "severity": "low",
+    "category": "quality",
+    "requirement": null,
+    "evidence": "ls B (os.img, boot.bin, kernel.bin, *.o in source dir); Makefile has no .PHONY",
+    "summary": "Build artifacts mixed with sources and phony targets undeclared."
+   }
+  ],
+  "own_tests": {
+   "present": false,
+   "ran": false,
+   "passed": 0,
+   "failed": 0
+  },
+  "loc": 223
+ },
+ "blinding_guess": {
+  "spec_framework_side": "A",
+  "confidence": 0.55,
+  "why": "A has a structured layout, a size guard in the Makefile and a unittest suite with a headless QEMU boot check, typical of a spec/test-driven process."
+ },
+ "notes": "Both images build from clean, boot in QEMU into 32-bit protected mode, write kernel text to VGA 0xB8000, and stay up for 10s with -no-reboot; each was booted with its own documented drive type (A floppy, B IDE disk). B also adds a polled-keyboard shell (verified by sending 'help' through the QEMU monitor), which is extra but harmless. A's 5 own tests pass; B ships no tests. Static reports: A's bandit/ruff findings are low-severity subprocess/style notes in its test file only; B has no Python. Neither side has a security-relevant attack surface."
+}

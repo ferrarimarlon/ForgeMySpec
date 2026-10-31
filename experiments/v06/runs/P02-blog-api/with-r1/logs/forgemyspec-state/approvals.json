@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "ZT5IM3",
+   "nonce": "728f806924f137df9513f0d0d40b3f40",
+   "created_at": "2026-10-31T20:18:10.320Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/blog-api",
+     "content_sha": "160c436e8dcf1731ab02c7fabea3bdd80202d5febbcd85f46f9113e34f70e17a",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

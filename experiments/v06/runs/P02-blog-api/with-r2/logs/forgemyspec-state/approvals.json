@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "NWOYG2",
+   "nonce": "a4e65c1834ec9772b5cfd140ef2ad646",
+   "created_at": "2026-10-31T20:19:40.664Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/blog-api",
+     "content_sha": "a8bdea19c1141a0e8199a8ed96ecef5a07f417d03dee5726b942bc5714e772a8",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

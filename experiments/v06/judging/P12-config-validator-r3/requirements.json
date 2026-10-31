@@ -1,0 +1,15 @@
+[
+ {"id":"R1","text":"CLI program in Python that validates a JSON config file against a JSON schema file"},
+ {"id":"R2","text":"Supports required fields"},
+ {"id":"R3","text":"Supports type checks: string, integer, number, boolean, array, object"},
+ {"id":"R4","text":"Supports enums"},
+ {"id":"R5","text":"Supports min/max for numbers"},
+ {"id":"R6","text":"Supports min/max length for strings"},
+ {"id":"R7","text":"Supports regex patterns"},
+ {"id":"R8","text":"Supports nested objects, with dot-notation paths in error messages"},
+ {"id":"R9","text":"Reports all errors at once, not only the first"},
+ {"id":"R10","text":"Single file named config_validator.py"},
+ {"id":"R11","text":"Standard library only"},
+ {"id":"R12","text":"Implied: exit status distinguishes valid from invalid config; handles malformed/missing input gracefully"},
+ {"id":"R13","text":"Implied: booleans are not accepted as integer/number; integer-valued semantics correct"}
+]

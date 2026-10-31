@@ -1,0 +1,57 @@
+^DApproved by the user in their terminal.
+created     .forgemyspec/harness/forgemyspec/__init__.py
+created     .forgemyspec/harness/forgemyspec/__main__.py
+created     .forgemyspec/harness/forgemyspec/_kernel/KernelImpl.py
+created     .forgemyspec/harness/forgemyspec/_kernel/README.txt
+created     .forgemyspec/harness/forgemyspec/_kernel/System_/__init__.py
+created     .forgemyspec/harness/forgemyspec/_kernel/_dafny/__init__.py
+created     .forgemyspec/harness/forgemyspec/_kernel/module_.py
+created     .forgemyspec/harness/forgemyspec/approvals.py
+created     .forgemyspec/harness/forgemyspec/board.py
+created     .forgemyspec/harness/forgemyspec/bundle.py
+created     .forgemyspec/harness/forgemyspec/claude_skill.py
+created     .forgemyspec/harness/forgemyspec/contract_lock.py
+created     .forgemyspec/harness/forgemyspec/dafny_lint.py
+created     .forgemyspec/harness/forgemyspec/dafny_runner.py
+created     .forgemyspec/harness/forgemyspec/gate.py
+created     .forgemyspec/harness/forgemyspec/hooks.py
+created     .forgemyspec/harness/forgemyspec/install.py
+created     .forgemyspec/harness/forgemyspec/kernel.py
+created     .forgemyspec/harness/forgemyspec/linting.py
+created     .forgemyspec/harness/forgemyspec/messages.py
+created     .forgemyspec/harness/forgemyspec/mutation.py
+created     .forgemyspec/harness/forgemyspec/nlp_policy.py
+created     .forgemyspec/harness/forgemyspec/project.py
+created     .forgemyspec/harness/forgemyspec/risk.py
+created     .forgemyspec/harness/forgemyspec/scope_eval.py
+created     .forgemyspec/harness/forgemyspec/spec_io.py
+created     .forgemyspec/harness/assets/forgemyspec/agents/forgemyspec-default.md
+created     .forgemyspec/harness/assets/forgemyspec/skills/forgemyspec/SKILL.md
+created     .forgemyspec/harness/assets/forgemyspec/skills/forgemyspec/references/dafny-patterns.md
+created     .forgemyspec/harness/assets/forgemyspec/skills/forgemyspec/references/implement-from-spec-workflow.md
+created     .forgemyspec/harness/assets/forgemyspec/skills/forgemyspec/references/mcp-and-context.md
+created     .forgemyspec/harness/assets/forgemyspec/skills/forgemyspec/references/spec-schema.md
+created     .forgemyspec/harness/assets/forgemyspec/skills/forgemyspec-amend/SKILL.md
+created     .forgemyspec/harness/assets/forgemyspec/skills/forgemyspec-board/SKILL.md
+created     .forgemyspec/harness/assets/forgemyspec/skills/forgemyspec-formalize/SKILL.md
+created     .forgemyspec/harness/assets/forgemyspec/skills/forgemyspec-implement/SKILL.md
+created     .forgemyspec/config.yaml
+created     .claude/skills/forgemyspec/SKILL.md
+created     .claude/skills/forgemyspec/references/dafny-patterns.md
+created     .claude/skills/forgemyspec/references/implement-from-spec-workflow.md
+created     .claude/skills/forgemyspec/references/mcp-and-context.md
+created     .claude/skills/forgemyspec/references/spec-schema.md
+created     .claude/skills/forgemyspec-amend/SKILL.md
+created     .claude/skills/forgemyspec-board/SKILL.md
+created     .claude/skills/forgemyspec-formalize/SKILL.md
+created     .claude/skills/forgemyspec-implement/SKILL.md
+created     .claude/agents/forgemyspec-default.md
+created     .claude/settings.json
+created     CLAUDE.md
+created     .gitignore
+created     .githooks/pre-commit
+updated     .git/config
+created     .github/workflows/forgemyspec.yml
+
+ForgeMySpec installed in strict mode. Open a new Claude Code session (or /hooks) to activate the guards.
+Manual step: protect the main branch on GitHub by requiring the 'ForgeMySpec gate' check.

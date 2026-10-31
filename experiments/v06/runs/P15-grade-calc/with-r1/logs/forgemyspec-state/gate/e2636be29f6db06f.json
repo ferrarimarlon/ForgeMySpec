@@ -1,0 +1,104 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T21:02:34Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "[LINT-HY-007] hypotheses[2].description: Hypothesis appears to describe what will NOT be built; hypotheses must be affirmative and testable",
+    "score 95/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "5 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "normalized_weighted_grade": {
+   "kind": "boundary",
+   "statement": "Weights {a:1,b:1} and {a:50,b:50} give identical final grades; the final grade is the sum of score times weight divided by weight total.",
+   "must_include": [
+    "weights normalized to 100%",
+    "weighted final grade"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "letter_and_gpa": {
+   "kind": "boundary",
+   "statement": "Grades 90, 89.99(rounds to 90.00), 80, 70, 60, 59.99 map to A, A, B, C, D, F with GPA 4, 4, 3, 2, 1, 0.",
+   "must_include": [
+    "letter grade and GPA points"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "class_stats": {
+   "kind": "boundary",
+   "statement": "For final grades 70, 80, 90 the output shows mean 80, median 80, stddev 8.16, highest 90, lowest 70.",
+   "must_include": [
+    "class statistics"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "cli_report": {
+   "kind": "boundary",
+   "statement": "Running the CLI on valid files exits 0 and prints one line per student with name, final grade, letter and GPA.",
+   "must_include": [
+    "weighted final grade"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "invalid_input": {
+   "kind": "boundary",
+   "statement": "Missing file, blank or non-numeric or out-of-range score, negative or all-zero weights, weighted assessment absent from the scores, and no students each exit 2 with a message on stderr.",
+   "must_include": [
+    "invalid input exits 2"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/grade-calc",
+ "inputs_sha": "58af9a9eec6aa0d1647bb32ff8ca632e0ba817b68805aa2b78fa67b45832963b",
+ "schema": 2
+}

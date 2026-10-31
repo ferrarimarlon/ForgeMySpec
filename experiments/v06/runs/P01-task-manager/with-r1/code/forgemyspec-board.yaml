@@ -1,0 +1,9 @@
+- id: R1
+  status: doing
+  title: "CLI Task Manager (task_manager.py)"
+  quote: "Build a CLI Task Manager in Python. CRUD, SQLite raw sqlite3, filter by status and priority, mark done, table output, single file task_manager.py, stdlib only."
+  steps:
+    - {do: "Spec written, linted 100/100", check: "cmd: PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec lint forgemyspec-bundle/task-manager/spec.yaml --formal"}
+    - {do: "User approved the spec (spec.lock)", ok: true}
+    - {do: "Implement task_manager.py and tests", check: "cmd: PYTHONPATH=. python3 -m unittest discover -s tests"}
+    - {do: "Gate passes", check: "cmd: PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec gate forgemyspec-bundle/task-manager"}

@@ -1,0 +1,30 @@
+{
+ "A": {
+  "P1_clean_build": "pass",
+  "P2_boot_sector_512_sig": "pass",
+  "P3_kernel_after_bootsector": "pass",
+  "P4_no_external_libs": "pass",
+  "P5_no_unresolved_external_symbols": "pass",
+  "P6_image_small_le_1MiB": "pass",
+  "P7_qemu_boots_vga_text": "pass",
+  "P8_vga_attribute_bytes_set": "pass",
+  "P9_protected_mode_reached": "pass",
+  "P10_stable_after_5s": "pass",
+  "P11_image_self_contained": "pass",
+  "P12_documented_build_run": "pass"
+ },
+ "B": {
+  "P1_clean_build": "pass",
+  "P2_boot_sector_512_sig": "pass",
+  "P3_kernel_after_bootsector": "pass",
+  "P4_no_external_libs": "pass",
+  "P5_no_unresolved_external_symbols": "pass",
+  "P6_image_small_le_1MiB": "pass",
+  "P7_qemu_boots_vga_text": "pass",
+  "P8_vga_attribute_bytes_set": "pass",
+  "P9_protected_mode_reached": "pass",
+  "P10_stable_after_5s": "pass",
+  "P11_image_self_contained": "pass",
+  "P12_documented_build_run": "pass"
+ }
+}

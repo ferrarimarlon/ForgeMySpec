@@ -1,0 +1,5 @@
+organizer.py:22:89: E501 Line too long (94 > 88)
+organizer.py:104:89: E501 Line too long (98 > 88)
+organizer.py:107:89: E501 Line too long (89 > 88)
+organizer.py:108:89: E501 Line too long (101 > 88)
+Found 4 errors.

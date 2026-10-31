@@ -1,0 +1,128 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:28:44Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "score 100/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "13 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "add_records_expense": {
+   "kind": "boundary",
+   "statement": "add stores payer, amount, description and participants as an expense in the JSON file.",
+   "must_include": [
+    "record expenses with payer, amount, description, participants"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "json_persistence": {
+   "kind": "boundary",
+   "statement": "Expenses written by one invocation are read back by a later invocation from the JSON file.",
+   "must_include": [
+    "persist in a JSON file"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "equal_split": {
+   "kind": "boundary",
+   "statement": "Shares among participants differ by at most one cent and sum exactly to the amount.",
+   "must_include": [
+    "split equally among participants"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "balances_net": {
+   "kind": "boundary",
+   "statement": "balances prints paid minus owed per person, and the values sum to zero.",
+   "must_include": [
+    "show each person's balance"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "greedy_settlement": {
+   "kind": "boundary",
+   "statement": "settle pairs largest debtor with largest creditor; applying the transfers zeroes all balances in at most n-1 transfers.",
+   "must_include": [
+    "settlement plan with greedy algorithm"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "invalid_input_rejected": {
+   "kind": "boundary",
+   "statement": "Bad amount, empty participants or corrupt JSON exits non-zero and leaves the file unchanged.",
+   "must_include": [
+    "invalid input rejected without changing the file"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "single_file_stdlib": {
+   "kind": "boundary",
+   "statement": "expense_splitter.py imports only standard library modules.",
+   "must_include": [
+    "single file expense_splitter.py, stdlib only"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/expense-splitter",
+ "inputs_sha": "2b0d42dfe037331a589a9df3985e884a993029c66feefe6c3562342fcfce0004",
+ "schema": 2
+}

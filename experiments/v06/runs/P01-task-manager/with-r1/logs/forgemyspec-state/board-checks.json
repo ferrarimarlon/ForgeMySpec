@@ -1,0 +1,26 @@
+{
+ "cmd: PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec lint forgemyspec-bundle/task-manager/spec.yaml --formal": {
+  "passed": true,
+  "fingerprint": "82004823a82217258a70b790cc649cc1df3a31230fbee33e274b092b0a139de7",
+  "ran_at": "2026-10-31T20:18:08.766Z",
+  "seconds": 0.1
+ },
+ "cmd: python3 -m unittest discover -s tests -t .": {
+  "passed": false,
+  "fingerprint": "82004823a82217258a70b790cc649cc1df3a31230fbee33e274b092b0a139de7",
+  "ran_at": "2026-10-31T20:18:01.183Z",
+  "seconds": 0.0
+ },
+ "cmd: PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec gate forgemyspec-bundle/task-manager": {
+  "passed": true,
+  "fingerprint": "82004823a82217258a70b790cc649cc1df3a31230fbee33e274b092b0a139de7",
+  "ran_at": "2026-10-31T20:18:09.072Z",
+  "seconds": 0.2
+ },
+ "cmd: PYTHONPATH=. python3 -m unittest discover -s tests": {
+  "passed": true,
+  "fingerprint": "82004823a82217258a70b790cc649cc1df3a31230fbee33e274b092b0a139de7",
+  "ran_at": "2026-10-31T20:18:08.874Z",
+  "seconds": 0.1
+ }
+}

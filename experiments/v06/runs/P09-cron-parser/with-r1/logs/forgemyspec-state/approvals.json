@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "TWO3BU",
+   "nonce": "ae5953609420017255f64edbe243820d",
+   "created_at": "2026-10-31T20:32:18.740Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/cron",
+     "content_sha": "3244d9d261dd9bd33897b5cb7baf84cf128ba9382ed6b89ef33164644c0aef22",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

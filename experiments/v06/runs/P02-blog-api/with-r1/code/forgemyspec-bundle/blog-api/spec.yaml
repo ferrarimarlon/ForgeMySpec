@@ -1,0 +1,102 @@
+version: "0.1"
+title: "REST Blog API"
+objective: "A single-file blog_api.py exposing CRUD for posts over JSON on localhost:8080, protected by X-API-Key, using only http.server and sqlite3."
+execution_mode: critical
+context:
+  system: "Empty Python repository; Python 3 standard library only; deliverable is blog_api.py at the repository root."
+  assumptions:
+    - "A post has id (integer, assigned by the server), title (non-empty string) and content (string)."
+    - "The API key comes from the BLOG_API_KEY environment variable, with a development default of 'dev-key'."
+    - "The database is a SQLite file blog.db by default, overridable by BLOG_DB; tests use a temp file."
+    - "Routes: POST /posts, GET /posts, GET /posts/<id>, PUT /posts/<id>, DELETE /posts/<id>."
+constraints:
+  - "Standard library only: no third-party packages."
+  - "Everything lives in the single file blog_api.py."
+  - "The server binds to 127.0.0.1 port 8080 by default and nothing else."
+  - "No users, comments, tags, pagination or HTML pages."
+success_criteria:
+  - "All five post routes behave as specified and the boundary tests pass."
+  - "Requests without a valid X-API-Key never reach the database."
+hypotheses:
+  - id: h1
+    description: "POST /posts with a JSON body creates a post and returns 201 with the stored post including its id."
+    confidence: 0.9
+  - id: h2
+    description: "GET /posts lists all posts and GET /posts/<id> returns one post, or answers 404 for an unknown id."
+    confidence: 0.9
+  - id: h3
+    description: "PUT /posts/<id> updates a post and DELETE /posts/<id> deletes it, each answering 404 for ids outside the stored set."
+    confidence: 0.9
+  - id: h4
+    description: "Every request with a missing or wrong X-API-Key gets 401 and leaves stored data untouched."
+    confidence: 0.9
+  - id: h5
+    description: "Request and response bodies are JSON; a body that fails to parse or lacks a title gets 400 with a JSON error."
+    confidence: 0.85
+  - id: h6
+    description: "The server listens on localhost port 8080 using http.server and persists posts in sqlite3."
+    confidence: 0.85
+required_evidence:
+  - "Output of the unittest run over tests_py showing all tests passing."
+  - "Output of a lint run of the spec with --formal showing no errors."
+actions:
+  - {id: a1, description: "Implement the HTTP handler and routing in blog_api.py", type: implement, requires_confirmation: false, supports: [h1, h2, h3, h5, h6]}
+  - {id: a2, description: "Implement the X-API-Key check before any route handling", type: implement, requires_confirmation: false, supports: [h4]}
+  - {id: a3, description: "Write boundary tests that start the server on a free port and call each route", type: validate, requires_confirmation: false, supports: [h1, h2, h3, h4, h5, h6]}
+decision_rules:
+  - "If a behavior is not covered by an obligation, ask before adding it."
+  - "Stop and ask if the API key source or post fields need to differ from the assumptions."
+metadata:
+  source_prompt: "Build a REST Blog API in Python using only the standard library (http.server + sqlite3). CRUD for posts, X-API-Key auth, JSON bodies, localhost:8080, single file blog_api.py."
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "standard library only"
+      - "CRUD for posts"
+      - "X-API-Key auth"
+      - "JSON bodies"
+      - "localhost:8080"
+      - "single file blog_api.py"
+formal:
+  module: BlogApi
+  obligations:
+    - id: create_and_read
+      kind: boundary
+      statement: "POST /posts returns 201 with the post and id; GET /posts lists posts; GET /posts/<id> returns it or 404."
+      hypotheses: [h1, h2]
+      must_include: ["CRUD for posts"]
+      test: "test_blog_api.CrudTests.test_create_list_get"
+    - id: update_and_delete
+      kind: boundary
+      statement: "PUT updates and DELETE removes a post; both return 404 for an unknown id."
+      hypotheses: [h3]
+      must_include: ["CRUD for posts"]
+      test: "test_blog_api.CrudTests.test_update_delete_and_404"
+    - id: api_key_required
+      kind: boundary
+      statement: "A missing or wrong X-API-Key yields 401 on every route and leaves the data unchanged."
+      hypotheses: [h4]
+      must_include: ["X-API-Key auth"]
+      test: "test_blog_api.AuthTests.test_missing_or_wrong_key_is_401"
+    - id: json_bodies
+      kind: boundary
+      statement: "Bodies are JSON; malformed JSON or a missing title yields 400 with a JSON error."
+      hypotheses: [h5]
+      must_include: ["JSON bodies"]
+      test: "test_blog_api.JsonTests.test_bad_json_is_400"
+    - id: binds_localhost_8080
+      kind: boundary
+      statement: "The default server address is 127.0.0.1:8080."
+      hypotheses: [h6]
+      must_include: ["localhost:8080"]
+      test: "test_blog_api.ServerTests.test_default_address"
+    - id: stdlib_single_file
+      kind: boundary
+      statement: "blog_api.py imports only standard-library modules and the whole app is that one file."
+      hypotheses: [h6]
+      must_include: ["standard library only", "single file blog_api.py"]
+      test: "test_blog_api.ServerTests.test_stdlib_only_single_file"
+scope:
+  paths: ["blog_api.py", "tests_py/**"]
+  tests: tests_py
+  pythonpath: ["."]

@@ -1,0 +1,33 @@
+{
+ "requirements_total": 18,
+ "probes_total": 20,
+ "A": {"probes_passed": 18,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 2, "quality": 4, "tests": 0},
+       "requirements_met": 17, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "high", "category": "functional", "requirement": "R17",
+         "evidence": "P12, P18: A/state_machine.py:102 and :112 -> 'TypeError: unhashable type: list' traceback when initial or a final entry is a JSON list",
+         "summary": "Validation crashes with an uncaught traceback on wrongly-typed initial/final/from/to values instead of reporting a validation error."},
+        {"severity": "low", "category": "scope", "requirement": "R10",
+         "evidence": "A/state_machine.py:131-132",
+         "summary": "Adds an unrequested validation rule rejecting any transition that leaves a final state."},
+        {"severity": "low", "category": "quality", "requirement": null,
+         "evidence": "static/A-ruff.txt: C901 validate complexity 27, 4x B904, E741",
+         "summary": "validate() and main() are overly complex and exceptions are re-raised without chaining."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 313},
+ "B": {"probes_passed": 20,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 5, "quality": 4, "tests": 5},
+       "requirements_met": 18, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "quality", "requirement": null,
+         "evidence": "static/B-ruff.txt: C901 validate complexity 22, 2x B904, unused import in tests",
+         "summary": "Minor lint findings: complex validate(), unchained re-raises, unused import in tests."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 8, "failed": 0},
+       "loc": 353}
+ ,
+ "blinding_guess": {"spec_framework_side": "B", "confidence": 0.55, "why": "B has a requirement-mapped test suite (load/validate/run/history/stdlib packaging) and documented exit codes, typical of a spec-driven process; A has more unrequested features and no tests."},
+ "notes": "Probe definitions carry both 'final' (A) and 'finals' (B) keys so only the interface adapts. A records rejected events in history and continues; B stops at the first rejected event with exit 1 — both are reasonable readings of the task. Neither uses eval; guards are declarative key/op/value in both and bandit reported nothing notable. B loc = 207 source + 146 test lines; A has no tests. A's only probe failures are tracebacks on wrongly-typed (list) state references."
+}

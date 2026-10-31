@@ -1,0 +1,27 @@
+{
+ "requirements_total": 13,
+ "probes_total": 26,
+ "A": {"probes_passed": 26,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 5, "quality": 4, "tests": 0},
+       "requirements_met": 13, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt: C901 main too complex (14>10), 10x E501, B905", "summary": "main() is overly long and many lines exceed the style limit."},
+        {"severity": "low", "category": "quality", "requirement": "R2", "evidence": "A/csv_analytics.py:93,111", "summary": "'count' means numeric values for numeric/mixed columns but non-blank cells for text columns, so the same field has two meanings."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "ls A -> only csv_analytics.py", "summary": "No automated tests are shipped."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 209},
+ "B": {"probes_passed": 23,
+       "scores": {"functional": 3, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 4},
+       "requirements_met": 12, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "silent", "requirement": "R1", "evidence": "P25_duplicate_header_not_silent: header 'v,v' row '1,2' -> one column v with count 1, value 1 silently dropped", "summary": "Duplicate header names are merged by DictReader without warning, so data is silently lost."},
+        {"severity": "medium", "category": "functional", "requirement": "R13", "evidence": "P20_non_utf8_no_traceback: 'UnicodeDecodeError: utf-8 codec can't decode byte 0xe9' traceback", "summary": "A non-UTF-8 input crashes with a traceback because UnicodeDecodeError is not caught."},
+        {"severity": "low", "category": "silent", "requirement": "R3", "evidence": "P26_mixed_column_numeric_stats: values 1,2,N/A,10 -> type text, min '1', max 'N/A', mean null", "summary": "A single non-numeric placeholder turns a numeric column into text, giving lexical min/max and no mean/median/stdev."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt: 3x B904, 1x E501", "summary": "Re-raised exceptions do not chain the original error ('raise ... from')."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 6, "failed": 0},
+       "loc": 159},
+ "blinding_guess": {"spec_framework_side": "B", "confidence": 0.55, "why": "B has a test suite including a stdlib-only check and a dedicated UsageError/exit-code convention, which looks like spec-driven structure, while A is a feature-rich single script with no tests."},
+ "notes": "Both are single-file, stdlib-only CLIs that compute all six stats, filter, select columns and export JSON; neither has security findings (bandit is empty for both, and there is no eval, shell or network use). A prints a text table by default and emits JSON only with -o (use '-o -' for stdout); B always emits JSON. P13 first failed on both because my probe used sys.stdlib_module_names, which Python 3.9.6 lacks; I replaced it with an explicit allowlist and re-ran. B's tests were run with 'python3 -m unittest' because pytest is not installed. P26 checks a design expectation (numeric stats despite a placeholder value), so I rated it low severity."
+}

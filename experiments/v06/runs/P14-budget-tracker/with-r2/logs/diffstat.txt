@@ -1,0 +1,9 @@
+ budget_tracker.py                                  | 160 +++++++++++++++++++++
+ .../.claude/commands/implement-from-spec.md        |   8 ++
+ forgemyspec-bundle/budget-tracker/CLAUDE.md        |  49 +++++++
+ .../budget-tracker/acceptance-checklist.md         |  20 +++
+ .../budget-tracker/evals/scope_drift_cases.yaml    |  18 +++
+ forgemyspec-bundle/budget-tracker/spec.lock        |   5 +
+ forgemyspec-bundle/budget-tracker/spec.yaml        | 136 ++++++++++++++++++
+ tests/test_budget_tracker.py                       | 109 ++++++++++++++
+ 8 files changed, 505 insertions(+)

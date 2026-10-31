@@ -1,0 +1,25 @@
+{
+ "requirements_total": 12,
+ "probes_total": 28,
+ "A": {"probes_passed": 28,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 5, "quality": 4, "tests": 4},
+       "requirements_met": 12, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "A/blog_api.py:130-134 (ruff E731), :92,:101 (B904), :103 (C901)", "summary": "HTTP verb handlers are assigned lambdas, and exceptions are re-raised without `from`, so ruff reports 9 findings."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "`python -m unittest discover -s tests -t .` -> ImportError: Start directory is not importable; passes only with PYTHONPATH=. and -s tests", "summary": "The test suite has no __init__/conftest, so the standard discover invocation fails until PYTHONPATH is set by hand."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 8, "failed": 0},
+       "loc": 219},
+ "B": {"probes_passed": 27,
+       "scores": {"functional": 5, "coverage": 5, "security": 3, "robustness": 4, "quality": 4, "tests": 0},
+       "requirements_met": 12, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "security", "requirement": "R9", "evidence": "probe P28_no_default_key_when_unset fail; B/blog_api.py:26; started without BLOG_API_KEY, `curl -H 'X-API-Key: dev-key' /posts` -> HTTP/1.0 200 OK", "summary": "When BLOG_API_KEY is unset the server starts anyway with a guessable hard-coded key 'dev-key' and only prints a warning."},
+        {"severity": "low", "category": "silent", "requirement": "R5", "evidence": "B/blog_api.py:136 limit defaults to 50, max 200, ORDER BY id DESC", "summary": "GET /posts silently truncates to 50 posts by default (hard cap 200) without returning a total or a next-page hint; pagination was not requested."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-bandit.txt B608 at B/blog_api.py:168; ruff B904 x3, C901, E501", "summary": "The UPDATE statement is built with an f-string. It is safe because the column names come from a fixed whitelist, but bandit flags it, and exceptions are re-raised without `from`."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 201},
+ "blinding_guess": {"spec_framework_side": "A", "confidence": 0.55, "why": "A ships a unittest suite, fails closed when the key is unset, and documents its routes and status codes in the docstring, which looks like spec-driven discipline; B is more ad hoc with an insecure default."},
+ "notes": "The task names no post fields, so the probes send both 'body' (A) and 'content' (B) in every payload; that is the only adaptation between sides. Probes ran with Python 3.11 because the system python3 is 3.9 and lacks sys.stdlib_module_names. B also adds PATCH, an author field and pagination (extras that do no harm except the silent default limit), while A answers PATCH with 405. Both use parameterized SQL, constant-time key comparison, a 1 MB body cap, and bind to 127.0.0.1 only. P28 counts refusing to start without a key as a pass."
+}

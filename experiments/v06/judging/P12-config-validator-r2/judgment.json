@@ -1,0 +1,29 @@
+{
+ "requirements_total": 14,
+ "probes_total": 35,
+ "A": {"probes_passed": 32,
+       "scores": {"functional": 4, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 4},
+       "requirements_met": 13, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "silent", "requirement": "R3", "evidence": "P30_unknown_schema_type_rejected: schema type 'strng' -> exit 0 'OK'; config_validator.py:27 _type_ok returns True for unknown names", "summary": "Typos in schema type names are silently accepted, so the type check passes when it should not."},
+        {"severity": "low", "category": "silent", "requirement": "R8", "evidence": "P35_nondict_subschema_reported: properties {'a': 'int'} -> exit 0 'OK'; config_validator.py:89", "summary": "Non-object property subschemas are silently skipped instead of reported as a schema error."},
+        {"severity": "low", "category": "functional", "requirement": "R14", "evidence": "P33_bad_schema_value_no_traceback: minimum 'x' -> TypeError traceback at config_validator.py:65", "summary": "A non-numeric minimum/maximum in the schema crashes with a traceback."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt: C901 _validate complexity 19, E501 lines; config_validator.py:117,134 re-reads config to detect JSON null", "summary": "One long validation function, and the config file is re-parsed to tell JSON null apart from a load failure."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 9, "failed": 0},
+       "loc": 143},
+ "B": {"probes_passed": 32,
+       "scores": {"functional": 4, "coverage": 5, "security": 5, "robustness": 3, "quality": 3, "tests": 0},
+       "requirements_met": 13, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "functional", "requirement": "R14", "evidence": "P34_non_utf8_config_clean: bytes ff fe 7b -> UnicodeDecodeError traceback; config_validator.py:115 catches only JSONDecodeError", "summary": "A config or schema file that is not valid UTF-8 crashes with a traceback instead of a clean error."},
+        {"severity": "low", "category": "functional", "requirement": "R14", "evidence": "P35_nondict_subschema_reported: properties {'a': 'int'} -> AttributeError traceback at config_validator.py:53", "summary": "A non-object property subschema crashes with a traceback."},
+        {"severity": "low", "category": "functional", "requirement": "R14", "evidence": "P33_bad_schema_value_no_traceback: minimum 'x' -> TypeError traceback at config_validator.py:69", "summary": "A non-numeric minimum/maximum in the schema crashes with a traceback."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "config_validator.py:114-117 assigns sys.exit_msg; static/B-ruff.txt B904, C901 validate complexity 23", "summary": "Stores an error message by monkey-patching an attribute onto the sys module, and validate() is long and complex."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "find B -type f -> only config_validator.py", "summary": "No automated tests are provided."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 149},
+ "blinding_guess": {"spec_framework_side": "unsure", "confidence": 0.3, "why": "A ships a unittest suite that covers each requirement, which hints at a more structured process, but both implementations are very similar."},
+ "notes": "Both sides meet every stated requirement: all types, enum, bounds, lengths, patterns, dot-notation nested paths and reporting all errors at once, with identical error sets in P23. B also supports array 'items' with [n] indices and rejects unknown types and invalid regexes as schema errors (exit 2). A reports an invalid regex as a validation error (exit 1), which is acceptable. Both pass 32 of 35 probes but fail different ones: A has a silent unknown-type acceptance, and B has traceback crashes on malformed input. A's 9 unittest tests pass (run with unittest because pytest is not installed); B has no tests. Neither side has bandit findings in its validator code; A's bandit findings are all low and in its test subprocess calls."
+}

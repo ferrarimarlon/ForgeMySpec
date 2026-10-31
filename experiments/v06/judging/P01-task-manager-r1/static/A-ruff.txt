@@ -1,0 +1,36 @@
+task_manager.py:38:25: UP031 Use format specifiers instead of percent format
+task_manager.py:38:89: E501 Line too long (90 > 88)
+task_manager.py:47:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+task_manager.py:47:25: UP031 Use format specifiers instead of percent format
+task_manager.py:56:89: E501 Line too long (91 > 88)
+task_manager.py:62:89: E501 Line too long (100 > 88)
+task_manager.py:96:29: UP031 Use format specifiers instead of percent format
+task_manager.py:96:89: E501 Line too long (89 > 88)
+task_manager.py:98:9: UP031 Use format specifiers instead of percent format
+task_manager.py:98:9: S608 Possible SQL injection vector through string-based query construction
+task_manager.py:98:89: E501 Line too long (92 > 88)
+task_manager.py:102:25: UP031 Use format specifiers instead of percent format
+task_manager.py:109:25: UP031 Use format specifiers instead of percent format
+task_manager.py:118:89: E501 Line too long (91 > 88)
+task_manager.py:122:57: B905 `zip()` without an explicit `strict=` parameter
+task_manager.py:132:89: E501 Line too long (90 > 88)
+task_manager.py:133:53: UP031 Use format specifiers instead of percent format
+task_manager.py:133:89: E501 Line too long (93 > 88)
+task_manager.py:171:23: UP031 Use format specifiers instead of percent format
+task_manager.py:175:89: E501 Line too long (90 > 88)
+task_manager.py:176:89: E501 Line too long (95 > 88)
+task_manager.py:177:23: UP031 Use format specifiers instead of percent format
+task_manager.py:180:23: UP031 Use format specifiers instead of percent format
+task_manager.py:183:23: UP031 Use format specifiers instead of percent format
+task_manager.py:187:15: UP031 Use format specifiers instead of percent format
+tests/test_task_manager.py:36:89: E501 Line too long (98 > 88)
+tests/test_task_manager.py:42:89: E501 Line too long (102 > 88)
+tests/test_task_manager.py:44:89: E501 Line too long (91 > 88)
+tests/test_task_manager.py:47:89: E501 Line too long (99 > 88)
+tests/test_task_manager.py:48:89: E501 Line too long (97 > 88)
+tests/test_task_manager.py:68:9: S603 `subprocess` call: check for execution of untrusted input
+tests/test_task_manager.py:69:15: S603 `subprocess` call: check for execution of untrusted input
+tests/test_task_manager.py:77:9: E731 Do not assign a `lambda` expression, use a `def`
+tests/test_task_manager.py:102:42: E741 Ambiguous variable name: `l`
+Found 34 errors.
+No fixes available (8 hidden fixes can be enabled with the `--unsafe-fixes` option).

@@ -1,0 +1,26 @@
+{
+ "requirements_total": 13,
+ "probes_total": 24,
+ "A": {"probes_passed": 21,
+       "scores": {"functional": 3, "coverage": 4, "security": 5, "robustness": 3, "quality": 4, "tests": 4},
+       "requirements_met": 12, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "silent", "requirement": "R5", "evidence": "P22_numeric_stats_with_NA_cell; csv_analytics.py:62 -> column v=[1,2,N/A,3] reports mean/median/stdev null", "summary": "A single non-numeric cell (e.g. N/A) in a numeric column makes all numeric stats null without warning."},
+        {"severity": "medium", "category": "functional", "requirement": "R13", "evidence": "P20_non_utf8_clean_error; output 'UnicodeDecodeError: utf-8 codec can't decode byte 0xff' traceback", "summary": "A non-UTF-8 input file crashes with a traceback instead of a clean error (read_csv only catches FileNotFound/IsADirectory/Permission)."},
+        {"severity": "low", "category": "silent", "requirement": "R1", "evidence": "P21_bom_header; report columns contain \"\\ufeffid\"", "summary": "A UTF-8 BOM is kept in the first header name, so selecting or filtering on that column by its visible name fails."},
+        {"severity": "low", "category": "functional", "requirement": "R10", "evidence": "--output /nonexistent/dir/r.json -> FileNotFoundError traceback", "summary": "An unwritable output path raises a traceback instead of a clean error."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 6, "failed": 0},
+       "loc": 162},
+ "B": {"probes_passed": 24,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 4, "quality": 4, "tests": 0},
+       "requirements_met": 13, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "functional", "requirement": "R10", "evidence": "-o /nonexistent/dir/r.json -> FileNotFoundError traceback (csv_analytics.py:151 is outside the try)", "summary": "An unwritable output path raises a traceback instead of a clean error."},
+        {"severity": "low", "category": "scope", "requirement": "R10", "evidence": "csv_analytics.py:154-160; default stdout is a text table", "summary": "Stdout is a text table by default; you get JSON only with --json or -o, and the tool also adds unrequested extras (regex filter, multiple files, --rows)."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 165},
+ "blinding_guess": {"spec_framework_side": "A", "confidence": 0.55, "why": "A ships a unit-test suite and a dedicated error class with tighter scope, which looks like spec-driven output, while B is a feature-rich single script with no tests."},
+ "notes": "Both pass all core probes for stats, filter, select and JSON export. A fails three robustness probes: non-UTF-8 input gives a traceback, a BOM stays in the header name, and an N/A cell nulls a column's numeric stats. B handles all three. Neither side catches an unwritable --output path. The bandit reports are empty for both, and ruff shows only style findings (A: 20 including tests; B: 3)."
+}

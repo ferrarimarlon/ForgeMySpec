@@ -1,0 +1,24 @@
+task_manager.py:41:25: UP031 Use format specifiers instead of percent format
+task_manager.py:41:89: E501 Line too long (94 > 88)
+task_manager.py:58:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+task_manager.py:58:25: UP031 Use format specifiers instead of percent format
+task_manager.py:115:29: UP031 Use format specifiers instead of percent format
+task_manager.py:117:30: UP031 Use format specifiers instead of percent format
+task_manager.py:118:26: UP031 Use format specifiers instead of percent format
+task_manager.py:118:26: S608 Possible SQL injection vector through string-based query construction
+task_manager.py:131:29: UP031 Use format specifiers instead of percent format
+task_manager.py:148:50: B905 `zip()` without an explicit `strict=` parameter
+task_manager.py:155:89: E501 Line too long (90 > 88)
+task_manager.py:157:25: UP031 Use format specifiers instead of percent format
+task_manager.py:193:19: UP031 Use format specifiers instead of percent format
+task_manager.py:197:89: E501 Line too long (89 > 88)
+task_manager.py:199:19: UP031 Use format specifiers instead of percent format
+task_manager.py:202:19: UP031 Use format specifiers instead of percent format
+task_manager.py:205:19: UP031 Use format specifiers instead of percent format
+task_manager.py:207:15: UP031 Use format specifiers instead of percent format
+tests/test_task_manager.py:35:89: E501 Line too long (89 > 88)
+tests/test_task_manager.py:42:89: E501 Line too long (94 > 88)
+tests/test_task_manager.py:44:89: E501 Line too long (92 > 88)
+tests/test_task_manager.py:84:9: E731 Do not assign a `lambda` expression, use a `def`
+Found 22 errors.
+No fixes available (8 hidden fixes can be enabled with the `--unsafe-fixes` option).

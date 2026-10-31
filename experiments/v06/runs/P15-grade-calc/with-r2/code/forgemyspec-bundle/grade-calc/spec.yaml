@@ -1,0 +1,101 @@
+version: "0.1"
+title: "Grade calculator CLI"
+objective: "A single-file, stdlib-only Python CLI (grade_calc.py) that reads a scores CSV and a weights definition, normalizes weights, computes each student's weighted final grade, letter grade and GPA points, and prints class statistics."
+execution_mode: critical
+context:
+  system: "Empty Python repository; deliverable is grade_calc.py at the repository root plus unittest tests in tests/."
+  assumptions:
+    - "Scores CSV has a header row: first column is the student name, remaining columns are assessment names; scores are numbers on a 0-100 scale."
+    - "Weights file is a CSV with header assessment,weight; weights are positive numbers, optionally with a trailing percent sign."
+    - "Letter scale is A >= 90, B >= 80, C >= 70, D >= 60, otherwise F, with GPA points 4.0, 3.0, 2.0, 1.0, 0.0."
+    - "Standard deviation is the population standard deviation."
+    - "Output numbers are rounded to 2 decimals for display; the letter and GPA use the unrounded final grade."
+constraints:
+  - "Single file grade_calc.py using only the Python standard library."
+  - "No plus/minus grades, no curving, no dropping of lowest scores, no GUI or file output."
+  - "Missing or non-numeric scores are errors, never silently treated as zero."
+success_criteria:
+  - "Given a valid scores CSV and weights file, the CLI prints one line per student with final grade, letter and GPA points, then the class statistics."
+  - "Weights that do not sum to 100 produce the same result as the same weights scaled to sum to 100."
+  - "Invalid input exits with status 2 and a message on stderr."
+hypotheses:
+  - id: h1
+    description: "Weights are normalized so they sum to 100% before use, whatever their original sum."
+    confidence: 0.9
+  - id: h2
+    description: "Each student's final grade is the weighted sum of their assessment scores using the normalized weights."
+    confidence: 0.9
+  - id: h3
+    description: "Letter grade and GPA points follow the stated scale from the unrounded final grade."
+    confidence: 0.85
+  - id: h4
+    description: "Class statistics (mean, median, population standard deviation, highest, lowest) are computed over final grades and printed."
+    confidence: 0.85
+  - id: h5
+    description: "Every invalid input case (unreadable file, assessment lacking a weight, blank or non-numeric score, bad weight) exits with status 2 and a clear stderr message."
+    confidence: 0.85
+required_evidence:
+  - "Output of python3 -m unittest discover -s tests showing all boundary tests passing."
+  - "Output of the forgemyspec gate for the bundle ending in RESULT: PASS."
+actions:
+  - {id: a1, description: "Implement weight normalization and weighted final grade.", type: implement, requires_confirmation: false, supports: [h1, h2]}
+  - {id: a2, description: "Implement letter/GPA mapping and class statistics.", type: implement, requires_confirmation: false, supports: [h3, h4]}
+  - {id: a4, description: "Implement CSV parsing, input validation and the CLI.", type: implement, requires_confirmation: false, supports: [h5]}
+  - {id: a3, description: "Run the test suite and the gate.", type: validate, requires_confirmation: false, supports: [h1, h2, h3, h4, h5]}
+decision_rules:
+  - "If the CSV or weights format is ambiguous in a way the assumptions do not cover, stop and ask the user."
+  - "Do not add features outside the obligations without a spec amendment."
+metadata:
+  source_prompt: "Build a grade calculator CLI in Python. Read a CSV of students and assessment scores plus a weights definition, normalize weights that do not sum to 100%, compute each student's weighted final grade, letter grade and GPA points, and print class statistics (mean, median, standard deviation, highest, lowest). Single file grade_calc.py, stdlib only."
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "weights normalized to 100%"
+      - "weighted final grade"
+      - "letter grade and GPA points"
+      - "class statistics: mean, median, standard deviation, highest, lowest"
+      - "invalid input exits 2"
+      - "single file grade_calc.py, stdlib only"
+formal:
+  module: GradeCalc
+  obligations:
+    - id: weights_normalized
+      kind: boundary
+      statement: "Weights not summing to 100 are scaled so they sum to 100; weights 1,1 equal weights 50,50 and give identical results."
+      hypotheses: [h1]
+      must_include: ["weights normalized to 100%"]
+      test: "test_grade_calc.GradeCalcTests.test_weights_normalized"
+    - id: final_grade
+      kind: boundary
+      statement: "A student's final grade is the sum of score times normalized weight over all assessments."
+      hypotheses: [h2]
+      must_include: ["weighted final grade"]
+      test: "test_grade_calc.GradeCalcTests.test_weighted_final_grade"
+    - id: letter_gpa
+      kind: boundary
+      statement: "Final grades 90, 89.99, 80, 70, 60, 59.99 map to A/4.0, B/3.0, B/3.0, C/2.0, D/1.0, F/0.0 as in the scale."
+      hypotheses: [h3]
+      must_include: ["letter grade and GPA points"]
+      test: "test_grade_calc.GradeCalcTests.test_letter_and_gpa_boundaries"
+    - id: class_stats
+      kind: boundary
+      statement: "The output reports mean, median, population standard deviation, highest and lowest of the final grades, for odd and even student counts."
+      hypotheses: [h4]
+      must_include: ["class statistics: mean, median, standard deviation, highest, lowest"]
+      test: "test_grade_calc.GradeCalcTests.test_class_statistics"
+    - id: invalid_input
+      kind: boundary
+      statement: "Missing file, assessment without weight, missing or non-numeric score, and non-positive or non-numeric weight each exit 2 with a message on stderr."
+      hypotheses: [h5]
+      must_include: ["invalid input exits 2"]
+      test: "test_grade_calc.GradeCalcTests.test_invalid_input_exits_2"
+    - id: single_file_stdlib
+      kind: boundary
+      statement: "grade_calc.py is the single module and imports only standard-library modules."
+      hypotheses: [h1, h2, h3, h4, h5]
+      must_include: ["single file grade_calc.py, stdlib only"]
+      test: "test_grade_calc.GradeCalcTests.test_stdlib_only"
+scope:
+  paths: ["grade_calc.py", "tests/**"]
+  tests: tests
+  pythonpath: ["."]

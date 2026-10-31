@@ -402,3 +402,39 @@
     check: 'cmd: grep -q "output tokens\"" src/forgemyspec/messages.py'
   - do: board tests
     check: 'test: test_board'
+- id: R36
+  status: done
+  title: Push the README and board fix to GitHub
+  quote: Push
+  steps:
+  - do: HEAD 5605620 is on origin/main
+    check: 'cmd: git fetch -q origin && git merge-base --is-ancestor 5605620 origin/main'
+- id: R37
+  status: done
+  title: Re-run the README experiments with v0.6, isolated agents and a blind judge
+  quote: refazer os experimentos… sem essa memória… com o nosso harness… modelo sem, modelo com e qual foi o grau atingido… contabilizar tudo, inclusive tokens… extremamente científico… agentes diferentes… o terceiro juiz vai analisar a segurança, qualidade de código
+  steps:
+  - do: protocol frozen before any run (prompts, arms, metrics, judge rubric)
+    check: 'cmd: git merge-base --is-ancestor 5329041 HEAD && git show 5329041 --stat | grep -q PROTOCOL.md'
+  - do: frozen task prompts for 17 projects + mini-OS, identical for both arms
+    check: 'cmd: test $(git show 5329041 --stat | grep -c "tasks/P") -eq 18'
+  - do: isolated headless builders (clean dir, no user settings, no MCP, no memory)
+    check: 'cmd: grep -q "setting-sources" experiments/v06/run.py && grep -q strict-mcp-config experiments/v06/run.py'
+  - do: pilot on one project, both arms, cost per run measured
+    check: 'cmd: test -f experiments/v06/runs/P17-job-scheduler/with-r0/logs/meta.json && test -f experiments/v06/judging/P17-job-scheduler-r0/judgment.json'
+  - do: full run, every project, both arms
+    check: 'cmd: test $(ls experiments/v06/runs/*/*-r[123]/logs/meta.json | wc -l) -eq 108'
+  - do: blind judge (A/B shuffled, framework files stripped) on security and code quality
+    check: 'cmd: test $(grep -l ''"valid": true'' experiments/v06/judging/*-r[123]/key.json | wc -l) -eq 54'
+  - do: report with tokens, harness vs model share, criticality reached, quality and security
+    check: 'cmd: grep -q "Harness share" experiments/v06/REPORT.md && test -f experiments/v06/results/summary.json'
+  evidence: 'experiments/v06/REPORT.md: cost 4.9x, quality tie when delivered, 4/54 with-arm builds stalled at approval, 54/54 spec-only'
+- id: R38
+  status: open
+  title: 'Backlog: cost of each requirement in the spec (harness and LLM)'
+  quote: um ótimo sinal para a gente colocar na spec quanto custa cada requisito, tanto de harness quanto de LLM. Vamos deixando aí de backlog.
+  steps:
+  - do: per requirement/obligation, record LLM tokens and cost (input, cache, output)
+  - do: per requirement/obligation, record harness cost (runs, gate time, guard checks)
+  - do: show it in the spec/board and in the risk box
+  next: backlog; design after the v0.6 experiment results (R37)

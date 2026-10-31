@@ -1,0 +1,95 @@
+version: "0.1"
+title: "Grade calculator CLI"
+objective: "A single-file, stdlib-only Python CLI (grade_calc.py) that reads a scores CSV and a weights file, normalizes the weights, computes each student's weighted final grade, letter grade and GPA points, and prints class statistics."
+execution_mode: critical
+context:
+  system: "Empty Python repository under ForgeMySpec strict mode. Deliverable is grade_calc.py at the repository root plus unittest tests in tests/. Python 3 standard library only."
+  assumptions:
+    - "Scores CSV has a header row: first column is the student name, every other column is an assessment; scores are numbers on a 0-100 scale."
+    - "Weights file is a CSV with header assessment,weight; weights are positive numbers (percent or any positive scale)."
+    - "Letter scale is fixed without plus/minus: A >= 90 (4.0), B >= 80 (3.0), C >= 70 (2.0), D >= 60 (1.0), else F (0.0), applied to the unrounded final grade."
+    - "Standard deviation is the population standard deviation."
+    - "Invalid input exits with code 2 and a message on stderr; success exits 0."
+    - "Output is plain text on stdout, numbers shown with 2 decimals."
+constraints:
+  - "Single file grade_calc.py; Python standard library only, no third-party packages."
+  - "No plus/minus grades, no configurable grade scale, no dropping of lowest scores, no output files or GUI."
+  - "Missing, blank or non-numeric scores are rejected, never treated as zero."
+success_criteria:
+  - "Weights that do not sum to 100 are rescaled so they sum to 100% before grading."
+  - "Each student gets a weighted final grade, a letter grade and GPA points."
+  - "Class statistics list mean, median, standard deviation, highest and lowest of the final grades."
+  - "Malformed input fails with exit code 2 and a clear message."
+hypotheses:
+  - {id: h1, description: "Weights are normalized by dividing each weight by their total, so the normalized weights always sum to 1 (100%) whatever the input scale.", confidence: 0.9}
+  - {id: h2, description: "A student's final grade equals the sum of score times normalized weight over all assessments.", confidence: 0.9}
+  - {id: h3, description: "The letter grade and GPA points follow the fixed scale A/4.0, B/3.0, C/2.0, D/1.0, F/0.0 with thresholds 90, 80, 70, 60.", confidence: 0.85}
+  - {id: h4, description: "Class statistics report mean, median, population standard deviation, highest and lowest of the final grades.", confidence: 0.85}
+  - {id: h5, description: "Invalid input (missing file, bad header, unknown or missing assessment, non-numeric or out-of-range score, non-positive weight or total) exits with code 2 and a message naming the problem.", confidence: 0.8}
+  - {id: h6, description: "The CLI takes the scores CSV and the weights file as arguments and prints one line per student followed by the class statistics.", confidence: 0.85}
+required_evidence:
+  - "Output of the unittest run in tests/ showing every boundary test passing."
+  - "Command output of grade_calc.py on a sample scores CSV and weights file whose weights sum to 80."
+  - "Gate report ending in RESULT: PASS."
+actions:
+  - {id: a1, description: "Write grade_calc.py with parsing, weight normalization, grading and statistics.", type: implement, requires_confirmation: false, supports: [h1, h2, h3, h4]}
+  - {id: a2, description: "Write unittest boundary tests in tests/test_grade_calc.py, one per obligation.", type: test, requires_confirmation: false, supports: [h1, h2, h3, h4, h5, h6]}
+  - {id: a4, description: "Implement CLI argument handling, input validation and exit codes in grade_calc.py.", type: implement, requires_confirmation: false, supports: [h5, h6]}
+  - {id: a3, description: "Run the gate and the sample command and record the output.", type: validate, requires_confirmation: false, supports: [h1, h2, h3, h4, h5, h6]}
+decision_rules:
+  - "If the user wants a different grade scale, standard deviation type or file format, stop and amend the spec before coding."
+  - "If a test fails, fix grade_calc.py, never the test, unless the spec is amended."
+metadata:
+  source_prompt: "Build a grade calculator CLI in Python. Read a CSV of students and assessment scores plus a weights definition, normalize weights that do not sum to 100%, compute each student's weighted final grade, letter grade and GPA points, and print class statistics (mean, median, standard deviation, highest, lowest). Single file grade_calc.py, stdlib only."
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "weights normalized to 100%"
+      - "weighted final grade"
+      - "letter grade and GPA points"
+      - "class mean, median, standard deviation, highest, lowest"
+      - "invalid input exits 2"
+      - "single file grade_calc.py, stdlib only"
+formal:
+  module: GradeCalc
+  obligations:
+    - id: weights_normalized
+      kind: boundary
+      statement: "Weights summing to something other than 100 (for example 30,30,20 = 80) are divided by their total so the normalized weights sum to 100%."
+      hypotheses: [h1]
+      must_include: ["weights normalized to 100%"]
+      test: "test_grade_calc.GradeCalcTests.test_weights_normalized_to_100"
+    - id: weighted_final
+      kind: boundary
+      statement: "The final grade is the sum of score times normalized weight; with weights 30,30,20 and scores 90,80,70 it is (90*30 + 80*30 + 70*20) / 80 = 81.25."
+      hypotheses: [h2]
+      must_include: ["weighted final grade"]
+      test: "test_grade_calc.GradeCalcTests.test_weighted_final_grade"
+    - id: letter_and_gpa
+      kind: boundary
+      statement: "Final grades 95, 90, 89.99, 80, 70, 60 and 59.99 map to A/4.0, A/4.0, B/3.0, B/3.0, C/2.0, D/1.0 and F/0.0."
+      hypotheses: [h3]
+      must_include: ["letter grade and GPA points"]
+      test: "test_grade_calc.GradeCalcTests.test_letter_and_gpa_boundaries"
+    - id: class_statistics
+      kind: boundary
+      statement: "For final grades 60, 70, 80, 90 the report shows mean 75.00, median 75.00, population standard deviation 11.18, highest 90.00 and lowest 60.00; an odd count uses the middle value for the median."
+      hypotheses: [h4]
+      must_include: ["class mean, median, standard deviation, highest, lowest"]
+      test: "test_grade_calc.GradeCalcTests.test_class_statistics"
+    - id: invalid_input_exit_2
+      kind: boundary
+      statement: "A missing file, bad header, unknown or missing assessment, blank or non-numeric score, score outside 0-100, non-positive weight or zero weight total exits 2 with a message on stderr and no grades on stdout."
+      hypotheses: [h5]
+      must_include: ["invalid input exits 2"]
+      test: "test_grade_calc.GradeCalcTests.test_invalid_input_exits_2"
+    - id: cli_output
+      kind: boundary
+      statement: "Running grade_calc.py <scores.csv> <weights.csv> exits 0 and prints one line per student (name, final grade, letter, GPA) followed by the class statistics."
+      hypotheses: [h6]
+      must_include: ["single file grade_calc.py, stdlib only"]
+      test: "test_grade_calc.GradeCalcTests.test_cli_end_to_end"
+scope:
+  paths: ["grade_calc.py", "tests/**", "forgemyspec-board.yaml"]
+  tests: tests
+  pythonpath: ["."]

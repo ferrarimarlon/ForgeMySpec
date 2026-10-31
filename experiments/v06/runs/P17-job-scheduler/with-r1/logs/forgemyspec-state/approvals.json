@@ -1,0 +1,30 @@
+{
+ "requests": [
+  {
+   "code": "GYIAJV",
+   "nonce": "1b989ca897d0ba9ec4910ce3be36cb74",
+   "created_at": "2026-10-31T21:05:23.132Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/job-scheduler",
+     "content_sha": "5155af7f5a44c0b06a42a43691615eda3fa71324bff418b01e3357be5f7aa367",
+     "used_at": null
+    }
+   ]
+  },
+  {
+   "code": "KZ4ZGL",
+   "nonce": "294f58b380350567ebfa028e1039fe39",
+   "created_at": "2026-10-31T21:05:28.932Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/job-scheduler",
+     "content_sha": "8ff393b5c1ad270b739bb9ba95ab44836bc848a2f684ad86e69d42761a4e565c",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

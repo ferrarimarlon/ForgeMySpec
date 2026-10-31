@@ -1,0 +1,26 @@
+ .forgemyspec/state/approvals.json                  |  30 ++++++
+ .forgemyspec/state/board-checks.json               |  20 ++++
+ .forgemyspec/state/board-last.json                 |   1 +
+ .forgemyspec/state/gate/1de6f172e604734a.json      | 110 +++++++++++++++++++++
+ .forgemyspec/state/ledger.jsonl                    |  20 ++++
+ .forgemyspec/state/sessions.json                   |   6 ++
+ .forgemyspec/state/snapshot.json                   |   1 +
+ .forgemyspec/state/stop-blocks.json                |   1 +
+ .gitignore                                         |   6 +-
+ Makefile                                           |  30 ++++++
+ README.md                                          |   3 +
+ boot/boot.asm                                      |  78 +++++++++++++++
+ forgemyspec-board.yaml                             |  10 ++
+ .../.claude/commands/implement-from-spec.md        |   8 ++
+ forgemyspec-bundle/mini-os/CLAUDE.md               |  45 +++++++++
+ forgemyspec-bundle/mini-os/acceptance-checklist.md |  18 ++++
+ .../mini-os/evals/scope_drift_cases.yaml           |  13 +++
+ forgemyspec-bundle/mini-os/spec.lock               |   5 +
+ forgemyspec-bundle/mini-os/spec.yaml               |  93 +++++++++++++++++
+ kernel/entry.asm                                   |  10 ++
+ kernel/kernel.c                                    |   9 ++
+ kernel/linker.ld                                   |   9 ++
+ kernel/vga.c                                       |  36 +++++++
+ kernel/vga.h                                       |  11 +++
+ tests/test_os.py                                   |  86 ++++++++++++++++
+ 25 files changed, 655 insertions(+), 4 deletions(-)

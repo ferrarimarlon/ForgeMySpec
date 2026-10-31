@@ -1,0 +1,155 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:41:42Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "[LINT-HY-007] hypotheses[6].description: Hypothesis appears to describe what will NOT be built; hypotheses must be affirmative and testable",
+    "score 95/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "9 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "required_fields": {
+   "kind": "boundary",
+   "statement": "A required property missing from the config yields an error naming its dot path.",
+   "must_include": [
+    "required fields"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "types": {
+   "kind": "boundary",
+   "statement": "Each of string, integer, number, boolean, array, object rejects a wrong-typed value; booleans are not integers or numbers.",
+   "must_include": [
+    "types"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "enums": {
+   "kind": "boundary",
+   "statement": "A value not in the enum list yields an error.",
+   "must_include": [
+    "enums"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "number_bounds": {
+   "kind": "boundary",
+   "statement": "A number below minimum or above maximum yields an error; the bounds themselves are accepted.",
+   "must_include": [
+    "min/max for numbers"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "string_length": {
+   "kind": "boundary",
+   "statement": "A string shorter than minLength or longer than maxLength yields an error; the limits themselves are accepted.",
+   "must_include": [
+    "min/max length for strings"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "patterns": {
+   "kind": "boundary",
+   "statement": "A string not matching pattern (re.search) yields an error.",
+   "must_include": [
+    "regex patterns"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "nested_paths": {
+   "kind": "boundary",
+   "statement": "Errors inside nested objects, including missing required nested fields, are labelled with dot paths like server.tls.port.",
+   "must_include": [
+    "dot notation in error messages"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "all_errors": {
+   "kind": "boundary",
+   "statement": "Multiple violations are all reported in one run; the CLI exits 1 with errors, 0 when valid, 2 on bad files.",
+   "must_include": [
+    "report all errors at once"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "single_file_stdlib": {
+   "kind": "boundary",
+   "statement": "config_validator.py imports only standard-library modules and needs no other project file.",
+   "must_include": [
+    "single file config_validator.py, stdlib only"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/config-validator",
+ "inputs_sha": "43274478a86aa860957cb39f693ec46631ec1dc2020a0a85735b34f1032d089a",
+ "schema": 2
+}

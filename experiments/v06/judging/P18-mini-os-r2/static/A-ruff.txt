@@ -1,0 +1,10 @@
+tests_os/test_os.py:22:9: S603 `subprocess` call: check for execution of untrusted input
+tests_os/test_os.py:22:24: S607 Starting a process with a partial executable path
+tests_os/test_os.py:38:15: S603 `subprocess` call: check for execution of untrusted input
+tests_os/test_os.py:38:30: S607 Starting a process with a partial executable path
+tests_os/test_os.py:51:17: S603 `subprocess` call: check for execution of untrusted input
+tests_os/test_os.py:52:17: S607 Starting a process with a partial executable path
+tests_os/test_os.py:54:89: E501 Line too long (92 > 88)
+tests_os/test_os.py:61:36: UP031 Use format specifiers instead of percent format
+Found 8 errors.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).

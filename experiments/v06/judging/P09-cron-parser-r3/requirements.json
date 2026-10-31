@@ -1,0 +1,18 @@
+[
+ {"id":"R1","text":"Python CLI implemented as a single file cron_parser.py"},
+ {"id":"R2","text":"Uses only the Python standard library"},
+ {"id":"R3","text":"Parses standard 5-field cron expressions (minute, hour, day-of-month, month, day-of-week); rejects other field counts"},
+ {"id":"R4","text":"Supports * wildcard"},
+ {"id":"R5","text":"Supports comma-separated lists"},
+ {"id":"R6","text":"Supports ranges a-b"},
+ {"id":"R7","text":"Supports steps (*/n and a-b/n)"},
+ {"id":"R8","text":"Supports month names (JAN-DEC)"},
+ {"id":"R9","text":"Supports day-of-week names (SUN-SAT)"},
+ {"id":"R10","text":"Validates field ranges and rejects out-of-range / malformed values"},
+ {"id":"R11","text":"validate <expr> subcommand explains each field for valid expressions"},
+ {"id":"R12","text":"validate <expr> reports the error for invalid expressions (non-zero exit, message)"},
+ {"id":"R13","text":"next <expr> prints the next run times from now (default count)"},
+ {"id":"R14","text":"next <expr> -n N prints exactly N run times, computed correctly"},
+ {"id":"R15","text":"Handles invalid dates such as February 30 (never produced; impossible schedules reported, not hang)"},
+ {"id":"R16","text":"Standard cron day-of-month/day-of-week OR semantics when both restricted"}
+]

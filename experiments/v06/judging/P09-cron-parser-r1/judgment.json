@@ -1,0 +1,27 @@
+{
+ "requirements_total": 17,
+ "probes_total": 42,
+ "A": {"probes_passed": 40,
+       "scores": {"functional": 3, "coverage": 4, "security": 5, "robustness": 3, "quality": 4, "tests": 0},
+       "requirements_met": 15, "requirements_partial": 2, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "functional", "requirement": "R14", "evidence": "P34_feb29_n5_long_horizon: `next '0 0 29 2 *' -n 5` prints only 2028/2032/2036, exit 0, stderr 'Only 3 run(s) found within 10 years.'; A/cron_parser.py:96-100 fixed 10-year absolute horizon", "summary": "next stops at a fixed 10-year window from now, so sparse but valid schedules return fewer than N runs."},
+        {"severity": "medium", "category": "functional", "requirement": "R12", "evidence": "P19_unicode_digit: `validate '² * * * *'` -> Traceback (str.isdigit accepts '²' then int() raises ValueError); A/cron_parser.py:32-34", "summary": "Non-ASCII digit characters crash the parser with an uncaught ValueError traceback instead of a clean error."},
+        {"severity": "low", "category": "quality", "requirement": "R16", "evidence": "`validate '0 0 30 2 *'` prints 'Valid cron expression' plus a warning and exits 0", "summary": "An impossible Feb 30 schedule is reported as valid (with a warning) rather than as an error."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt: B905 at lines 76,135; E501 at 97,172", "summary": "Minor lint findings (zip without strict, long lines)."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 160},
+ "B": {"probes_passed": 42,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 5, "quality": 4, "tests": 4},
+       "requirements_met": 17, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "B/cron_parser.py:25-29 (Cron subclasses list with class attrs), B/cron_parser.py:53-54 unreachable '/' check after isdigit", "summary": "Slightly odd data model and a dead-code branch in step parsing."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt: E501 x5 in cron_parser.py, E741 in tests line 88", "summary": "Minor lint findings (long lines, ambiguous variable name)."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "B/tests/test_cron_parser.py: 7 test methods; `unittest discover -s tests` fails (no __init__.py), runs only with tests on sys.path", "summary": "Small test suite that is not discoverable with the default unittest invocation."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 7, "failed": 0},
+       "loc": 146},
+ "blinding_guess": {"spec_framework_side": "unsure", "confidence": 0.3, "why": "Both are similar compact single-file designs; B adds tests and an injectable `now`, which is weak evidence of a more process-driven approach."},
+ "notes": "Probes compare next-run output against an independent reference matcher (Vixie-style DOM/DOW OR semantics, '*'-prefixed fields count as unrestricted), run with Python 3.9.6. Bandit reports in static/ were empty for both sides. B's tests were run from a temp copy with tests/ on sys.path because the default discover invocation fails. A's two probe failures are a horizon truncation on sparse schedules and a crash on non-ASCII digits; B passed all probes."
+}

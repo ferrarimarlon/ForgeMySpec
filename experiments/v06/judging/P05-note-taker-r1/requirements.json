@@ -1,0 +1,16 @@
+[
+ {"id":"R1","text":"CLI program for markdown note taking"},
+ {"id":"R2","text":"Subcommand 'new' creates a note"},
+ {"id":"R3","text":"Subcommand 'list' lists notes"},
+ {"id":"R4","text":"Subcommand 'show' displays a note"},
+ {"id":"R5","text":"Subcommand 'edit' modifies a note"},
+ {"id":"R6","text":"Subcommand 'delete' removes a note"},
+ {"id":"R7","text":"Notes stored as .md files"},
+ {"id":"R8","text":"Notes have YAML frontmatter"},
+ {"id":"R9","text":"Storage directory is ~/.note-taker/"},
+ {"id":"R10","text":"Search/filter by tag"},
+ {"id":"R11","text":"Search by keyword"},
+ {"id":"R12","text":"Single file note_taker.py"},
+ {"id":"R13","text":"Standard library only"},
+ {"id":"R14","text":"Errors for missing notes/invalid input are reported cleanly (non-zero exit, no traceback)"}
+]

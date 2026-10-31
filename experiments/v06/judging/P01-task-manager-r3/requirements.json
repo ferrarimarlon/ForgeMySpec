@@ -1,0 +1,18 @@
+[
+ {"id":"R1","text":"Add a task via CLI"},
+ {"id":"R2","text":"List tasks via CLI"},
+ {"id":"R3","text":"Update a task via CLI"},
+ {"id":"R4","text":"Delete a task via CLI"},
+ {"id":"R5","text":"Task has fields id, title, description, priority, status, due_date"},
+ {"id":"R6","text":"Priority restricted to low/medium/high (invalid rejected)"},
+ {"id":"R7","text":"Status restricted to todo/in-progress/done (invalid rejected)"},
+ {"id":"R8","text":"Persist data in SQLite using raw sqlite3, no ORM; data survives across invocations"},
+ {"id":"R9","text":"Filter tasks by status"},
+ {"id":"R10","text":"Filter tasks by priority"},
+ {"id":"R11","text":"Mark task as done"},
+ {"id":"R12","text":"Output as formatted table in terminal"},
+ {"id":"R13","text":"Single-file CLI entry point named task_manager.py"},
+ {"id":"R14","text":"No external dependencies beyond stdlib"},
+ {"id":"R15","text":"Implied: errors on nonexistent ids / invalid input reported with nonzero exit, no traceback"},
+ {"id":"R16","text":"Implied: due_date validated as a date"}
+]

@@ -1,0 +1,633 @@
+{
+ "builds": 108,
+ "judged_pairs": 54,
+ "build_metrics": {
+  "tokens_total": {
+   "tasks": 18,
+   "with_mean": 396888.6481,
+   "without_mean": 60233.6111,
+   "diff_mean": 336655.037,
+   "ci95": [
+    307100.9259,
+    370830.0556
+   ],
+   "wilcoxon_p": 0.0002
+  },
+  "output_tokens": {
+   "tasks": 18,
+   "with_mean": 14669.5926,
+   "without_mean": 4659.1111,
+   "diff_mean": 10010.4815,
+   "ci95": [
+    8853.1111,
+    11031.963
+   ],
+   "wilcoxon_p": 0.0002
+  },
+  "input_tokens": {
+   "tasks": 18,
+   "with_mean": 29.537,
+   "without_mean": 6.1852,
+   "diff_mean": 23.3519,
+   "ci95": [
+    21.8704,
+    25.0185
+   ],
+   "wilcoxon_p": 0.0002
+  },
+  "cache_read_input_tokens": {
+   "tasks": 18,
+   "with_mean": 354984.537,
+   "without_mean": 44833.4815,
+   "diff_mean": 310151.0556,
+   "ci95": [
+    282031.7407,
+    342980.6852
+   ],
+   "wilcoxon_p": 0.0002
+  },
+  "cache_creation_input_tokens": {
+   "tasks": 18,
+   "with_mean": 27204.9815,
+   "without_mean": 10734.8333,
+   "diff_mean": 16470.1481,
+   "ci95": [
+    15134.8148,
+    17685.2407
+   ],
+   "wilcoxon_p": 0.0002
+  },
+  "cost_usd": {
+   "tasks": 18,
+   "with_mean": 0.4584,
+   "without_mean": 0.094,
+   "diff_mean": 0.3644,
+   "ci95": [
+    0.3191,
+    0.4172
+   ],
+   "wilcoxon_p": 0.0002
+  },
+  "wall_min": {
+   "tasks": 18,
+   "with_mean": 1.663,
+   "without_mean": 0.6185,
+   "diff_mean": 1.0444,
+   "ci95": [
+    0.9037,
+    1.1815
+   ],
+   "wilcoxon_p": 0.0002
+  },
+  "api_calls": {
+   "tasks": 18,
+   "with_mean": 13.9074,
+   "without_mean": 3.0926,
+   "diff_mean": 10.8148,
+   "ci95": [
+    10.0185,
+    11.7037
+   ],
+   "wilcoxon_p": 0.0002
+  },
+  "model_writes": {
+   "tasks": 18,
+   "with_mean": 3.3889,
+   "without_mean": 1.2778,
+   "diff_mean": 2.1111,
+   "ci95": [
+    1.4444,
+    2.7593
+   ],
+   "wilcoxon_p": 0.0005
+  },
+  "harness_runs": {
+   "tasks": 18,
+   "with_mean": 6.7778,
+   "without_mean": 0,
+   "diff_mean": 6.7778,
+   "ci95": [
+    6.2778,
+    7.2778
+   ],
+   "wilcoxon_p": 0.0002
+  },
+  "verify_runs": {
+   "tasks": 18,
+   "with_mean": 0.7222,
+   "without_mean": 1.2963,
+   "diff_mean": -0.5741,
+   "ci95": [
+    -0.9444,
+    -0.2222
+   ],
+   "wilcoxon_p": 0.0062
+  }
+ },
+ "judge_metrics": {
+  "score_mean": {
+   "tasks": 18,
+   "with_mean": 4.037,
+   "without_mean": 4.337,
+   "diff_mean": -0.3,
+   "ci95": [
+    -0.5889,
+    -0.0222
+   ],
+   "wilcoxon_p": 0.0581
+  },
+  "score_mean6": {
+   "tasks": 18,
+   "with_mean": 3.9877,
+   "without_mean": 3.6142,
+   "diff_mean": 0.3735,
+   "ci95": [
+    0.0925,
+    0.639
+   ],
+   "wilcoxon_p": 0.0328
+  },
+  "score_functional": {
+   "tasks": 18,
+   "with_mean": 4.0,
+   "without_mean": 4.4815,
+   "diff_mean": -0.4815,
+   "ci95": [
+    -0.9074,
+    -0.037
+   ],
+   "wilcoxon_p": 0.0472
+  },
+  "score_coverage": {
+   "tasks": 18,
+   "with_mean": 4.4074,
+   "without_mean": 4.7963,
+   "diff_mean": -0.3889,
+   "ci95": [
+    -0.7593,
+    -0.0556
+   ],
+   "wilcoxon_p": 0.0673
+  },
+  "score_security": {
+   "tasks": 18,
+   "with_mean": 4.5,
+   "without_mean": 4.8148,
+   "diff_mean": -0.3148,
+   "ci95": [
+    -0.7037,
+    0.037
+   ],
+   "wilcoxon_p": 0.1479
+  },
+  "score_robustness": {
+   "tasks": 18,
+   "with_mean": 3.5926,
+   "without_mean": 3.5926,
+   "diff_mean": 0.0,
+   "ci95": [
+    -0.3704,
+    0.4074
+   ],
+   "wilcoxon_p": 0.8643
+  },
+  "score_quality": {
+   "tasks": 18,
+   "with_mean": 3.6852,
+   "without_mean": 4.0,
+   "diff_mean": -0.3148,
+   "ci95": [
+    -0.5926,
+    -0.0741
+   ],
+   "wilcoxon_p": 0.0578
+  },
+  "score_tests": {
+   "tasks": 18,
+   "with_mean": 3.7407,
+   "without_mean": 0,
+   "diff_mean": 3.7407,
+   "ci95": [
+    3.4074,
+    4.037
+   ],
+   "wilcoxon_p": 0.0002
+  },
+  "probe_rate": {
+   "tasks": 18,
+   "with_mean": 0.8853,
+   "without_mean": 0.9491,
+   "diff_mean": -0.0637,
+   "ci95": [
+    -0.1223,
+    -0.0117
+   ],
+   "wilcoxon_p": 0.0798
+  },
+  "crit_high": {
+   "tasks": 18,
+   "with_mean": 0.0926,
+   "without_mean": 0.0556,
+   "diff_mean": 0.037,
+   "ci95": [
+    -0.037,
+    0.1296
+   ],
+   "wilcoxon_p": 0.484
+  },
+  "issues": {
+   "tasks": 18,
+   "with_mean": 2.9074,
+   "without_mean": 3.2222,
+   "diff_mean": -0.3148,
+   "ci95": [
+    -0.7963,
+    0.1481
+   ],
+   "wilcoxon_p": 0.2203
+  },
+  "sev_critical": {
+   "tasks": 18,
+   "with_mean": 0.0741,
+   "without_mean": 0,
+   "diff_mean": 0.0741,
+   "ci95": [
+    0.0185,
+    0.1481
+   ],
+   "wilcoxon_p": 0.0719
+  },
+  "sev_high": {
+   "tasks": 18,
+   "with_mean": 0.0185,
+   "without_mean": 0.0556,
+   "diff_mean": -0.037,
+   "ci95": [
+    -0.1111,
+    0.037
+   ],
+   "wilcoxon_p": 0.4237
+  },
+  "cat_security": {
+   "tasks": 18,
+   "with_mean": 0.1296,
+   "without_mean": 0.1111,
+   "diff_mean": 0.0185,
+   "ci95": [
+    -0.1111,
+    0.1296
+   ],
+   "wilcoxon_p": 1.0
+  },
+  "cat_silent": {
+   "tasks": 18,
+   "with_mean": 0.7593,
+   "without_mean": 0.5185,
+   "diff_mean": 0.2407,
+   "ci95": [
+    -0.1852,
+    0.6296
+   ],
+   "wilcoxon_p": 0.2047
+  },
+  "cat_scope": {
+   "tasks": 18,
+   "with_mean": 0.1481,
+   "without_mean": 0.2778,
+   "diff_mean": -0.1296,
+   "ci95": [
+    -0.3333,
+    0.0556
+   ],
+   "wilcoxon_p": 0.2873
+  },
+  "cat_functional": {
+   "tasks": 18,
+   "with_mean": 0.4815,
+   "without_mean": 0.7222,
+   "diff_mean": -0.2407,
+   "ci95": [
+    -0.5556,
+    0.0556
+   ],
+   "wilcoxon_p": 0.1518
+  },
+  "loc": {
+   "tasks": 18,
+   "with_mean": 183.0741,
+   "without_mean": 221.0926,
+   "diff_mean": -38.0185,
+   "ci95": [
+    -64.8148,
+    -14.1667
+   ],
+   "wilcoxon_p": 0.0131
+  }
+ },
+ "by_class": {
+  "simple": {
+   "score_mean": {
+    "tasks": 4,
+    "with_mean": 4.2667,
+    "without_mean": 4.2333,
+    "diff_mean": 0.0333,
+    "ci95": [
+     -0.2333,
+     0.4
+    ],
+    "wilcoxon_p": 1.0
+   },
+   "probe_rate": {
+    "tasks": 4,
+    "with_mean": 0.9386,
+    "without_mean": 0.9237,
+    "diff_mean": 0.0149,
+    "ci95": [
+     -0.0158,
+     0.0663
+    ],
+    "wilcoxon_p": 0.8551
+   },
+   "crit_high": {
+    "tasks": 4,
+    "with_mean": 0.0833,
+    "without_mean": 0.1667,
+    "diff_mean": -0.0833,
+    "ci95": [
+     -0.3333,
+     0.1667
+    ],
+    "wilcoxon_p": 0.7728
+   }
+  },
+  "medium": {
+   "score_mean": {
+    "tasks": 5,
+    "with_mean": 3.92,
+    "without_mean": 4.44,
+    "diff_mean": -0.52,
+    "ci95": [
+     -1.0133,
+     -0.0267
+    ],
+    "wilcoxon_p": 0.1056
+   },
+   "probe_rate": {
+    "tasks": 5,
+    "with_mean": 0.8441,
+    "without_mean": 0.9504,
+    "diff_mean": -0.1063,
+    "ci95": [
+     -0.217,
+     0.0045
+    ],
+    "wilcoxon_p": 0.4185
+   },
+   "crit_high": {
+    "tasks": 5,
+    "with_mean": 0.1333,
+    "without_mean": 0.0667,
+    "diff_mean": 0.0667,
+    "ci95": [
+     0.0,
+     0.2
+    ],
+    "wilcoxon_p": 1.0
+   }
+  },
+  "complex": {
+   "score_mean": {
+    "tasks": 5,
+    "with_mean": 3.9467,
+    "without_mean": 4.4133,
+    "diff_mean": -0.4667,
+    "ci95": [
+     -1.0133,
+     0.0267
+    ],
+    "wilcoxon_p": 0.2228
+   },
+   "probe_rate": {
+    "tasks": 5,
+    "with_mean": 0.8851,
+    "without_mean": 0.9678,
+    "diff_mean": -0.0827,
+    "ci95": [
+     -0.1959,
+     -0.0018
+    ],
+    "wilcoxon_p": 0.1775
+   },
+   "crit_high": {
+    "tasks": 5,
+    "with_mean": 0.0667,
+    "without_mean": 0,
+    "diff_mean": 0.0667,
+    "ci95": [
+     0,
+     0.2
+    ],
+    "wilcoxon_p": 1.0
+   }
+  },
+  "other": {
+   "score_mean": {
+    "tasks": 4,
+    "with_mean": 4.0667,
+    "without_mean": 4.2167,
+    "diff_mean": -0.15,
+    "ci95": [
+     -0.9667,
+     0.5833
+    ],
+    "wilcoxon_p": 0.5807
+   },
+   "probe_rate": {
+    "tasks": 4,
+    "with_mean": 0.8838,
+    "without_mean": 0.9494,
+    "diff_mean": -0.0656,
+    "ci95": [
+     -0.2138,
+     0.0448
+    ],
+    "wilcoxon_p": 0.7893
+   },
+   "crit_high": {
+    "tasks": 4,
+    "with_mean": 0.0833,
+    "without_mean": 0,
+    "diff_mean": 0.0833,
+    "ci95": [
+     0,
+     0.25
+    ],
+    "wilcoxon_p": 1.0
+   }
+  }
+ },
+ "by_class_cost": {
+  "simple": {
+   "tasks": 4,
+   "with_mean": 0.4173,
+   "without_mean": 0.0719,
+   "diff_mean": 0.3454,
+   "ci95": [
+    0.3153,
+    0.3743
+   ],
+   "wilcoxon_p": 0.1003
+  },
+  "medium": {
+   "tasks": 5,
+   "with_mean": 0.4218,
+   "without_mean": 0.0877,
+   "diff_mean": 0.3342,
+   "ci95": [
+    0.2776,
+    0.3847
+   ],
+   "wilcoxon_p": 0.0591
+  },
+  "complex": {
+   "tasks": 5,
+   "with_mean": 0.4743,
+   "without_mean": 0.1132,
+   "diff_mean": 0.361,
+   "ci95": [
+    0.2516,
+    0.4521
+   ],
+   "wilcoxon_p": 0.0591
+  },
+  "other": {
+   "tasks": 4,
+   "with_mean": 0.5255,
+   "without_mean": 0.1001,
+   "diff_mean": 0.4255,
+   "ci95": [
+    0.3168,
+    0.5963
+   ],
+   "wilcoxon_p": 0.1003
+  }
+ },
+ "rigor": {
+  "P01-task-manager-r1": "spec-only",
+  "P01-task-manager-r2": "spec-only",
+  "P01-task-manager-r3": "spec-only",
+  "P02-blog-api-r1": "spec-only",
+  "P02-blog-api-r2": "spec-only",
+  "P02-blog-api-r3": "spec-only",
+  "P03-dir-organizer-r1": "spec-only",
+  "P03-dir-organizer-r2": "spec-only",
+  "P03-dir-organizer-r3": "spec-only",
+  "P04-csv-analytics-r1": "spec-only",
+  "P04-csv-analytics-r2": "spec-only",
+  "P04-csv-analytics-r3": "spec-only",
+  "P05-note-taker-r1": "spec-only",
+  "P05-note-taker-r2": "spec-only",
+  "P05-note-taker-r3": "spec-only",
+  "P06-expense-splitter-r1": "spec-only",
+  "P06-expense-splitter-r2": "spec-only",
+  "P06-expense-splitter-r3": "spec-only",
+  "P07-password-checker-r1": "spec-only",
+  "P07-password-checker-r2": "spec-only",
+  "P07-password-checker-r3": "spec-only",
+  "P08-time-tracker-r1": "spec-only",
+  "P08-time-tracker-r2": "spec-only",
+  "P08-time-tracker-r3": "spec-only",
+  "P09-cron-parser-r1": "spec-only",
+  "P09-cron-parser-r2": "spec-only",
+  "P09-cron-parser-r3": "spec-only",
+  "P10-data-dedup-r1": "spec-only",
+  "P10-data-dedup-r2": "spec-only",
+  "P10-data-dedup-r3": "spec-only",
+  "P11-invoice-gen-r1": "spec-only",
+  "P11-invoice-gen-r2": "spec-only",
+  "P11-invoice-gen-r3": "spec-only",
+  "P12-config-validator-r1": "spec-only",
+  "P12-config-validator-r2": "spec-only",
+  "P12-config-validator-r3": "spec-only",
+  "P13-state-machine-r1": "spec-only",
+  "P13-state-machine-r2": "spec-only",
+  "P13-state-machine-r3": "spec-only",
+  "P14-budget-tracker-r1": "spec-only",
+  "P14-budget-tracker-r2": "spec-only",
+  "P14-budget-tracker-r3": "spec-only",
+  "P15-grade-calc-r1": "spec-only",
+  "P15-grade-calc-r2": "spec-only",
+  "P15-grade-calc-r3": "spec-only",
+  "P16-secret-vault-r1": "spec-only",
+  "P16-secret-vault-r2": "spec-only",
+  "P16-secret-vault-r3": "spec-only",
+  "P17-job-scheduler-r1": "spec-only",
+  "P17-job-scheduler-r2": "spec-only",
+  "P17-job-scheduler-r3": "spec-only",
+  "P18-mini-os-r1": "spec-only",
+  "P18-mini-os-r2": "spec-only",
+  "P18-mini-os-r3": "spec-only"
+ },
+ "final_gate": {
+  "P01-task-manager-r1": "PASS",
+  "P01-task-manager-r2": "PASS",
+  "P01-task-manager-r3": "PASS",
+  "P02-blog-api-r1": "PASS",
+  "P02-blog-api-r2": "PASS",
+  "P02-blog-api-r3": "PASS",
+  "P03-dir-organizer-r1": "PASS",
+  "P03-dir-organizer-r2": "PASS",
+  "P03-dir-organizer-r3": "PASS",
+  "P04-csv-analytics-r1": "PASS",
+  "P04-csv-analytics-r2": "PASS",
+  "P04-csv-analytics-r3": "PASS",
+  "P05-note-taker-r1": "PASS",
+  "P05-note-taker-r2": "PASS",
+  "P05-note-taker-r3": "PASS",
+  "P06-expense-splitter-r1": "none",
+  "P06-expense-splitter-r2": "PASS",
+  "P06-expense-splitter-r3": "PASS",
+  "P07-password-checker-r1": "none",
+  "P07-password-checker-r2": "PASS",
+  "P07-password-checker-r3": "PASS",
+  "P08-time-tracker-r1": "PASS",
+  "P08-time-tracker-r2": "PASS",
+  "P08-time-tracker-r3": "PASS",
+  "P09-cron-parser-r1": "PASS",
+  "P09-cron-parser-r2": "PASS",
+  "P09-cron-parser-r3": "PASS",
+  "P10-data-dedup-r1": "PASS",
+  "P10-data-dedup-r2": "PASS",
+  "P10-data-dedup-r3": "PASS",
+  "P11-invoice-gen-r1": "none",
+  "P11-invoice-gen-r2": "PASS",
+  "P11-invoice-gen-r3": "PASS",
+  "P12-config-validator-r1": "PASS",
+  "P12-config-validator-r2": "PASS",
+  "P12-config-validator-r3": "PASS",
+  "P13-state-machine-r1": "PASS",
+  "P13-state-machine-r2": "none",
+  "P13-state-machine-r3": "PASS",
+  "P14-budget-tracker-r1": "PASS",
+  "P14-budget-tracker-r2": "PASS",
+  "P14-budget-tracker-r3": "PASS",
+  "P15-grade-calc-r1": "PASS",
+  "P15-grade-calc-r2": "PASS",
+  "P15-grade-calc-r3": "PASS",
+  "P16-secret-vault-r1": "PASS",
+  "P16-secret-vault-r2": "PASS",
+  "P16-secret-vault-r3": "PASS",
+  "P17-job-scheduler-r1": "PASS",
+  "P17-job-scheduler-r2": "PASS",
+  "P17-job-scheduler-r3": "PASS",
+  "P18-mini-os-r1": "PASS",
+  "P18-mini-os-r2": "PASS",
+  "P18-mini-os-r3": "PASS"
+ },
+ "harness_share_with": 0.704,
+ "blinding": {
+  "guesses": 54,
+  "correct": 31,
+  "unsure_or_neither": 23
+ }
+}

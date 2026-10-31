@@ -1,0 +1,30 @@
+{
+ "A": {
+  "P01_clean_build": "pass",
+  "P02_no_warnings": "fail",
+  "P03_boot_signature": "pass",
+  "P04_no_external_libs": "pass",
+  "P05_vga_b8000_in_source": "pass",
+  "P06_qemu_i386_hdd_banner": "pass",
+  "P07_qemu_i386_floppy_banner": "fail",
+  "P08_qemu_x86_64_banner": "pass",
+  "P09_stable_no_reset_8s": "pass",
+  "P10_minimal_kernel_le_16KiB": "pass",
+  "P11_make_run_qemu": "pass",
+  "P12_own_bootloader_512": "pass"
+ },
+ "B": {
+  "P01_clean_build": "pass",
+  "P02_no_warnings": "pass",
+  "P03_boot_signature": "pass",
+  "P04_no_external_libs": "pass",
+  "P05_vga_b8000_in_source": "pass",
+  "P06_qemu_i386_hdd_banner": "pass",
+  "P07_qemu_i386_floppy_banner": "pass",
+  "P08_qemu_x86_64_banner": "pass",
+  "P09_stable_no_reset_8s": "pass",
+  "P10_minimal_kernel_le_16KiB": "pass",
+  "P11_make_run_qemu": "pass",
+  "P12_own_bootloader_512": "pass"
+ }
+}

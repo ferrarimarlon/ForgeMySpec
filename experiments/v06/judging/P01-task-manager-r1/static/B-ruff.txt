@@ -1,0 +1,10 @@
+task_manager.py:40:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+task_manager.py:47:89: E501 Line too long (100 > 88)
+task_manager.py:57:5: E731 Do not assign a `lambda` expression, use a `def`
+task_manager.py:57:66: B905 `zip()` without an explicit `strict=` parameter
+task_manager.py:57:89: E501 Line too long (91 > 88)
+task_manager.py:69:89: E501 Line too long (96 > 88)
+task_manager.py:110:24: S608 Possible SQL injection vector through string-based query construction
+task_manager.py:110:89: E501 Line too long (89 > 88)
+Found 8 errors.
+No fixes available (2 hidden fixes can be enabled with the `--unsafe-fixes` option).

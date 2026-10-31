@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "INMCET",
+   "nonce": "b997bde78a5a7dd83a2fe930f3535b97",
+   "created_at": "2026-10-31T20:32:05.816Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/password-checker",
+     "content_sha": "f568f7cacef99a93a5de638e1ea2b347c3fb078c179aec314c2881273b37a64c",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

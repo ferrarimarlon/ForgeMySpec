@@ -1,0 +1,10 @@
+- id: R1
+  status: doing
+  title: "Invoice generator CLI"
+  quote: "Build an invoice generator CLI in Python. Read an invoice JSON ... validate it reporting all errors at once, compute ... with correct money rounding, and print a formatted invoice (text) or export it as JSON. Single file invoice_gen.py, stdlib only."
+  steps:
+    - {do: "Spec written and linted", check: "cmd: PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec lint forgemyspec-bundle/invoice-gen/spec.yaml --formal"}
+    - {do: "User approved the spec bundle (spec.lock)", ok: true}
+    - {do: "Boundary tests pass", check: "cmd: python3 -m unittest discover -s tests"}
+    - {do: "Gate passes", check: "cmd: PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec gate forgemyspec-bundle/invoice-gen"}
+  next: "Implement invoice_gen.py and tests"

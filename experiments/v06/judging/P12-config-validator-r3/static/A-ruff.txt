@@ -1,0 +1,8 @@
+config_validator.py:42:5: C901 `validate` is too complex (22 > 10)
+config_validator.py:65:89: E501 Line too long (90 > 88)
+config_validator.py:70:89: E501 Line too long (92 > 88)
+config_validator.py:74:89: E501 Line too long (95 > 88)
+config_validator.py:80:89: E501 Line too long (90 > 88)
+config_validator.py:89:89: E501 Line too long (95 > 88)
+config_validator.py:112:89: E501 Line too long (92 > 88)
+Found 7 errors.

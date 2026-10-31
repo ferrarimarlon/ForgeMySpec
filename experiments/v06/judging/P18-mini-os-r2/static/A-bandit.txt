@@ -1,0 +1,99 @@
+Run started:2026-10-31 21:47:52.102084
+
+Test results:
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: ./tests_os/test_os.py:3:0
+2	import re
+3	import subprocess
+4	import tempfile
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/plugins/b607_start_process_with_partial_path.html
+   Location: ./tests_os/test_os.py:22:8
+21	    def setUpClass(cls):
+22	        subprocess.run(["make", "-C", ROOT, "all"], check=True, capture_output=True)
+23	
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./tests_os/test_os.py:22:8
+21	    def setUpClass(cls):
+22	        subprocess.run(["make", "-C", ROOT, "all"], check=True, capture_output=True)
+23	
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/plugins/b607_start_process_with_partial_path.html
+   Location: ./tests_os/test_os.py:38:14
+37	        self.assertIn("-nostdlib", mk)
+38	        out = subprocess.run(["i686-elf-nm", "-u", os.path.join(BUILD, "kernel.elf")],
+39	                             capture_output=True, text=True, check=True).stdout
+40	        self.assertEqual(out.strip(), "")
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./tests_os/test_os.py:38:14
+37	        self.assertIn("-nostdlib", mk)
+38	        out = subprocess.run(["i686-elf-nm", "-u", os.path.join(BUILD, "kernel.elf")],
+39	                             capture_output=True, text=True, check=True).stdout
+40	        self.assertEqual(out.strip(), "")
+
+--------------------------------------------------
+>> Issue: [B607:start_process_with_partial_path] Starting a process with a partial executable path
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/plugins/b607_start_process_with_partial_path.html
+   Location: ./tests_os/test_os.py:51:16
+50	            dump = os.path.join(d, "vga.bin")
+51	            p = subprocess.Popen(
+52	                ["qemu-system-i386", "-display", "none", "-serial", "none",
+53	                 "-monitor", "stdio", "-drive", "format=raw,file=" + IMG],
+54	                stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+55	            try:
+
+--------------------------------------------------
+>> Issue: [B603:subprocess_without_shell_equals_true] subprocess call - check for execution of untrusted input.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/plugins/b603_subprocess_without_shell_equals_true.html
+   Location: ./tests_os/test_os.py:51:16
+50	            dump = os.path.join(d, "vga.bin")
+51	            p = subprocess.Popen(
+52	                ["qemu-system-i386", "-display", "none", "-serial", "none",
+53	                 "-monitor", "stdio", "-drive", "format=raw,file=" + IMG],
+54	                stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+55	            try:
+
+--------------------------------------------------
+
+Code scanned:
+	Total lines of code: 65
+	Total lines skipped (#nosec): 0
+	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 0
+
+Run metrics:
+	Total issues (by severity):
+		Undefined: 0
+		Low: 7
+		Medium: 0
+		High: 0
+	Total issues (by confidence):
+		Undefined: 0
+		Low: 0
+		Medium: 0
+		High: 7
+Files skipped (0):

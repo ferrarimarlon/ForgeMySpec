@@ -1,0 +1,199 @@
+version: "0.1"
+title: Secret Vault CLI
+objective: A single-file Python CLI (vault.py) that stores secrets in an encrypted file under ~/.vault/, with TTL expiry, lockout after wrong passwords, and an audit log that never contains values.
+execution_mode: critical
+context:
+  system: Empty Python repository; deliverable is one file vault.py at the repository root using argparse, the standard library and the `cryptography` package. Tests use unittest with HOME redirected to a temp directory.
+  assumptions:
+    - "Vault lives at ~/.vault/vault.enc; audit log at ~/.vault/audit.log; lockout marker at ~/.vault/.lockout; failed-attempt counter at ~/.vault/.attempts (reset on a correct password)."
+    - "Usage: vault.py set KEY VALUE [--ttl DAYS]; get KEY; list; delete KEY; rotate KEY NEWVALUE [--ttl DAYS]; audit. Values are positional arguments (only the master password is barred from the CLI)."
+    - "File format: 16-byte salt header followed by the Fernet token of a JSON object mapping key to {value, expires}."
+    - "While .lockout exists every command exits 2 without trying a password; removing it is a manual action by the user."
+    - "A missing VAULT_MASTER_KEY exits 2. A missing key on get/delete exits 1. Invalid key, oversized value, non-integer or negative TTL exit 1."
+    - "rotate replaces the value of an existing key and resets expiry from --ttl (default 90). list shows expired entries as 'expired' without any value characters."
+    - "Every command appends one line (UTC timestamp, command, key name, outcome) to audit.log; the audit command also prints its last 20 lines."
+constraints:
+  - No password option or prompt on the CLI; the master password is read only from VAULT_MASTER_KEY.
+  - No crypto other than Fernet with PBKDF2HMAC SHA-256; no custom ciphers.
+  - No network access, no extra dependencies beyond cryptography, no second source file.
+  - No value text in audit.log, stderr or exception messages.
+  - No automatic lockout reset and no key export or import commands.
+success_criteria:
+  - All boundary tests in tests/test_vault.py pass.
+  - The vault file contains no plaintext value and starts with a 16-byte salt.
+  - File modes are 600 for vault.enc and 700 for ~/.vault/.
+hypotheses:
+  - id: h1
+    description: The master password is read only from the VAULT_MASTER_KEY environment variable and the CLI accepts no password argument.
+    confidence: 0.9
+  - id: h2
+    description: The vault file holds a 16-byte salt header then a Fernet token whose key comes from PBKDF2HMAC SHA-256 with 200000 iterations.
+    confidence: 0.85
+  - id: h3
+    description: Keys must match [a-zA-Z0-9_]{1,64} and are stored lowercase, and values over 4096 UTF-8 bytes are rejected with exit 1.
+    confidence: 0.9
+  - id: h4
+    description: set and rotate accept --ttl DAYS (default 90) and store the expiry as an ISO-8601 timestamp.
+    confidence: 0.9
+  - id: h5
+    description: get prints only the value to stdout, exits 3 when the entry is expired, and never prints an expired value.
+    confidence: 0.9
+  - id: h6
+    description: list shows value[:4] then *** for each entry as a truncated preview.
+    confidence: 0.9
+  - id: h7
+    description: set, get, list, delete, rotate and audit commands work, and rotate of a missing key exits 1.
+    confidence: 0.85
+  - id: h8
+    description: audit appends to ~/.vault/audit.log and prints the last 20 lines, and the audit log and stderr carry only key names and outcomes.
+    confidence: 0.85
+  - id: h9
+    description: Three wrong passwords create the .lockout file and exit 2, and a locked vault answers every command with exit 2.
+    confidence: 0.8
+  - id: h10
+    description: vault.enc is chmod 600, ~/.vault/ is chmod 700, and exit codes are 0 ok, 1 user error, 2 auth/lockout, 3 expired.
+    confidence: 0.9
+required_evidence:
+  - Output of `python3 -m unittest discover tests` with all tests passing.
+  - Gate report ending in RESULT PASS.
+actions:
+  - id: a1
+    description: Design the file format, key derivation and command parsing in vault.py.
+    type: design
+    requires_confirmation: false
+    supports: [h1, h2, h3, h4]
+  - id: a2
+    description: Implement the six commands, expiry handling and audit logging.
+    type: implement
+    requires_confirmation: false
+    supports: [h5, h6, h7, h8]
+  - id: a3
+    description: Implement the lockout counter, file permissions and exit code mapping.
+    type: implement
+    requires_confirmation: false
+    supports: [h9, h10]
+  - id: a4
+    description: Run the unittest suite and the harness gate against the bundle.
+    type: validate
+    requires_confirmation: false
+    supports: [h1, h2, h3, h4, h5, h6, h7, h8, h9, h10]
+decision_rules:
+  - Stop and ask the user if a requirement conflicts with another or cannot be tested.
+  - Any change to behavior outside the obligations is a spec amendment.
+metadata:
+  source_prompt: "Build a Secret Vault CLI in Python (single file vault.py; the cryptography package is allowed) with master password from VAULT_MASTER_KEY, Fernet + PBKDF2HMAC SHA-256 200,000 iterations, 16-byte salt header, key pattern [a-zA-Z0-9_]{1,64} stored lowercase, values at most 4096 bytes, --ttl DAYS default 90 ISO-8601, commands set/get/list/delete/rotate/audit, expired exit 3, list value[:4]***, rotate exit 1 on missing key, audit log last 20 lines, 3 wrong passwords create .lockout exit 2, no values in audit log or stderr, vault.enc chmod 600 and ~/.vault chmod 700, exit codes 0/1/2/3."
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "VAULT_MASTER_KEY"
+      - "PBKDF2HMAC SHA-256 200000 iterations"
+      - "16-byte salt in header"
+      - "keys match [a-zA-Z0-9_]{1,64} stored lowercase"
+      - "values at most 4096 bytes"
+      - "--ttl default 90 ISO-8601"
+      - "get prints only the value"
+      - "exit 3 if expired"
+      - "list shows value[:4]***"
+      - "rotate exits 1 if key missing"
+      - "audit shows last 20 lines"
+      - "3 wrong passwords create .lockout exit 2"
+      - "never write values to audit log or stderr"
+      - "vault.enc chmod 600"
+      - "~/.vault chmod 700"
+formal:
+  module: VaultCore
+  obligations:
+    - id: master_key_env_only
+      kind: boundary
+      statement: "The password is read from VAULT_MASTER_KEY; the CLI has no password option, and a missing variable exits 2."
+      hypotheses: [h1]
+      must_include: ["VAULT_MASTER_KEY"]
+      test: "test_vault.VaultTests.test_master_key_env_only"
+    - id: kdf_and_salt
+      kind: boundary
+      statement: "The file starts with a 16-byte random salt (different per vault), the rest decrypts as Fernet with a PBKDF2HMAC SHA-256 key of 200000 iterations, and contains no plaintext value."
+      hypotheses: [h2]
+      must_include: ["PBKDF2HMAC SHA-256 200000 iterations", "16-byte salt in header"]
+      test: "test_vault.VaultTests.test_kdf_and_salt"
+    - id: key_validation
+      kind: boundary
+      statement: "Keys outside [a-zA-Z0-9_]{1,64} exit 1; valid keys are stored lowercase so set Foo then get FOO works."
+      hypotheses: [h3]
+      must_include: ["keys match [a-zA-Z0-9_]{1,64} stored lowercase"]
+      test: "test_vault.VaultTests.test_key_validation"
+    - id: value_size_limit
+      kind: boundary
+      statement: "A value of 4096 UTF-8 bytes is accepted; 4097 bytes (counted in bytes, not characters) exits 1."
+      hypotheses: [h3]
+      must_include: ["values at most 4096 bytes"]
+      test: "test_vault.VaultTests.test_value_size_limit"
+    - id: ttl_iso_default
+      kind: boundary
+      statement: "Without --ttl the stored expiry is now plus 90 days as ISO-8601; --ttl N uses N days; invalid TTL exits 1."
+      hypotheses: [h4]
+      must_include: ["--ttl default 90 ISO-8601"]
+      test: "test_vault.VaultTests.test_ttl_iso_default"
+    - id: get_value_only
+      kind: boundary
+      statement: "get of a live key prints exactly the value and a newline to stdout, nothing else, exit 0; a missing key exits 1."
+      hypotheses: [h5, h7]
+      must_include: ["get prints only the value"]
+      test: "test_vault.VaultTests.test_get_value_only"
+    - id: expired_exit_3
+      kind: boundary
+      statement: "get of an expired entry exits 3 and neither stdout nor stderr contains the value."
+      hypotheses: [h5]
+      must_include: ["exit 3 if expired"]
+      test: "test_vault.VaultTests.test_expired_exit_3"
+    - id: list_masks_values
+      kind: boundary
+      statement: "list prints each key with value[:4] followed by ***, never the full value, and expired entries show no value characters."
+      hypotheses: [h6]
+      must_include: ["list shows value[:4]***"]
+      test: "test_vault.VaultTests.test_list_masks_values"
+    - id: commands_roundtrip
+      kind: boundary
+      statement: "set, get, list, delete work end to end; delete of a missing key exits 1; rotate replaces the value and resets expiry."
+      hypotheses: [h7]
+      must_include: ["rotate exits 1 if key missing"]
+      test: "test_vault.VaultTests.test_commands_roundtrip"
+    - id: rotate_missing_exit_1
+      kind: boundary
+      statement: "rotate of a nonexistent key exits 1 and does not create the key."
+      hypotheses: [h7]
+      must_include: ["rotate exits 1 if key missing"]
+      test: "test_vault.VaultTests.test_rotate_missing_exit_1"
+    - id: audit_tail
+      kind: boundary
+      statement: "Commands append to ~/.vault/audit.log; audit appends its own line and prints only the last 20 lines."
+      hypotheses: [h8]
+      must_include: ["audit shows last 20 lines"]
+      test: "test_vault.VaultTests.test_audit_tail"
+    - id: no_values_leak
+      kind: boundary
+      statement: "After set, get, rotate, failures and errors, no value appears in audit.log or stderr."
+      hypotheses: [h8]
+      must_include: ["never write values to audit log or stderr"]
+      test: "test_vault.VaultTests.test_no_values_leak"
+    - id: lockout_after_three
+      kind: boundary
+      statement: "Wrong passwords exit 2; the third creates ~/.vault/.lockout; afterwards even the correct password exits 2; a correct password before the third resets the counter."
+      hypotheses: [h9]
+      must_include: ["3 wrong passwords create .lockout exit 2"]
+      test: "test_vault.VaultTests.test_lockout_after_three"
+    - id: file_modes
+      kind: boundary
+      statement: "vault.enc has mode 600 and ~/.vault/ has mode 700 after set, including when the directory pre-exists with looser permissions."
+      hypotheses: [h10]
+      must_include: ["vault.enc chmod 600", "~/.vault chmod 700"]
+      test: "test_vault.VaultTests.test_file_modes"
+    - id: exit_code_map
+      kind: boundary
+      statement: "Exit codes are 0 for success, 1 for user errors, 2 for auth or lockout, 3 for expired."
+      hypotheses: [h10]
+      must_include: ["exit 3 if expired"]
+      test: "test_vault.VaultTests.test_exit_code_map"
+scope:
+  paths: ["vault.py", "tests/**"]
+  tests: tests
+  pythonpath: ["."]

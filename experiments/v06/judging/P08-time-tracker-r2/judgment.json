@@ -1,0 +1,26 @@
+{
+ "requirements_total": 14,
+ "probes_total": 16,
+ "A": {"probes_passed": 16,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 4, "quality": 4, "tests": 0},
+       "requirements_met": 14, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "functional", "requirement": "R14", "evidence": "manual: seeded naive timestamp file then 'start x' -> TypeError: can't compare offset-naive and offset-aware datetimes (A/time_tracker.py:112)", "summary": "Hand-edited or foreign data files with timezone-naive timestamps crash start, because load() validates the format but does not normalize timezones."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt: time_tracker.py:147 E501", "summary": "One overly long line; otherwise clean, and bandit is empty."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 192},
+ "B": {"probes_passed": 14,
+       "scores": {"functional": 4, "coverage": 5, "security": 5, "robustness": 3, "quality": 3, "tests": 4},
+       "requirements_met": 13, "requirements_partial": 0, "requirements_missing": 1,
+       "issues": [
+        {"severity": "medium", "category": "functional", "requirement": "R14", "evidence": "P12_corrupt_json_graceful: 'log' on '{not json' -> raw json.decoder.JSONDecodeError traceback (B/time_tracker.py:24-26)", "summary": "A corrupt or malformed data file crashes every command with a traceback, and load() has no error handling."},
+        {"severity": "low", "category": "silent", "requirement": "R3", "evidence": "P15_reject_blank_project: 'start \"  \"' -> exit 0, 'Started    at ...'", "summary": "A blank or whitespace-only project name is accepted and stored."},
+        {"severity": "low", "category": "silent", "requirement": "R10", "evidence": "B/time_tracker.py:9,70 naive local datetime.now() with no offset stored", "summary": "Timestamps are stored as naive local time, so durations spanning a DST change or a timezone change come out wrong."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt: C901 main too complex, 13 E501/UP031 findings in time_tracker.py", "summary": "All logic sits in one main() function, with several over-long percent-format lines."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 7, "failed": 0},
+       "loc": 113},
+ "blinding_guess": {"spec_framework_side": "B", "confidence": 0.55, "why": "B ships a test suite that maps one test to each requirement (including a stdlib-only AST test) and has injectable now/out/err, which suggests a spec-driven process; A is more polished but untested."},
+ "notes": "Both sides implement every subcommand, overlap detection (log and report), HH:MM:SS output (including >24h) and refusal to start while a session is active; probes exercised these through TIME_TRACKER_FILE in temp dirs. A passed all 16 probes; B failed corrupt-JSON handling and blank-project rejection. A's only flaw found is a naive/aware datetime crash on foreign data. B's 7 unit tests pass when run with PYTHONPATH=B; A has no tests. Local interpreter is Python 3.9, so the P01 stdlib probe uses an explicit allowlist."
+}

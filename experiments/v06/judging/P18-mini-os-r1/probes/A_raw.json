@@ -1,0 +1,27 @@
+{
+ "results": {
+  "P1_build_from_clean": "pass",
+  "P2_boot_sector_signature": "pass",
+  "P3_image_has_kernel_after_bootsector": "pass",
+  "P4_image_minimal_lt_2MiB": "pass",
+  "P5_qemu_boots_and_stays_up": "pass",
+  "P6_vga_text_output_from_kernel": "pass",
+  "P7_vga_attribute_bytes_set": "pass",
+  "P8_cpu_in_protected_mode": "pass",
+  "P9_executing_outside_bios_rom": "pass",
+  "P10_stable_after_10s_no_reset": "pass",
+  "P11_no_external_libraries": "pass",
+  "P12_own_bootloader_512B": "pass",
+  "P13_rebuild_succeeds": "pass",
+  "P14_clean_removes_image": "pass"
+ },
+ "log": {
+  "build": "mkdir -p build\nnasm -f bin boot/boot.asm -o build/boot.bin\nnasm -f elf32 kernel/entry.asm -o build/entry.o\ni686-elf-gcc -std=gnu11 -O2 -Wall -Wextra -ffreestanding -fno-pic -fno-stack-protector -nostdlib -fno-builtin -c kernel/kernel.c -o build/kernel.o\ni686-elf-ld -m elf_i386 -nostdlib -T kernel/linker.ld -o build/kernel.elf build/entry.o build/kernel.o\ni686-elf-objcopy -O binary build/kernel.elf build/kernel.bin\ncat build/boot.bin build/kernel.bin > build/os.img\ndd if=/dev/zero bs=1 count=0 seek=1474560 of=build/os.img 2>/dev/null\ni686-elf-ld: warning: build/kernel.elf has a LOAD segment with RWX permissions\n",
+  "kernel_payload_bytes": 605,
+  "vga_text": "MiniOS kernel loaded                                                            Booted from a 512-byte boot sector into 32-bit protected mode.                  VGA text output at 0xB8000. Halting.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ",
+  "qemu_err": "",
+  "cr0": "00000011",
+  "eip": "00001007",
+  "undefined_symbols": []
+ }
+}

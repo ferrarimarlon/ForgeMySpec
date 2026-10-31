@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "6PHJ3L",
+   "nonce": "c791c38877dad84cf8637c24cea83b76",
+   "created_at": "2026-10-31T20:32:23.120Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/time-tracker",
+     "content_sha": "ee92251c546e85d462360385c42734bc06631c1335c3318a57d0f1f1f693b9bb",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

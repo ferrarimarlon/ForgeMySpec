@@ -1,0 +1,173 @@
+{
+ "A": {
+  "P01_stdlib_only": [
+   "argparse",
+   "datetime",
+   "json",
+   "os",
+   "sys",
+   "tempfile"
+  ],
+  "P02_start_persists_json": [
+   0,
+   "Started 'alpha' at 2026-10-31 18:34:07\n",
+   ""
+  ],
+  "P03_stop_ends_and_shows_hms": [
+   0,
+   "Stopped 'alpha' \u2014 00:00:01\n",
+   ""
+  ],
+  "P04_refuse_start_while_active": [
+   1,
+   "",
+   "error: session already active on 'alpha' (started 2026-10-31T18:34:08-03:00); run 'stop' first\n"
+  ],
+  "P05_stop_without_active_errors": [
+   1,
+   "",
+   "error: no active session\n"
+  ],
+  "P06_report_totals_per_project": [
+   0,
+   "PROJECT     TOTAL\na        01:30:30\nb        00:10:00\n-------  --------\nTOTAL    01:40:30\n",
+   ""
+  ],
+  "P07_log_detects_overlap": [
+   0,
+   "  #  PROJECT              START                END                  DURATION\n  1  a                    2026-01-01 09:00:00  2026-01-01 10:00:00  01:00:00  !overlap\n  2  b                    2026-01-01 09:30:00  2026-01-01 11:00:00  01:30:00  !overlap\n\nWarning: overlapping sessions detected:\n  #1 (a) overlaps #2 (b)\n",
+   ""
+  ],
+  "P08_no_false_overlap_adjacent": [
+   0,
+   "  #  PROJECT              START                END                  DURATION\n  1  a                    2026-01-01 09:00:00  2026-01-01 10:00:00  01:00:00\n  2  b                    2026-01-01 10:00:00  2026-01-01 11:00:00  01:00:00\n",
+   ""
+  ],
+  "P09_report_flags_overlap": [
+   0,
+   "PROJECT     TOTAL\nb        01:30:00\na        01:00:00\n-------  --------\nTOTAL    02:30:00\n\nWarning: overlapping sessions detected; totals double-count overlapped time. See 'log'.\n",
+   ""
+  ],
+  "P10_log_lists_session_hms": [
+   0,
+   "  #  PROJECT              START                END                  DURATION\n  1  a                    2026-01-01 09:00:00  2026-01-01 10:01:05  01:01:05\n",
+   ""
+  ],
+  "P11_hms_over_24h": [
+   0,
+   "PROJECT     TOTAL\na        100:00:00\n-------  --------\nTOTAL    100:00:00\n",
+   ""
+  ],
+  "P12_corrupt_json_graceful": [
+   1,
+   "",
+   "error: data file /var/folders/__/nqr_2wt90fg0zyz4mgjht0100000gn/T/tmp_y9308t2/tt.json is corrupt (JSONDecodeError('Expecting property name enclosed in double quotes: line 1 column 2 (char 1)'))\n"
+  ],
+  "P13_start_missing_project": [
+   2,
+   "",
+   "usage: time_tracker.py start [-h] project\ntime_tracker.py start: error: the following arguments are required: project\n"
+  ],
+  "P14_full_cycle_roundtrip": [
+   "PROJECT     TOTAL\nalpha    00:00:01\nbeta     00:00:01\n-------  --------\nTOTAL    00:00:02\n",
+   "  #  PROJECT              START                END                  DURATION\n  1  alpha                2026-10-31 18:34:09  2026-10-31 18:34:10  00:00:01\n  2  beta                 2026-10-31 18:34:10  2026-10-31 18:34:11  00:00:01\n",
+   "",
+   ""
+  ],
+  "P15_reject_blank_project": [
+   1,
+   "",
+   "error: project name must not be empty\n"
+  ],
+  "P16_report_empty_ok": [
+   0,
+   "No sessions recorded.\n",
+   ""
+  ]
+ },
+ "B": {
+  "P01_stdlib_only": [
+   "argparse",
+   "datetime",
+   "json",
+   "os",
+   "sys"
+  ],
+  "P02_start_persists_json": [
+   0,
+   "Started alpha at 2026-10-31T18:34:12\n",
+   ""
+  ],
+  "P03_stop_ends_and_shows_hms": [
+   0,
+   "Stopped alpha: 00:00:01\n",
+   ""
+  ],
+  "P04_refuse_start_while_active": [
+   1,
+   "",
+   "error: session already active for 'alpha' since 2026-10-31T18:34:13\n"
+  ],
+  "P05_stop_without_active_errors": [
+   1,
+   "",
+   "error: no active session\n"
+  ],
+  "P06_report_totals_per_project": [
+   0,
+   "a  01:30:30\nb  00:10:00\n",
+   ""
+  ],
+  "P07_log_detects_overlap": [
+   0,
+   "a  2026-01-01T09:00:00  2026-01-01T10:00:00  01:00:00    OVERLAP\nb  2026-01-01T09:30:00  2026-01-01T11:00:00  01:30:00    OVERLAP\nwarning: sessions 1 (a) and 2 (b) overlap\n",
+   ""
+  ],
+  "P08_no_false_overlap_adjacent": [
+   0,
+   "a  2026-01-01T09:00:00  2026-01-01T10:00:00  01:00:00  \nb  2026-01-01T10:00:00  2026-01-01T11:00:00  01:00:00  \n",
+   ""
+  ],
+  "P09_report_flags_overlap": [
+   0,
+   "a  01:00:00\nb  01:30:00\nwarning: sessions 1 and 2 overlap; totals may double count\n",
+   ""
+  ],
+  "P10_log_lists_session_hms": [
+   0,
+   "a  2026-01-01T09:00:00  2026-01-01T10:01:05  01:01:05  \n",
+   ""
+  ],
+  "P11_hms_over_24h": [
+   0,
+   "a  100:00:00\n",
+   ""
+  ],
+  "P12_corrupt_json_graceful": [
+   1,
+   "",
+   "nd())\n  File \"/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/json/decoder.py\", line 353, in raw_decode\n    obj, end = self.scan_once(s, idx)\njson.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)\n"
+  ],
+  "P13_start_missing_project": [
+   2,
+   "",
+   "usage: time_tracker start [-h] project\ntime_tracker start: error: the following arguments are required: project\n"
+  ],
+  "P14_full_cycle_roundtrip": [
+   "alpha  00:00:01\nbeta  00:00:01\n",
+   "alpha  2026-10-31T18:34:14  2026-10-31T18:34:15  00:00:01  \nbeta  2026-10-31T18:34:15  2026-10-31T18:34:16  00:00:01  \n",
+   "",
+   ""
+  ],
+  "P15_reject_blank_project": [
+   0,
+   "Started    at 2026-10-31T18:34:16\n",
+   ""
+  ],
+  "P16_report_empty_ok": [
+   0,
+   "",
+   ""
+  ]
+ }
+}

@@ -1,0 +1,23 @@
+tests/test_vault.py:19:10: S105 Possible hardcoded password assigned to: "SECRET"
+tests/test_vault.py:34:16: S603 `subprocess` call: check for execution of untrusted input
+tests/test_vault.py:41:89: E501 Line too long (92 > 88)
+tests/test_vault.py:68:89: E501 Line too long (100 > 88)
+tests/test_vault.py:75:9: S603 `subprocess` call: check for execution of untrusted input
+tests/test_vault.py:152:35: UP031 Use format specifiers instead of percent format
+tests/test_vault.py:176:13: B007 Loop control variable `i` not used within loop body
+tests/test_vault.py:199:9: E731 Do not assign a `lambda` expression, use a `def`
+vault.py:88:12: UP031 Use format specifiers instead of percent format
+vault.py:105:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+vault.py:107:32: UP031 Use format specifiers instead of percent format
+vault.py:120:34: UP015 [*] Unnecessary mode argument
+vault.py:159:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+vault.py:161:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+vault.py:192:5: C901 `run` is too complex (17 > 10)
+vault.py:224:30: UP031 Use format specifiers instead of percent format
+vault.py:224:89: E501 Line too long (94 > 88)
+vault.py:239:31: UP015 [*] Unnecessary mode argument
+vault.py:247:89: E501 Line too long (91 > 88)
+vault.py:268:30: UP031 Use format specifiers instead of percent format
+vault.py:273:27: UP031 Use format specifiers instead of percent format
+Found 21 errors.
+[*] 2 fixable with the `--fix` option (5 hidden fixes can be enabled with the `--unsafe-fixes` option).

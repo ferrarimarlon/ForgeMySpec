@@ -1,0 +1,102 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:39:41Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "score 100/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "10 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "all_errors_at_once": {
+   "kind": "boundary",
+   "statement": "An invoice with several defects (missing customer name, bad quantity, negative price, bad tax rate, bad discount) yields every error in one validation, each naming its field path.",
+   "must_include": [
+    "all validation errors reported at once"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "rounding_half_up": {
+   "kind": "boundary",
+   "statement": "Line totals, discount and tax round half-up to cents using Decimal (e.g. 3 x 0.125 = 0.38, tax on 10.05 at 5% = 0.50); subtotal - discount + tax equals the grand total.",
+   "must_include": [
+    "half-up money rounding"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "output_formats": {
+   "kind": "boundary",
+   "statement": "The default output is a formatted text invoice listing items, subtotal, discount, tax and total; --format json emits parseable JSON with the same amounts as strings.",
+   "must_include": [
+    "text invoice or JSON export"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "stdlib_single_file": {
+   "kind": "boundary",
+   "statement": "invoice_gen.py imports only standard-library modules and the tests run against that single file.",
+   "must_include": [
+    "single file stdlib only"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "bad_input_exit_codes": {
+   "kind": "boundary",
+   "statement": "A missing file or non-JSON content exits 2; a structurally invalid invoice exits 1 with all errors on stderr; a valid one exits 0.",
+   "must_include": [
+    "exit codes for bad input"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/invoice-gen",
+ "inputs_sha": "7c99c29287763ad6329f5b4056c096a8d4d83224508f7ff6b6ff7382414e1c1e",
+ "schema": 2
+}

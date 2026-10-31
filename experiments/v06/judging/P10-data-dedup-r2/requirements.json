@@ -1,0 +1,17 @@
+[
+ {"id":"R1","text":"CLI program in Python"},
+ {"id":"R2","text":"Single file data_dedup.py"},
+ {"id":"R3","text":"Stdlib only (no third-party imports)"},
+ {"id":"R4","text":"Removes duplicate rows by a key made of one column"},
+ {"id":"R5","text":"Supports composite keys of multiple columns"},
+ {"id":"R6","text":"Strategy keep first: retains first occurrence of each key"},
+ {"id":"R7","text":"Strategy keep last: retains last occurrence of each key"},
+ {"id":"R8","text":"Strategy error: exits non-zero when duplicates exist"},
+ {"id":"R9","text":"Strategy error: reports the duplicates"},
+ {"id":"R10","text":"Writes the result to an output CSV (header preserved)"},
+ {"id":"R11","text":"Prints a summary of how many duplicates were found and removed"},
+ {"id":"R12","text":"Implied: unknown key column is reported as error with non-zero exit, not a traceback"},
+ {"id":"R13","text":"Implied: CSV quoting/embedded commas/newlines preserved correctly"},
+ {"id":"R14","text":"Implied: error strategy with no duplicates succeeds (exit 0) and writes output"},
+ {"id":"R15","text":"Implied: missing input file handled gracefully with non-zero exit"}
+]

@@ -1,0 +1,102 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:24:53Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "score 100/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "7 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "new_writes_note": {
+   "kind": "boundary",
+   "statement": "new creates a .md file with YAML frontmatter in the notes directory (default ~/.note-taker/).",
+   "must_include": [
+    "notes stored as .md with YAML frontmatter in ~/.note-taker/"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "list_search": {
+   "kind": "boundary",
+   "statement": "list filters by tag and by keyword (case-insensitive, title or body).",
+   "must_include": [
+    "search by tag or keyword"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "show_edit": {
+   "kind": "boundary",
+   "statement": "show prints the note; edit runs $EDITOR on the note file and refreshes updated.",
+   "must_include": [
+    "subcommands new list show edit delete"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "delete_and_errors": {
+   "kind": "boundary",
+   "statement": "delete removes the file; unknown or path-traversing ids exit non-zero without touching files.",
+   "must_include": [
+    "subcommands new list show edit delete"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "single_file_stdlib": {
+   "kind": "boundary",
+   "statement": "note_taker.py imports only standard-library modules.",
+   "must_include": [
+    "single file note_taker.py, stdlib only"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/note-taker",
+ "inputs_sha": "bbe75b3ebdb44b8db53ffc6da86147c04105ba8fc17e939d82dd236f718dd8b7",
+ "schema": 2
+}

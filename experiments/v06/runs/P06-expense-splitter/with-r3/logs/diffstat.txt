@@ -1,0 +1,10 @@
+ expense_splitter.py                                | 184 +++++++++++++++++++++
+ forgemyspec-board.yaml                             |   9 +
+ .../.claude/commands/implement-from-spec.md        |   8 +
+ forgemyspec-bundle/expense-splitter/CLAUDE.md      |  48 ++++++
+ .../expense-splitter/acceptance-checklist.md       |  19 +++
+ .../expense-splitter/evals/scope_drift_cases.yaml  |  17 ++
+ forgemyspec-bundle/expense-splitter/spec.lock      |   5 +
+ forgemyspec-bundle/expense-splitter/spec.yaml      |  99 +++++++++++
+ tests/test_expense_splitter.py                     | 148 +++++++++++++++++
+ 9 files changed, 537 insertions(+)

@@ -1,0 +1,129 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:30:57Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "[LINT-HY-007] hypotheses[3].description: Hypothesis appears to describe what will NOT be built; hypotheses must be affirmative and testable",
+    "score 95/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "11 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "start_refused_when_active": {
+   "kind": "boundary",
+   "statement": "start exits 1 and leaves the file unchanged when a session is active.",
+   "must_include": [
+    "start refused while a session is active"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "start_stop_roundtrip": {
+   "kind": "boundary",
+   "statement": "start records an active session; stop closes it with an end time; stop with none active exits 1.",
+   "must_include": [
+    "stop closes the active session"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "json_persistence": {
+   "kind": "boundary",
+   "statement": "Sessions are written to and read back from the JSON file; a corrupt file exits 2 and stays untouched.",
+   "must_include": [
+    "sessions persisted in JSON file"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "overlap_detected": {
+   "kind": "boundary",
+   "statement": "log marks sessions whose intervals overlap; non-overlapping adjacent sessions are not marked.",
+   "must_include": [
+    "overlapping sessions detected"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "duration_format": {
+   "kind": "boundary",
+   "statement": "Durations are rendered as HH:MM:SS (zero padded, hours may exceed 99) in log and report.",
+   "must_include": [
+    "durations shown as HH:MM:SS"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "report_totals": {
+   "kind": "boundary",
+   "statement": "report prints the summed duration per project, including the active session up to now.",
+   "must_include": [
+    "report total time per project"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "single_file_stdlib": {
+   "kind": "boundary",
+   "statement": "time_tracker.py imports only standard library modules and is the only module of the tool.",
+   "must_include": [
+    "single file time_tracker.py, stdlib only"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/time-tracker",
+ "inputs_sha": "9a5c793cad81a1ce4bd49aa42a065b6c47d30bd97c838e35396817dcbc6bfb9c",
+ "schema": 2
+}

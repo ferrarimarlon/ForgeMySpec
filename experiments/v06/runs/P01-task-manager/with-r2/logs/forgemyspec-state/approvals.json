@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "CUJFFJ",
+   "nonce": "8cbdef1b97b92d216976876b323bc49c",
+   "created_at": "2026-10-31T20:19:24.776Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/task-manager",
+     "content_sha": "c3b182b851281c795e2eef1fe7e579f175e0d2649370f7e4e438004ddb2de66d",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

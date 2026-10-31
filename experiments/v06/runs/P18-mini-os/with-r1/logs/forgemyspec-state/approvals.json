@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "DR7STJ",
+   "nonce": "bc89b4c0662606e637fd65d646f9f94c",
+   "created_at": "2026-10-31T21:09:41.106Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/mini-os",
+     "content_sha": "0c43776ef70ecfb71e6e55c2c8205591762258235e5184b2f588fe8391a0bb79",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

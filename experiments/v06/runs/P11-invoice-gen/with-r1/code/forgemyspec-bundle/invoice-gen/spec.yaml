@@ -1,0 +1,109 @@
+version: "0.1"
+title: Invoice generator CLI
+objective: Single-file stdlib Python CLI (invoice_gen.py) that reads an invoice JSON, validates it reporting all errors at once, computes totals with correct money rounding, and prints a text invoice or exports JSON.
+execution_mode: critical
+context:
+  system: Empty Python repository; deliverable is invoice_gen.py at the repository root plus unittest tests in tests/. Python 3 stdlib only.
+  assumptions:
+    - "Money is computed with decimal.Decimal, rounded half-up to 2 places; floats are never used for money."
+    - "tax_rate is a percentage (8.25 means 8.25%), between 0 and 100 inclusive."
+    - "discount is optional: an object {type: percent|fixed, value: number}; percent is 0-100, fixed is >= 0 and at most the subtotal."
+    - "Discount applies to the subtotal; tax is computed on the discounted subtotal."
+    - "Each line total is rounded to cents first; subtotal is the sum of rounded line totals."
+    - "quantity is a number > 0 (decimals allowed); unit_price is a number >= 0; customer is an object with a non-empty name."
+    - "Currency is a single implicit currency with 2 decimals; no currency symbol logic beyond a plain amount format."
+    - "CLI: invoice_gen.py INPUT.json [--format text|json]; default text; exit 0 ok, 1 invalid invoice, 2 unreadable file or bad JSON."
+constraints:
+  - "Single file invoice_gen.py, Python standard library only."
+  - "No floating-point arithmetic for money."
+  - "No network, no database, no PDF output, no multi-currency, no persistence."
+  - "Validation never stops at the first error."
+success_criteria:
+  - "A valid invoice prints a formatted text invoice and the same figures export as JSON."
+  - "An invoice with several defects lists every defect in one run."
+  - "Rounding cases such as 0.005 and 1.005 totals round half-up to the cent."
+hypotheses:
+  - id: h1
+    description: "Validation of customer, items, tax rate and discount reports every error found in one run, not only the first."
+    confidence: 0.9
+  - id: h2
+    description: "Line totals, subtotal, discount, tax and grand total are computed with Decimal, rounded half-up to cents, and the grand total equals subtotal minus discount plus tax."
+    confidence: 0.85
+  - id: h3
+    description: "The CLI prints a formatted text invoice or exports JSON with the computed amounts, and uses distinct exit codes for invalid input."
+    confidence: 0.9
+required_evidence:
+  - "unittest run of tests/ exits 0 with all tests passing."
+  - "Command output of invoice_gen.py on a valid sample showing the text invoice and the JSON export."
+  - "Command output of invoice_gen.py on a multi-defect sample listing all errors and exiting 1."
+actions:
+  - id: a1
+    description: "Design validation and money computation rules."
+    type: design
+    requires_confirmation: false
+    supports: [h1, h2]
+  - id: a2
+    description: "Implement invoice_gen.py (validation, computation, text and JSON output, CLI)."
+    type: implement
+    requires_confirmation: false
+    supports: [h1, h2]
+  - id: a4
+    description: "Implement the text and JSON output and the CLI exit codes."
+    type: implement
+    requires_confirmation: false
+    supports: [h3]
+  - id: a3
+    description: "Write and run unittest tests for validation, rounding and CLI."
+    type: test
+    requires_confirmation: false
+    supports: [h1, h2, h3]
+decision_rules:
+  - "If a rule is ambiguous (discount shape, tax base), stop and amend the spec instead of guessing."
+  - "Stop when any test fails; do not weaken tests."
+metadata:
+  source_prompt: "Build an invoice generator CLI in Python. Read an invoice JSON (customer, items with description, quantity and unit price, tax rate, optional discount), validate it reporting all errors at once, compute line totals, subtotal, discount, tax and grand total with correct money rounding, and print a formatted invoice (text) or export it as JSON. Single file invoice_gen.py, stdlib only."
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "validate reporting all errors at once"
+      - "correct money rounding"
+      - "grand total"
+      - "formatted invoice (text) or export it as JSON"
+      - "Single file invoice_gen.py, stdlib only"
+formal:
+  module: InvoiceCore
+  obligations:
+    - id: all_errors_reported
+      kind: boundary
+      statement: "An invoice with several defects (missing customer name, bad quantity, negative price, bad tax rate, bad discount) yields one error per defect, all returned together."
+      hypotheses: [h1]
+      must_include: ["validate reporting all errors at once"]
+      test: "test_invoice_gen.ValidationTests.test_all_errors_reported"
+    - id: money_rounding_half_up
+      kind: boundary
+      statement: "Money uses Decimal with half-up rounding to cents: 3 x 0.335 = 1.01 (1.005 rounds up), tax of 0.005 rounds to 0.01, no float artifacts."
+      hypotheses: [h2]
+      must_include: ["correct money rounding"]
+      test: "test_invoice_gen.ComputeTests.test_half_up_rounding"
+    - id: grand_total_identity
+      kind: boundary
+      statement: "grand_total = subtotal - discount + tax, with tax computed on the discounted subtotal, for percent, fixed and no discount."
+      hypotheses: [h2]
+      must_include: ["grand total"]
+      test: "test_invoice_gen.ComputeTests.test_grand_total_identity"
+    - id: text_and_json_output
+      kind: boundary
+      statement: "CLI prints a text invoice by default and valid JSON with --format json carrying the same computed amounts; invalid invoice exits 1 with all errors on stderr; unreadable file or bad JSON exits 2."
+      hypotheses: [h3]
+      must_include: ["formatted invoice (text) or export it as JSON"]
+      test: "test_invoice_gen.CliTests.test_text_json_and_exit_codes"
+    - id: single_file_stdlib
+      kind: boundary
+      statement: "invoice_gen.py is one module whose imports are all standard library."
+      hypotheses: [h3]
+      must_include: ["Single file invoice_gen.py, stdlib only"]
+      test: "test_invoice_gen.StructureTests.test_stdlib_only"
+scope:
+  paths: ["invoice_gen.py", "tests/**"]
+  tests: tests
+  pythonpath: ["."]

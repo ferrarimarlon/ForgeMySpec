@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "WHH4BB",
+   "nonce": "6d4b334e3a700e9fca097040448cc1ee",
+   "created_at": "2026-10-31T21:10:25.388Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/job-scheduler",
+     "content_sha": "6114cac0795ce41c91a408a9329ca0dde6f96cd40779ed959d3d9dab1a01fc8b",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

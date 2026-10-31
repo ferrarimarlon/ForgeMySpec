@@ -1,0 +1,16 @@
+note_taker.py:67:12: UP031 Use format specifiers instead of percent format
+note_taker.py:71:5: C901 `parse` is too complex (11 > 10)
+note_taker.py:88:30: UP031 Use format specifiers instead of percent format
+note_taker.py:139:19: UP031 Use format specifiers instead of percent format
+note_taker.py:162:15: UP031 Use format specifiers instead of percent format
+note_taker.py:170:20: UP031 Use format specifiers instead of percent format
+note_taker.py:172:20: UP031 Use format specifiers instead of percent format
+note_taker.py:181:20: UP031 Use format specifiers instead of percent format
+note_taker.py:184:14: S603 `subprocess` call: check for execution of untrusted input
+note_taker.py:186:20: UP031 Use format specifiers instead of percent format
+note_taker.py:188:20: UP031 Use format specifiers instead of percent format
+note_taker.py:192:20: UP031 Use format specifiers instead of percent format
+note_taker.py:199:20: UP031 Use format specifiers instead of percent format
+note_taker.py:212:5: E741 Ambiguous variable name: `l`
+Found 14 errors.
+No fixes available (9 hidden fixes can be enabled with the `--unsafe-fixes` option).

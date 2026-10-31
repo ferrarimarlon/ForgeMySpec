@@ -1,0 +1,14 @@
+{
+ "cmd: PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec lint forgemyspec-bundle/state-machine/spec.yaml --formal": {
+  "passed": true,
+  "fingerprint": "e23e2979365239a4b468fb659b1b0ca48ea9283763f67d80ca314e251aea4c14",
+  "ran_at": "2026-10-31T20:40:06.652Z",
+  "seconds": 0.1
+ },
+ "cmd: PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec gate forgemyspec-bundle/state-machine": {
+  "passed": true,
+  "fingerprint": "e23e2979365239a4b468fb659b1b0ca48ea9283763f67d80ca314e251aea4c14",
+  "ran_at": "2026-10-31T20:40:06.784Z",
+  "seconds": 0.1
+ }
+}

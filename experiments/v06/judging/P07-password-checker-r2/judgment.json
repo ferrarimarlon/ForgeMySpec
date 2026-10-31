@@ -1,0 +1,41 @@
+{
+ "requirements_total": 18,
+ "probes_total": 28,
+ "A": {"probes_passed": 26,
+       "scores": {"functional": 3, "coverage": 4, "security": 5, "robustness": 4, "quality": 4, "tests": 0},
+       "requirements_met": 17, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "silent", "requirement": "R14",
+         "evidence": "P28_check_uses_cwd_policy_json; with a loose policy.json in cwd, `check abcd` reported 4 failures against built-in min_length 12 (A/password_checker.py:244, 79-80)",
+         "summary": "check and generate silently ignore policy.json in the working directory and use a built-in strict policy unless -p is passed, while validate-policy defaults to policy.json, so the commands disagree."},
+        {"severity": "low", "category": "silent", "requirement": "R12",
+         "evidence": "P16_generate_short_length_not_silent; A/password_checker.py:164",
+         "summary": "generate --length 5 returns a 12-char password without any warning (documented only in --help)."},
+        {"severity": "low", "category": "quality", "requirement": null,
+         "evidence": "static/A-ruff.txt (B904 x3, E501 x12)",
+         "summary": "Exception re-raises drop the original cause, and many lines are too long."},
+        {"severity": "low", "category": "quality", "requirement": null,
+         "evidence": "ls A/ shows no tests",
+         "summary": "No automated tests are provided."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 271},
+ "B": {"probes_passed": 28,
+       "scores": {"functional": 4, "coverage": 4, "security": 5, "robustness": 4, "quality": 4, "tests": 4},
+       "requirements_met": 18, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "functional", "requirement": "R18",
+         "evidence": "in an empty dir `check --password X` -> 'error: cannot read policy policy.json: No such file or directory', rc=2",
+         "summary": "No built-in fallback policy, so check and generate cannot run unless a policy.json file is present."},
+        {"severity": "low", "category": "quality", "requirement": null,
+         "evidence": "static/B-ruff.txt (C901 validate_policy, UP031 x17, B904 x2, E501)",
+         "summary": "Uses %-formatting throughout, validate_policy is over the complexity limit, and re-raises drop the original cause."},
+        {"severity": "low", "category": "quality", "requirement": null,
+         "evidence": "B/tests/test_password_checker.py: 7 tests, `PYTHONPATH=. python3 -m unittest discover -s tests` -> Ran 7 tests OK",
+         "summary": "The test suite is small (7 tests) and must be run with PYTHONPATH set."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 7, "failed": 0},
+       "loc": 206},
+ "blinding_guess": {"spec_framework_side": "unsure", "confidence": 0.3, "why": "B ships a test suite and keeps policy.json as the single source of truth, which might suggest a spec-driven process, but this signal is weak."},
+ "notes": "Both implementations pass every core probe: per-class rules, case-insensitive forbidden list, all failures reported, Shannon entropy (identical formula), policy-satisfying generation with the secrets module, and validation errors without tracebacks. A's main defect is that check/generate do not read policy.json unless -p is given, so a user's policy file is silently ignored. A also adds unrequested extras (substring matching of common passwords, pool entropy, --json), which are harmless. Bandit reported no findings for either side. B's tests pass when run with PYTHONPATH=. (7/7); A has no tests."
+}

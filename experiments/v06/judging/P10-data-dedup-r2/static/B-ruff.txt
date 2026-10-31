@@ -1,0 +1,19 @@
+data_dedup.py:29:30: UP031 Use format specifiers instead of percent format
+data_dedup.py:29:89: E501 Line too long (94 > 88)
+data_dedup.py:51:15: UP031 Use format specifiers instead of percent format
+data_dedup.py:56:15: UP031 Use format specifiers instead of percent format
+data_dedup.py:61:19: UP031 Use format specifiers instead of percent format
+data_dedup.py:61:89: E501 Line too long (98 > 88)
+data_dedup.py:63:34: UP031 Use format specifiers instead of percent format
+data_dedup.py:63:63: B905 `zip()` without an explicit `strict=` parameter
+data_dedup.py:64:23: UP031 Use format specifiers instead of percent format
+data_dedup.py:64:89: E501 Line too long (90 > 88)
+data_dedup.py:65:19: UP031 Use format specifiers instead of percent format
+data_dedup.py:76:15: UP031 Use format specifiers instead of percent format
+data_dedup.py:78:11: UP031 Use format specifiers instead of percent format
+data_dedup.py:83:89: E501 Line too long (92 > 88)
+data_dedup.py:88:89: E501 Line too long (91 > 88)
+tests/test_data_dedup.py:69:89: E501 Line too long (95 > 88)
+tests/test_data_dedup.py:91:89: E501 Line too long (94 > 88)
+Found 17 errors.
+No fixes available (6 hidden fixes can be enabled with the `--unsafe-fixes` option).

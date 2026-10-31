@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "XZX53F",
+   "nonce": "792cdf178b0a4ab1328514162652dd31",
+   "created_at": "2026-10-31T20:21:49.402Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/task-manager",
+     "content_sha": "a4a3c548254d293bef74aa3858cc71025bc08c876b368b664fe0ea177854a188",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

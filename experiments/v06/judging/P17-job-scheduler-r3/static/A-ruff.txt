@@ -1,0 +1,43 @@
+scheduler.py:22:89: E501 Line too long (92 > 88)
+scheduler.py:66:89: E501 Line too long (90 > 88)
+scheduler.py:85:5: C901 `load` is too complex (11 > 10)
+scheduler.py:92:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+scheduler.py:92:30: UP031 Use format specifiers instead of percent format
+scheduler.py:94:30: UP031 Use format specifiers instead of percent format
+scheduler.py:98:34: UP031 Use format specifiers instead of percent format
+scheduler.py:105:34: UP031 Use format specifiers instead of percent format
+scheduler.py:111:38: UP031 Use format specifiers instead of percent format
+scheduler.py:111:89: E501 Line too long (99 > 88)
+scheduler.py:114:30: UP031 Use format specifiers instead of percent format
+scheduler.py:139:5: C901 `add_job` is too complex (12 > 10)
+scheduler.py:141:30: UP031 Use format specifiers instead of percent format
+scheduler.py:141:89: E501 Line too long (94 > 88)
+scheduler.py:143:30: UP031 Use format specifiers instead of percent format
+scheduler.py:143:89: E501 Line too long (90 > 88)
+scheduler.py:149:34: UP031 Use format specifiers instead of percent format
+scheduler.py:151:30: UP031 Use format specifiers instead of percent format
+scheduler.py:153:30: UP031 Use format specifiers instead of percent format
+scheduler.py:156:34: UP031 Use format specifiers instead of percent format
+scheduler.py:163:30: UP031 Use format specifiers instead of percent format
+scheduler.py:184:30: UP031 Use format specifiers instead of percent format
+scheduler.py:186:30: UP031 Use format specifiers instead of percent format
+scheduler.py:186:89: E501 Line too long (89 > 88)
+scheduler.py:205:89: E501 Line too long (95 > 88)
+scheduler.py:220:5: C901 `main` is too complex (12 > 10)
+scheduler.py:230:19: UP031 Use format specifiers instead of percent format
+scheduler.py:238:23: UP031 Use format specifiers instead of percent format
+scheduler.py:242:23: UP031 Use format specifiers instead of percent format
+scheduler.py:246:19: UP031 Use format specifiers instead of percent format
+scheduler.py:246:89: E501 Line too long (89 > 88)
+scheduler.py:250:23: UP031 Use format specifiers instead of percent format
+scheduler.py:256:19: UP031 Use format specifiers instead of percent format
+scheduler.py:258:23: UP031 Use format specifiers instead of percent format
+scheduler.py:259:89: E501 Line too long (91 > 88)
+scheduler.py:262:15: UP031 Use format specifiers instead of percent format
+tests/test_scheduler.py:12:89: E501 Line too long (97 > 88)
+tests/test_scheduler.py:52:53: UP031 Use format specifiers instead of percent format
+tests/test_scheduler.py:82:89: E501 Line too long (102 > 88)
+tests/test_scheduler.py:139:89: E501 Line too long (93 > 88)
+tests/test_scheduler.py:154:89: E501 Line too long (97 > 88)
+Found 41 errors.
+No fixes available (20 hidden fixes can be enabled with the `--unsafe-fixes` option).

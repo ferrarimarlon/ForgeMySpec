@@ -1,0 +1,32 @@
+grade_calc.py:26:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+grade_calc.py:26:26: UP031 Use format specifiers instead of percent format
+grade_calc.py:36:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+grade_calc.py:36:26: UP031 Use format specifiers instead of percent format
+grade_calc.py:38:26: UP031 Use format specifiers instead of percent format
+grade_calc.py:45:26: UP031 Use format specifiers instead of percent format
+grade_calc.py:49:30: UP031 Use format specifiers instead of percent format
+grade_calc.py:52:30: UP031 Use format specifiers instead of percent format
+grade_calc.py:53:29: UP031 Use format specifiers instead of percent format
+grade_calc.py:55:30: UP031 Use format specifiers instead of percent format
+grade_calc.py:66:5: C901 `parse_scores` is too complex (14 > 10)
+grade_calc.py:69:26: UP031 Use format specifiers instead of percent format
+grade_calc.py:73:26: UP031 Use format specifiers instead of percent format
+grade_calc.py:75:26: UP031 Use format specifiers instead of percent format
+grade_calc.py:78:30: UP031 Use format specifiers instead of percent format
+grade_calc.py:81:30: UP031 Use format specifiers instead of percent format
+grade_calc.py:85:30: UP031 Use format specifiers instead of percent format
+grade_calc.py:89:30: UP031 Use format specifiers instead of percent format
+grade_calc.py:91:24: B905 `zip()` without an explicit `strict=` parameter
+grade_calc.py:93:34: UP031 Use format specifiers instead of percent format
+grade_calc.py:94:39: UP031 Use format specifiers instead of percent format
+grade_calc.py:96:34: UP031 Use format specifiers instead of percent format
+grade_calc.py:129:15: UP031 Use format specifiers instead of percent format
+grade_calc.py:134:19: UP031 Use format specifiers instead of percent format
+grade_calc.py:135:15: UP031 Use format specifiers instead of percent format
+grade_calc.py:137:19: UP031 Use format specifiers instead of percent format
+grade_calc.py:150:19: UP031 Use format specifiers instead of percent format
+tests/test_grade_calc.py:24:89: E501 Line too long (90 > 88)
+tests/test_grade_calc.py:55:89: E501 Line too long (90 > 88)
+tests/test_grade_calc.py:86:89: E501 Line too long (90 > 88)
+Found 30 errors.
+No fixes available (18 hidden fixes can be enabled with the `--unsafe-fixes` option).

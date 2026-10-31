@@ -1,0 +1,13 @@
+note_taker.py:62:89: E501 Line too long (95 > 88)
+note_taker.py:74:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+note_taker.py:120:89: E501 Line too long (97 > 88)
+note_taker.py:160:10: S603 `subprocess` call: check for execution of untrusted input
+note_taker.py:170:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+note_taker.py:178:89: E501 Line too long (91 > 88)
+note_taker.py:189:89: E501 Line too long (98 > 88)
+tests/test_note_taker.py:18:89: E501 Line too long (90 > 88)
+tests/test_note_taker.py:69:89: E501 Line too long (96 > 88)
+tests/test_note_taker.py:97:89: E501 Line too long (102 > 88)
+tests/test_note_taker.py:126:89: E501 Line too long (91 > 88)
+tests/test_note_taker.py:136:89: E501 Line too long (90 > 88)
+Found 12 errors.

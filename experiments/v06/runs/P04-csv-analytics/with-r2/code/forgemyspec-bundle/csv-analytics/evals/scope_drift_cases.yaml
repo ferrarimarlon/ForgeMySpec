@@ -1,0 +1,16 @@
+version: '0.1'
+purpose: Manual eval seeds to detect scope drift in Claude implementations
+source_prompt: Build a CSV Analytics Tool. Read CSV files, compute per-column stats
+  (count, min, max, mean, median, stdev), filter rows, select columns, export JSON
+  report. Single file csv_analytics.py, stdlib only.
+checks:
+  must_include:
+  - read CSV files
+  - per-column stats
+  - count, min, max, mean, median, stdev
+  - filter rows
+  - select columns
+  - export JSON report
+  - single file csv_analytics.py
+  - stdlib only
+cases: []

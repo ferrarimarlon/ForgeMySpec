@@ -1,0 +1,9 @@
+state_machine.py:44:5: C901 `check_guard` is too complex (13 > 10)
+state_machine.py:90:9: C901 `validate` is too complex (24 > 10)
+state_machine.py:96:89: E501 Line too long (97 > 88)
+state_machine.py:152:89: E501 Line too long (90 > 88)
+state_machine.py:172:89: E501 Line too long (118 > 88)
+state_machine.py:181:89: E501 Line too long (90 > 88)
+state_machine.py:182:89: E501 Line too long (96 > 88)
+state_machine.py:183:89: E501 Line too long (92 > 88)
+Found 8 errors.

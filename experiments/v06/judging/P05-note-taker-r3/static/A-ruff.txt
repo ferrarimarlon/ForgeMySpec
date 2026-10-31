@@ -1,0 +1,8 @@
+note_taker.py:2:89: E501 Line too long (92 > 88)
+note_taker.py:9:8: F401 [*] `tempfile` imported but unused
+note_taker.py:127:12: S603 `subprocess` call: check for execution of untrusted input
+note_taker.py:139:89: E501 Line too long (93 > 88)
+note_taker.py:157:89: E501 Line too long (98 > 88)
+note_taker.py:217:89: E501 Line too long (91 > 88)
+Found 6 errors.
+[*] 1 fixable with the `--fix` option.

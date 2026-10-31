@@ -1,0 +1,9 @@
+grade_calc.py:14:89: E501 Line too long (96 > 88)
+grade_calc.py:25:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+grade_calc.py:32:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+grade_calc.py:63:5: C901 `load_scores` is too complex (12 > 10)
+grade_calc.py:66:89: E501 Line too long (90 > 88)
+grade_calc.py:71:89: E501 Line too long (89 > 88)
+grade_calc.py:78:89: E501 Line too long (97 > 88)
+tests/test_grade_calc.py:42:89: E501 Line too long (114 > 88)
+Found 8 errors.

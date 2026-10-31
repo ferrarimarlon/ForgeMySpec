@@ -1,0 +1,11 @@
+[
+ {"id":"R1","text":"Targets x86 bare-metal (no host OS underneath)"},
+ {"id":"R2","text":"Includes a bootloader (own boot code that loads the kernel)"},
+ {"id":"R3","text":"Includes a kernel that the bootloader transfers control to"},
+ {"id":"R4","text":"Kernel produces text output via VGA text mode (0xB8000)"},
+ {"id":"R5","text":"No external libraries (freestanding: no libc / third-party libs linked)"},
+ {"id":"R6","text":"Runnable in QEMU (produces a bootable image that boots in qemu-system-i386/x86_64)"},
+ {"id":"R7","text":"Buildable from the current directory (build script/Makefile producing the image)"},
+ {"id":"R8","text":"Minimalist resources (small image, minimal dependencies/toolchain)"},
+ {"id":"R9","text":"Simple: system remains stable after boot (no triple fault / reboot loop)"}
+]

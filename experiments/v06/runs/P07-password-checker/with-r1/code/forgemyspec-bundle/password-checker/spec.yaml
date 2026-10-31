@@ -1,0 +1,143 @@
+version: "0.1"
+title: Password policy checker CLI
+objective: Single-file stdlib-only Python CLI (password_checker.py) that checks a password against a configurable policy, reports every failed rule, computes Shannon entropy, generates compliant random passwords, and validates policy files.
+execution_mode: critical
+context:
+  system: Empty Python repository; deliverable is password_checker.py at the repository root with unittest tests in tests/. Python 3 stdlib only.
+  assumptions:
+    - "Policy JSON keys: min_length (int >= 1), require_uppercase, require_lowercase, require_digits, require_symbols (bool), forbidden_passwords (list of strings). Missing keys take defaults (min_length 8, all requires false, forbidden list empty plus built-in common list)."
+    - "Symbols means any printable non-alphanumeric ASCII character (string.punctuation); non-ASCII letters count as neither uppercase nor lowercase unless str.isupper/islower says so."
+    - "Forbidden-password matching is case-insensitive and exact against the whole password; a small built-in common-password list is always applied in addition to the policy list."
+    - "Shannon entropy is computed from the character frequencies of the password: H = -sum(p*log2 p) per character, reported as total bits = len * H (0.0 for the empty password)."
+    - "Exit codes: 0 success/compliant, 1 password violates policy, 2 usage or invalid policy/file error."
+    - "The password is read from the positional argument or from stdin with --stdin, to avoid shell history exposure."
+constraints:
+  - Single file password_checker.py, standard library only (no third-party imports).
+  - No network access and no logging or printing of passwords except generated ones on stdout.
+  - Generation uses the secrets module, never random.
+  - Not building a GUI, a breach-database lookup, or strength scoring beyond Shannon entropy.
+success_criteria:
+  - check reports every failed rule in one run, not only the first.
+  - generate always yields passwords that pass check under the same policy.
+  - validate-policy rejects malformed policies with clear messages and exit code 2.
+hypotheses:
+  - id: h1
+    description: check evaluates minimum length, uppercase, lowercase, digit, symbol and forbidden-password rules and reports every failed rule.
+    confidence: 0.9
+  - id: h2
+    description: check outputs the Shannon entropy of the password in bits.
+    confidence: 0.9
+  - id: h3
+    description: generate produces random passwords that satisfy the policy using the secrets module.
+    confidence: 0.85
+  - id: h4
+    description: The policy is loaded from policy.json (or a --policy path) and validate-policy reports every problem in a policy file.
+    confidence: 0.85
+  - id: h5
+    description: The CLI exposes the subcommands check, generate and validate-policy with documented exit codes, in a single stdlib-only file.
+    confidence: 0.9
+required_evidence:
+  - "Output of python3 -m unittest discover -s tests showing all tests passing."
+  - "Command output of check on a password failing several rules listing each failed rule."
+  - "Command output of generate followed by check on the result exiting 0."
+actions:
+  - id: a1
+    description: Implement policy loading, validation and the rule checks.
+    type: implement
+    requires_confirmation: false
+    supports: [h1, h4]
+  - id: a2
+    description: Implement Shannon entropy and the check subcommand output.
+    type: implement
+    requires_confirmation: false
+    supports: [h1, h2]
+  - id: a3
+    description: Implement the generator and the generate subcommand.
+    type: implement
+    requires_confirmation: false
+    supports: [h3]
+  - id: a4
+    description: Implement the argparse CLI, validate-policy and exit codes.
+    type: implement
+    requires_confirmation: false
+    supports: [h4, h5]
+  - id: a5
+    description: Write unittest tests and run them.
+    type: test
+    requires_confirmation: false
+    supports: [h1, h2, h3, h4, h5]
+decision_rules:
+  - If a policy is unsatisfiable (length below required class count), validate-policy and generate must fail with exit 2 rather than emit a non-compliant password.
+  - Stop and ask if a requirement needs a third-party package.
+metadata:
+  source_prompt: "Build a password policy checker CLI in Python. Check a password against a configurable policy (minimum length, uppercase, lowercase, digits, symbols, forbidden common passwords), report every failed rule, compute the Shannon entropy in bits, and generate random passwords that satisfy the policy. The policy can be loaded from policy.json; subcommands: check, generate, validate-policy. Single file password_checker.py, stdlib only."
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "report every failed rule"
+      - "Shannon entropy in bits"
+      - "generate passwords satisfying the policy"
+      - "load policy from policy.json"
+      - "subcommands check, generate, validate-policy"
+      - "single file password_checker.py, stdlib only"
+formal:
+  module: PasswordChecker
+  obligations:
+    - id: all_failures_reported
+      kind: boundary
+      statement: "check evaluates min length, uppercase, lowercase, digits, symbols and forbidden passwords, lists every failed rule in one run, and exits 1 when any fails, 0 when none."
+      hypotheses: [h1]
+      must_include: ["report every failed rule"]
+      test: "test_password_checker.CheckTests.test_reports_every_failed_rule"
+    - id: forbidden_case_insensitive
+      kind: boundary
+      statement: "A password equal (case-insensitively) to a built-in or policy forbidden password fails the forbidden rule."
+      hypotheses: [h1]
+      must_include: ["report every failed rule"]
+      test: "test_password_checker.CheckTests.test_forbidden_password_case_insensitive"
+    - id: entropy_bits
+      kind: boundary
+      statement: "check prints Shannon entropy in bits = len * H(char frequencies); 'aaaa' is 0.0, 'abcd' is 8.0, empty is 0.0."
+      hypotheses: [h2]
+      must_include: ["Shannon entropy in bits"]
+      test: "test_password_checker.EntropyTests.test_known_values"
+    - id: generate_satisfies_policy
+      kind: boundary
+      statement: "generate output (default and custom length, many samples, all classes required) always passes check, has the requested length, uses secrets, and never emits a forbidden password."
+      hypotheses: [h3]
+      must_include: ["generate passwords satisfying the policy"]
+      test: "test_password_checker.GenerateTests.test_generated_passwords_pass_check"
+    - id: generate_unsatisfiable
+      kind: boundary
+      statement: "generate with length below min_length or below the number of required classes exits 2 and prints no password."
+      hypotheses: [h3, h4]
+      must_include: ["generate passwords satisfying the policy"]
+      test: "test_password_checker.GenerateTests.test_unsatisfiable_exits_2"
+    - id: policy_loaded_from_json
+      kind: boundary
+      statement: "Policy is loaded from ./policy.json by default or --policy PATH; missing keys take defaults; a missing explicit file exits 2."
+      hypotheses: [h4]
+      must_include: ["load policy from policy.json"]
+      test: "test_password_checker.PolicyTests.test_loads_policy_json"
+    - id: validate_policy_reports_all
+      kind: boundary
+      statement: "validate-policy exits 0 for a valid policy and exits 2 listing every problem (bad JSON, unknown key, wrong type, min_length < 1) otherwise."
+      hypotheses: [h4]
+      must_include: ["subcommands check, generate, validate-policy"]
+      test: "test_password_checker.PolicyTests.test_validate_policy_lists_all_problems"
+    - id: cli_subcommands
+      kind: boundary
+      statement: "The CLI exposes check, generate and validate-policy; no subcommand or an unknown one exits 2; check accepts --stdin."
+      hypotheses: [h5]
+      must_include: ["subcommands check, generate, validate-policy"]
+      test: "test_password_checker.CliTests.test_subcommands_and_usage_errors"
+    - id: single_file_stdlib
+      kind: boundary
+      statement: "password_checker.py is one file whose imports are all standard library modules and which imports secrets."
+      hypotheses: [h5, h3]
+      must_include: ["single file password_checker.py, stdlib only"]
+      test: "test_password_checker.StructureTests.test_stdlib_only_imports"
+scope:
+  paths: ["password_checker.py", "tests/**", "policy.json"]
+  tests: tests
+  pythonpath: ["."]

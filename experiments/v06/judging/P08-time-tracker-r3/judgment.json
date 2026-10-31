@@ -1,0 +1,26 @@
+{
+ "requirements_total": 13,
+ "probes_total": 16,
+ "A": {"probes_passed": 16,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 4, "quality": 4, "tests": 5},
+       "requirements_met": 13, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "quality", "requirement": "R7", "evidence": "start with --file in a non-existent directory -> FileNotFoundError traceback (manual run)", "summary": "Saving to a path whose parent directory does not exist crashes with a traceback instead of a clean error."},
+        {"severity": "low", "category": "silent", "requirement": "R10", "evidence": "A/time_tracker.py:18-19 uses naive local datetime.now()", "summary": "Timestamps are naive local time, so sessions spanning a DST change get durations off by an hour."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt (B904, UP031, E501)", "summary": "Minor lint issues: exceptions re-raised without 'from', percent formatting, long lines."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 7, "failed": 0},
+       "loc": 179},
+ "B": {"probes_passed": 15,
+       "scores": {"functional": 4, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 0},
+       "requirements_met": 12, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "functional", "requirement": "R13", "evidence": "P14_overlap_with_new_session; also seeding an active session with start '2026-01-01T10:00:00' makes log/report/stop raise 'TypeError: can't subtract offset-naive and offset-aware datetimes'", "summary": "Timezone-naive timestamps in the data file (which load() accepts as valid) crash start/stop/log/report with an uncaught TypeError traceback."},
+        {"severity": "low", "category": "quality", "requirement": "R7", "evidence": "start with --file in a non-existent directory -> FileNotFoundError traceback (manual run)", "summary": "Saving to a path whose parent directory does not exist crashes with a traceback; B/time_tracker.py:56-60 also uses a fixed '.tmp' path with no cleanup."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt (B007 unused loop vars at 80-81, E501)", "summary": "Minor lint issues; load() at line 48 uses a bare expression statement to validate fields."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 178},
+ "blinding_guess": {"spec_framework_side": "A", "confidence": 0.55, "why": "A ships a unit test suite, uses an atomic mkstemp save and does stricter schema validation, which fits a more process-driven build."},
+ "notes": "Both implementations meet the core spec: they refuse a double start, detect overlaps in log, format HH:MM:SS (including over 24h) and report per-project totals. B also refuses to start a session that would overlap an existing one and warns about double-counting in report, but it mixes timezone-aware now() with stored timestamps that load() accepts as naive, and that crashes. A rejects offset timestamps cleanly as a corrupt file. Probes ran on Python 3.9.6; P13 checks imports against an explicit stdlib allowlist because sys.stdlib_module_names is not available in 3.9."
+}

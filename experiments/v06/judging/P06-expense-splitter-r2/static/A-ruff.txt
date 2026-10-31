@@ -1,0 +1,6 @@
+expense_splitter.py:5:89: E501 Line too long (91 > 88)
+expense_splitter.py:29:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+expense_splitter.py:51:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+expense_splitter.py:92:89: E501 Line too long (90 > 88)
+expense_splitter.py:173:89: E501 Line too long (97 > 88)
+Found 5 errors.

@@ -1,0 +1,21 @@
+[
+ {"id":"R1","text":"Single file scheduler.py, Python stdlib only"},
+ {"id":"R2","text":"Job id: alphanumeric and underscore, 1-32 chars; invalid ids rejected"},
+ {"id":"R3","text":"Job ids unique; duplicate id rejected on add"},
+ {"id":"R4","text":"Job has name, priority 1-10 (out-of-range rejected), depends_on list of ids"},
+ {"id":"R5","text":"Reject self-dependency on add"},
+ {"id":"R6","text":"Reject unknown dependency on add"},
+ {"id":"R7","text":"Reject any add that would create a cycle"},
+ {"id":"R8","text":"Execution order is topological with higher priority first as tiebreak"},
+ {"id":"R9","text":"Job is ready when pending and all depends_on are done"},
+ {"id":"R10","text":"Ready recomputed on load"},
+ {"id":"R11","text":"Failing a job cancels all transitive dependents"},
+ {"id":"R12","text":"Status values limited to pending, ready, running, done, failed, cancelled"},
+ {"id":"R13","text":"run-next takes highest-priority ready job, marks it running then done"},
+ {"id":"R14","text":"run-next with no ready job handled gracefully"},
+ {"id":"R15","text":"Persistence in scheduler.json"},
+ {"id":"R16","text":"ready status never persisted"},
+ {"id":"R17","text":"Commands add, run-next, fail <id>, status, report exist"},
+ {"id":"R18","text":"fail on unknown id rejected with error"},
+ {"id":"R19","text":"Errors reported with nonzero exit code, state unchanged on rejected add"}
+]

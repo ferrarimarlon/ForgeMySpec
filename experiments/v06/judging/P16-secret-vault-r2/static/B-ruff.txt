@@ -1,0 +1,19 @@
+tests/test_vault.py:16:89: E501 Line too long (93 > 88)
+tests/test_vault.py:34:16: S603 `subprocess` call: check for execution of untrusted input
+tests/test_vault.py:46:89: E501 Line too long (96 > 88)
+tests/test_vault.py:68:89: E501 Line too long (91 > 88)
+tests/test_vault.py:131:89: E501 Line too long (90 > 88)
+tests/test_vault.py:133:89: E501 Line too long (94 > 88)
+tests/test_vault.py:162:56: E741 Ambiguous variable name: `l`
+tests/test_vault.py:183:29: UP031 Use format specifiers instead of percent format
+tests/test_vault.py:235:31: S103 `os.chmod` setting a permissive mask `0o755` on file or directory
+tests/test_vault.py:237:9: E731 Do not assign a `lambda` expression, use a `def`
+vault.py:92:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+vault.py:96:32: UP031 Use format specifiers instead of percent format
+vault.py:167:13: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+vault.py:222:26: UP031 Use format specifiers instead of percent format
+vault.py:251:38: UP015 [*] Unnecessary mode argument
+vault.py:261:12: UP031 Use format specifiers instead of percent format
+vault.py:303:30: UP031 Use format specifiers instead of percent format
+Found 17 errors.
+[*] 1 fixable with the `--fix` option (3 hidden fixes can be enabled with the `--unsafe-fixes` option).

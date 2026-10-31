@@ -1,0 +1,13 @@
+password_checker.py:41:5: C901 `validate_policy` is too complex (13 > 10)
+password_checker.py:63:89: E501 Line too long (92 > 88)
+password_checker.py:70:89: E501 Line too long (95 > 88)
+password_checker.py:82:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+password_checker.py:84:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+password_checker.py:86:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+password_checker.py:172:89: E501 Line too long (109 > 88)
+password_checker.py:227:89: E501 Line too long (97 > 88)
+password_checker.py:228:89: E501 Line too long (92 > 88)
+password_checker.py:232:89: E501 Line too long (90 > 88)
+password_checker.py:233:89: E501 Line too long (92 > 88)
+password_checker.py:236:89: E501 Line too long (101 > 88)
+Found 12 errors.

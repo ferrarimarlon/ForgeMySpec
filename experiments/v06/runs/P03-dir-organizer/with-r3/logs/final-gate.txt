@@ -1,0 +1,12 @@
+ForgeMySpec gate: /private/tmp/fms-v06/runs/P03-dir-organizer/with-r3/forgemyspec-bundle/dir-organizer
+
+  [PASS   ] spec lint
+              score 100/100 (minimum 70)
+  [PASS   ] obligation coverage
+  [PASS   ] spec lock
+  [PASS   ] Python boundary tests
+              7 tests, 0 failed, 0 skipped
+
+RESULT: PASS
+
+  … python-boundary-tests

@@ -1,0 +1,116 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:37:30Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "score 100/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "8 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "validation_reports_all": {
+   "kind": "boundary",
+   "statement": "An invoice with several defects (missing customer name, bad quantity, negative price, bad tax rate, bad discount) yields one error per defect, all returned together, each with its field path.",
+   "must_include": [
+    "all validation errors at once"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "money_rounding": {
+   "kind": "boundary",
+   "statement": "Half-cent values round up (e.g. 3 x 0.125 = 0.38, tax 8.25% on 10.10 = 0.83), totals are Decimal-exact, and grand total = subtotal - discount + tax.",
+   "must_include": [
+    "correct money rounding"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "text_output": {
+   "kind": "boundary",
+   "statement": "The text output lists customer, each item with quantity, unit price and line total, then subtotal, discount, tax and total lines.",
+   "must_include": [
+    "formatted text invoice"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "json_output": {
+   "kind": "boundary",
+   "statement": "The JSON export parses with json.loads and carries the same computed amounts as two-decimal strings.",
+   "must_include": [
+    "JSON export"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "cli_exit_codes": {
+   "kind": "boundary",
+   "statement": "The CLI exits 0 on a valid file and 2 with all errors on stderr on invalid JSON, a missing file or validation errors.",
+   "must_include": [
+    "all validation errors at once"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "single_file_stdlib": {
+   "kind": "boundary",
+   "statement": "invoice_gen.py is the only module of the tool and imports only standard library modules.",
+   "must_include": [
+    "single file invoice_gen.py",
+    "stdlib only"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/invoice-gen",
+ "inputs_sha": "805ca6347f69eac5480c658a397af9d10ce44079a0eb1fc2bb7dd5ba6d797b02",
+ "schema": 2
+}

@@ -1,0 +1,33 @@
+{
+ "requirements_total": 19,
+ "probes_total": 21,
+ "A": {"probes_passed": 21,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 4, "quality": 4, "tests": 5},
+       "requirements_met": 19, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "silent", "requirement": "R11",
+         "evidence": "manual: add a; fail a; add b --depends-on a -> 'added b (pending)', stays pending forever",
+         "summary": "A job added after its dependency failed is left pending instead of cancelled, so it can never run."},
+        {"severity": "low", "category": "quality", "requirement": "R15",
+         "evidence": "A/scheduler.py:125 tmp = path + \".tmp\"",
+         "summary": "The fixed temp-file name and lack of locking let concurrent invocations clobber each other."},
+        {"severity": "low", "category": "quality", "requirement": null,
+         "evidence": "static/A-ruff.txt: 20 findings (UP031 percent-format, B904, C901 main)",
+         "summary": "Minor lint findings: percent formatting, a missing exception chain, and a complex main."}],
+       "own_tests": {"present": true, "ran": true, "passed": 15, "failed": 0},
+       "loc": 284},
+ "B": {"probes_passed": 21,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 5, "quality": 4, "tests": 0},
+       "requirements_met": 19, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "quality", "requirement": null,
+         "evidence": "ls B/ -> only scheduler.py",
+         "summary": "No automated tests are provided."},
+        {"severity": "low", "category": "quality", "requirement": null,
+         "evidence": "static/B-ruff.txt: 8 findings (C901 load/cmd_add, B904, E501)",
+         "summary": "Minor lint findings: complex functions, missing exception chains, and long lines."}],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 308},
+ "blinding_guess": {"spec_framework_side": "unsure", "confidence": 0.3, "why": "The two are structurally near-identical; A ships a test suite, which weakly hints at a more process-driven build, but nothing is conclusive."},
+ "notes": "Both implementations pass all 21 black-box probes; probes adapt only the --depends-on syntax (A: space-separated, B: comma-separated). Neither side has security findings beyond bandit lows in A's test subprocess use. A cycle cannot be formed through add alone because unknown dependencies are rejected, so P08 tests cycle detection on a hand-edited state file. The main differentiator is A's 15 passing tests versus B having none, against B's handling of jobs added under an already-failed dependency. Probes were run with python3.11 because the system python3.9 lacks sys.stdlib_module_names."
+}

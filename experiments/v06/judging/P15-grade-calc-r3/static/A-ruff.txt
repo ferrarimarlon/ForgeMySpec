@@ -1,0 +1,22 @@
+grade_calc.py:58:17: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+grade_calc.py:73:13: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+grade_calc.py:90:5: C901 `load_scores` is too complex (11 > 10)
+grade_calc.py:96:13: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+grade_calc.py:98:89: E501 Line too long (93 > 88)
+grade_calc.py:107:30: B905 `zip()` without an explicit `strict=` parameter
+grade_calc.py:114:21: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+grade_calc.py:114:89: E501 Line too long (100 > 88)
+grade_calc.py:116:89: E501 Line too long (96 > 88)
+grade_calc.py:154:89: E501 Line too long (89 > 88)
+grade_calc.py:157:89: E501 Line too long (99 > 88)
+grade_calc.py:164:5: C901 `main` is too complex (12 > 10)
+grade_calc.py:165:89: E501 Line too long (92 > 88)
+grade_calc.py:166:89: E501 Line too long (97 > 88)
+grade_calc.py:168:89: E501 Line too long (93 > 88)
+grade_calc.py:170:89: E501 Line too long (96 > 88)
+grade_calc.py:180:89: E501 Line too long (92 > 88)
+grade_calc.py:190:89: E501 Line too long (94 > 88)
+grade_calc.py:202:89: E501 Line too long (99 > 88)
+grade_calc.py:216:70: E741 Ambiguous variable name: `l`
+Found 20 errors.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).

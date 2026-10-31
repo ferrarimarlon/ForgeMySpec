@@ -1,0 +1,27 @@
+{
+ "requirements_total": 15,
+ "probes_total": 24,
+ "A": {"probes_passed": 23,
+  "scores": {"functional": 5, "coverage": 5, "security": 3, "robustness": 3, "quality": 4, "tests": 4},
+  "requirements_met": 14, "requirements_partial": 1, "requirements_missing": 0,
+  "issues": [
+   {"severity": "medium", "category": "security", "requirement": "R8", "evidence": "A/blog_api.py:21,163; started without BLOG_API_KEY, GET /posts with 'X-API-Key: dev-key' returned 200", "summary": "Falls back to a hardcoded, publicly known API key 'dev-key' when BLOG_API_KEY is unset, so auth is bypassable by default."},
+   {"severity": "medium", "category": "functional", "requirement": "R15", "evidence": "probe P21_lone_surrogate_gets_json_response: RemoteDisconnected on POST with content '\\ud800'", "summary": "Only sqlite3.Error is caught (blog_api.py:112), so a UnicodeEncodeError from a lone-surrogate string kills the request with no HTTP response."},
+   {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt (B904 x2, E501, UP031; test file F401 unused sys)", "summary": "Minor lint issues: exceptions re-raised without 'from', long lines, unused import in tests."}
+  ],
+  "own_tests": {"present": true, "ran": true, "passed": 6, "failed": 0},
+  "loc": 183},
+ "B": {"probes_passed": 24,
+  "scores": {"functional": 5, "coverage": 5, "security": 4, "robustness": 4, "quality": 4, "tests": 0},
+  "requirements_met": 15, "requirements_partial": 0, "requirements_missing": 0,
+  "issues": [
+   {"severity": "low", "category": "security", "requirement": null, "evidence": "static/B-bandit.txt B608 at blog_api.py:197", "summary": "UPDATE statement built with an f-string; column names come from a fixed whitelist (FIELDS) so it is not exploitable, but the pattern is fragile."},
+   {"severity": "low", "category": "quality", "requirement": null, "evidence": "B/blog_api.py:26-33", "summary": "Config is read and a key is generated/printed at import time (module-level side effects), making the module hard to import or test."},
+   {"severity": "low", "category": "quality", "requirement": null, "evidence": "B/blog_api.py:38-45", "summary": "Thread-local sqlite connections are opened per handler thread and never closed."},
+   {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt (B904 x3)", "summary": "Exceptions re-raised inside except blocks without 'from'."}
+  ],
+  "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+  "loc": 230},
+ "blinding_guess": {"spec_framework_side": "A", "confidence": 0.55, "why": "A ships a separate tests_py suite and a docstring that reads like a route spec, while B is a single file with no tests."},
+ "notes": "Both sides implement full CRUD with X-API-Key auth (constant-time compare), parameterized SQL and JSON errors on 127.0.0.1:8080; probes ran on Python 3.9.6 with BLOG_API_KEY and BLOG_DB set to temp values. B goes beyond the spec (PATCH, author field, timestamps, pagination, rejection of unknown fields), which adds to the API without changing core behaviour. A's main weaknesses are the hardcoded default key and a narrow exception handler; B's is that it has no tests. static/A-bandit.txt is empty (0 bytes), so A has no precomputed bandit report; manual review found no injection in A. A's tests passed with PYTHONPATH=A python3 -m unittest discover -s A/tests_py."
+}

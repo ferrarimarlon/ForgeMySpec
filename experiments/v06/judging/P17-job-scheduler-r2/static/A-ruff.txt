@@ -1,0 +1,27 @@
+scheduler.py:38:13: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+scheduler.py:110:13: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+scheduler.py:110:34: UP031 Use format specifiers instead of percent format
+scheduler.py:112:34: UP031 Use format specifiers instead of percent format
+scheduler.py:136:30: UP031 Use format specifiers instead of percent format
+scheduler.py:142:30: UP031 Use format specifiers instead of percent format
+scheduler.py:145:34: UP031 Use format specifiers instead of percent format
+scheduler.py:194:30: UP031 Use format specifiers instead of percent format
+scheduler.py:197:30: UP031 Use format specifiers instead of percent format
+scheduler.py:197:89: E501 Line too long (91 > 88)
+scheduler.py:228:12: UP031 Use format specifiers instead of percent format
+scheduler.py:233:89: E501 Line too long (90 > 88)
+scheduler.py:248:5: C901 `main` is too complex (11 > 10)
+scheduler.py:255:19: UP031 Use format specifiers instead of percent format
+scheduler.py:262:23: UP031 Use format specifiers instead of percent format
+scheduler.py:266:19: UP031 Use format specifiers instead of percent format
+scheduler.py:266:89: E501 Line too long (89 > 88)
+scheduler.py:273:23: UP031 Use format specifiers instead of percent format
+scheduler.py:276:23: UP031 Use format specifiers instead of percent format
+scheduler.py:278:15: UP031 Use format specifiers instead of percent format
+tests/test_scheduler.py:20:16: S603 `subprocess` call: check for execution of untrusted input
+tests/test_scheduler.py:96:89: E501 Line too long (97 > 88)
+tests/test_scheduler.py:98:89: E501 Line too long (90 > 88)
+tests/test_scheduler.py:115:35: E741 Ambiguous variable name: `l`
+tests/test_scheduler.py:180:89: E501 Line too long (89 > 88)
+Found 25 errors.
+No fixes available (11 hidden fixes can be enabled with the `--unsafe-fixes` option).

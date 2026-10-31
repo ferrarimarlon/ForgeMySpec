@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "RE2X2X",
+   "nonce": "f4b15b6044c42ddf57dc8b83bc8462f4",
+   "created_at": "2026-10-31T21:03:21.265Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/grade-calc",
+     "content_sha": "2d209a29052c2daf46098c87d13eeed6bad718950434673785a1d2c0ac8cc19d",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

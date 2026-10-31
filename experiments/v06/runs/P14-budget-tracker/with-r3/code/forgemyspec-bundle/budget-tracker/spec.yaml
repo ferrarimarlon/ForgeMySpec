@@ -1,0 +1,131 @@
+version: "0.1"
+title: "Budget tracker CLI"
+objective: "A single-file stdlib Python CLI (budget_tracker.py) that keeps monthly budgets per category and expenses in a JSON file, reports spending against budgets, and alerts at 80% and 100%."
+execution_mode: critical
+context:
+  system: "Empty Python repository; deliverable is budget_tracker.py at the repository root with unittest tests in tests/. Python 3 stdlib only."
+  assumptions:
+    - "Budgets are one amount per category per month, keyed by YYYY-MM."
+    - "Amounts are decimal with at most 2 fractional digits; stored in JSON as strings to avoid float error."
+    - "Expense dates are ISO YYYY-MM-DD; the month of the date selects the budget."
+    - "The data file defaults to budget.json and is overridable with --file."
+    - "Alert thresholds are inclusive: spent >= 80% of budget warns, spent >= 100% marks exceeded."
+    - "An expense in a month where its category has no budget is accepted for known categories, and reported with no alert."
+constraints:
+  - "Only the Python standard library is used."
+  - "All code lives in the single file budget_tracker.py."
+  - "No network access, no database, no GUI."
+  - "Categories exist only when a budget has been defined; no implicit category creation by add."
+  - "Floats are never used for money."
+success_criteria:
+  - "Budgets can be set and expenses recorded through the CLI and persist in the JSON file."
+  - "Unknown categories and invalid amounts are rejected with a nonzero exit and the file left unchanged."
+  - "The report shows spent, budget and percent per category for a month."
+  - "Alerts appear at 80% and 100% of a category budget."
+hypotheses:
+  - id: h1
+    description: "Setting a budget for a category and month persists it in the JSON file, and a later run reads it back."
+    confidence: 0.9
+  - id: h2
+    description: "Adding an expense with amount, category, date and note appends it to the JSON file."
+    confidence: 0.9
+  - id: h3
+    description: "An expense with a category that has no defined budget is rejected, exits nonzero and leaves the file unchanged."
+    confidence: 0.9
+  - id: h4
+    description: "Only a positive decimal amount with at most 2 fractional digits is accepted; zero, negative, non-numeric, NaN and infinite amounts are rejected with the file unchanged."
+    confidence: 0.85
+  - id: h5
+    description: "The report of a month shows, per category, the spent total, the budget and the percent used."
+    confidence: 0.85
+  - id: h6
+    description: "A category whose spending reaches 80% of its budget gets a warning alert, and one that reaches 100% gets an exceeded alert, in both the report and the add output."
+    confidence: 0.85
+actions:
+  - id: a1
+    description: "Define data model and JSON storage load/save with validation of the file."
+    type: design
+    requires_confirmation: false
+    supports: [h1, h2]
+  - id: a2
+    description: "Implement budget set and expense add with category and amount validation."
+    type: implement
+    requires_confirmation: false
+    supports: [h1, h2, h3, h4]
+  - id: a3
+    description: "Implement report and alert threshold logic."
+    type: implement
+    requires_confirmation: false
+    supports: [h5, h6]
+  - id: a4
+    description: "Write unittest boundary tests for every obligation and run them."
+    type: test
+    requires_confirmation: false
+    supports: [h1, h2, h3, h4, h5, h6]
+required_evidence:
+  - "Output of python3 -m unittest discover -s tests showing all tests pass."
+  - "Output of the gate command reporting RESULT: PASS."
+decision_rules:
+  - "If a rule cannot be both faithful to the request and testable, stop and ask the user."
+  - "Anything outside the obligations is a spec amendment."
+metadata:
+  generator: claude-code-session
+  source_prompt: "Build a budget tracker CLI in Python. Define monthly budgets per category, record expenses (amount, category, date, note) into a JSON file, reject unknown categories and invalid amounts, report spending per category against the budget, and alert when a category reaches 80% and 100% of its budget. Single file budget_tracker.py, stdlib only."
+  scope_contract:
+    must_include:
+      - "monthly budget per category"
+      - "expense with amount, category, date and note saved to JSON"
+      - "unknown category rejected"
+      - "invalid amount rejected"
+      - "spending per category against budget"
+      - "alert at 80% and 100%"
+      - "single file stdlib only"
+formal:
+  module: BudgetTracker
+  obligations:
+    - id: budget_persisted
+      kind: boundary
+      statement: "set-budget stores an amount for a category and month in the JSON file; a new process reads it back."
+      hypotheses: [h1]
+      must_include: ["monthly budget per category"]
+      test: "test_budget_tracker.BudgetTests.test_budget_persisted"
+    - id: expense_saved
+      kind: boundary
+      statement: "add stores amount, category, date and note as an expense entry in the JSON file."
+      hypotheses: [h2]
+      must_include: ["expense with amount, category, date and note saved to JSON"]
+      test: "test_budget_tracker.ExpenseTests.test_expense_saved"
+    - id: unknown_category_rejected
+      kind: boundary
+      statement: "add with a category without a budget exits nonzero with an error and leaves the file unchanged."
+      hypotheses: [h3]
+      must_include: ["unknown category rejected"]
+      test: "test_budget_tracker.ExpenseTests.test_unknown_category_rejected"
+    - id: invalid_amount_rejected
+      kind: boundary
+      statement: "add with zero, negative, non-numeric, NaN, infinite or more-than-2-decimals amount exits nonzero and leaves the file unchanged."
+      hypotheses: [h4]
+      must_include: ["invalid amount rejected"]
+      test: "test_budget_tracker.ExpenseTests.test_invalid_amount_rejected"
+    - id: report_per_category
+      kind: boundary
+      statement: "report for a month prints spent, budget and percent for each category, summing only that month's expenses."
+      hypotheses: [h5]
+      must_include: ["spending per category against budget"]
+      test: "test_budget_tracker.ReportTests.test_report_per_category"
+    - id: alert_thresholds
+      kind: boundary
+      statement: "Spending below 80% gives no alert, from 80% up to below 100% a warning, and 100% or more an exceeded alert, shown by report and by add."
+      hypotheses: [h6]
+      must_include: ["alert at 80% and 100%"]
+      test: "test_budget_tracker.AlertTests.test_alert_thresholds"
+    - id: single_file_stdlib
+      kind: boundary
+      statement: "budget_tracker.py imports only standard library modules and is the only module the tests import."
+      hypotheses: [h1, h2]
+      must_include: ["single file stdlib only"]
+      test: "test_budget_tracker.StructureTests.test_stdlib_only"
+scope:
+  paths: ["budget_tracker.py", "tests/**"]
+  tests: tests
+  pythonpath: ["."]

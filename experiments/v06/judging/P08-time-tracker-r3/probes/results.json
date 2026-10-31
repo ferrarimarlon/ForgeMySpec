@@ -1,0 +1,38 @@
+{
+ "A": {
+  "P01_start_persists": "pass",
+  "P02_refuse_double_start": "pass",
+  "P03_stop": "pass",
+  "P04_stop_no_active": "pass",
+  "P05_log_hhmmss": "pass",
+  "P06_report_totals": "pass",
+  "P07_overlap_detected": "pass",
+  "P08_adjacent_not_overlap": "pass",
+  "P09_corrupt_json": "pass",
+  "P10_over_24h": "pass",
+  "P11_persist_across_procs": "pass",
+  "P12_start_after_stop": "pass",
+  "P13_stdlib_only": "pass",
+  "P14_overlap_with_new_session": "pass",
+  "P15_empty_report": "pass",
+  "P16_missing_field": "pass"
+ },
+ "B": {
+  "P01_start_persists": "pass",
+  "P02_refuse_double_start": "pass",
+  "P03_stop": "pass",
+  "P04_stop_no_active": "pass",
+  "P05_log_hhmmss": "pass",
+  "P06_report_totals": "pass",
+  "P07_overlap_detected": "pass",
+  "P08_adjacent_not_overlap": "pass",
+  "P09_corrupt_json": "pass",
+  "P10_over_24h": "pass",
+  "P11_persist_across_procs": "pass",
+  "P12_start_after_stop": "pass",
+  "P13_stdlib_only": "pass",
+  "P14_overlap_with_new_session": "fail",
+  "P15_empty_report": "pass",
+  "P16_missing_field": "pass"
+ }
+}

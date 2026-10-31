@@ -1,0 +1,157 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:40:22Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "[LINT-HY-007] hypotheses[2].description: Hypothesis appears to describe what will NOT be built; hypotheses must be affirmative and testable",
+    "[LINT-HY-007] hypotheses[4].description: Hypothesis appears to describe what will NOT be built; hypotheses must be affirmative and testable",
+    "score 90/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "9 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "required_fields": {
+   "kind": "boundary",
+   "statement": "Each missing required field yields an error naming its path.",
+   "must_include": [
+    "required fields"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "type_checks": {
+   "kind": "boundary",
+   "statement": "Wrong types for string, integer, number, boolean, array, object are reported; bool is not integer/number.",
+   "must_include": [
+    "types string integer number boolean array object"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "enum_check": {
+   "kind": "boundary",
+   "statement": "A value not in the enum list is reported.",
+   "must_include": [
+    "enums"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "number_bounds": {
+   "kind": "boundary",
+   "statement": "Numbers below minimum or above maximum are reported; boundary values are accepted.",
+   "must_include": [
+    "min/max for numbers"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "string_length": {
+   "kind": "boundary",
+   "statement": "Strings shorter than minLength or longer than maxLength are reported; boundary lengths are accepted.",
+   "must_include": [
+    "min/max length for strings"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "regex_pattern": {
+   "kind": "boundary",
+   "statement": "Strings not matching pattern (re.search) are reported.",
+   "must_include": [
+    "regex patterns"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "nested_paths": {
+   "kind": "boundary",
+   "statement": "Errors in nested objects are reported with dot-separated paths such as server.port.",
+   "must_include": [
+    "dot notation in error messages"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "all_errors": {
+   "kind": "boundary",
+   "statement": "Multiple violations in one config are all reported, one per line, exit code 1; valid config exits 0; bad input files exit 2.",
+   "must_include": [
+    "report all errors at once"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "single_file_stdlib": {
+   "kind": "boundary",
+   "statement": "config_validator.py is one file importing only standard library modules.",
+   "must_include": [
+    "single file config_validator.py",
+    "stdlib only"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/config-validator",
+ "inputs_sha": "ca0e9ecad396305b2c62b4e7a99dd521fad8cad46b8264a4312cbab87c781f46",
+ "schema": 2
+}

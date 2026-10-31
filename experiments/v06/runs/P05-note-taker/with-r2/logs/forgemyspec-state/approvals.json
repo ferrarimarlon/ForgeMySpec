@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "ZFD6BU",
+   "nonce": "136c0ab46c5b50c7286d06067b073fa6",
+   "created_at": "2026-10-31T20:28:26.401Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/note-taker",
+     "content_sha": "42ae26422cd08c139fb2e6692dbfae13b47202a4d2ee45b916edd90949e049fc",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

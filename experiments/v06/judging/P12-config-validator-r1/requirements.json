@@ -1,0 +1,15 @@
+[
+{"id":"R1","text":"CLI program in Python taking a JSON config file and a JSON schema file"},
+{"id":"R2","text":"Validate required fields"},
+{"id":"R3","text":"Validate types: string, integer, number, boolean, array, object"},
+{"id":"R4","text":"Validate enums"},
+{"id":"R5","text":"Validate minimum/maximum for numbers"},
+{"id":"R6","text":"Validate minLength/maxLength for strings"},
+{"id":"R7","text":"Validate regex patterns"},
+{"id":"R8","text":"Support nested objects, errors use dot-notation paths"},
+{"id":"R9","text":"Report all errors at once, not only the first"},
+{"id":"R10","text":"Single file config_validator.py"},
+{"id":"R11","text":"Stdlib only"},
+{"id":"R12","text":"Implied: valid config yields success (exit 0); invalid yields nonzero exit"},
+{"id":"R13","text":"Implied: graceful handling of missing/malformed input files"}
+]

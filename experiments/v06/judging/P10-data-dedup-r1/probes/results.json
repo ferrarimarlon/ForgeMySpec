@@ -1,0 +1,34 @@
+{
+ "A": {
+  "P01_first_single": "pass",
+  "P02_last_single": "pass",
+  "P03_composite_first": "pass",
+  "P04_composite_last": "pass",
+  "P05_error_nonzero": "pass",
+  "P06_error_reports_dups": "pass",
+  "P07_error_nodups_ok": "pass",
+  "P08_summary_counts": "pass",
+  "P09_missing_key_col": "pass",
+  "P10_csv_quoting": "pass",
+  "P11_composite_distinguishes": "pass",
+  "P12_bom_input": "pass",
+  "P13_empty_input": "pass",
+  "P14_last_preserves_order_of_kept": "pass"
+ },
+ "B": {
+  "P01_first_single": "pass",
+  "P02_last_single": "pass",
+  "P03_composite_first": "pass",
+  "P04_composite_last": "pass",
+  "P05_error_nonzero": "pass",
+  "P06_error_reports_dups": "pass",
+  "P07_error_nodups_ok": "pass",
+  "P08_summary_counts": "pass",
+  "P09_missing_key_col": "pass",
+  "P10_csv_quoting": "pass",
+  "P11_composite_distinguishes": "pass",
+  "P12_bom_input": "fail",
+  "P13_empty_input": "pass",
+  "P14_last_preserves_order_of_kept": "pass"
+ }
+}

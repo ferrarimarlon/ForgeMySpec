@@ -1,0 +1,14 @@
+[
+ {"id":"R1","text":"Implemented in Python using only the standard library (http.server + sqlite3), no third-party deps"},
+ {"id":"R2","text":"Single file named blog_api.py"},
+ {"id":"R3","text":"Listens on localhost:8080 by default"},
+ {"id":"R4","text":"Create post (POST) with JSON body, returns created post (201)"},
+ {"id":"R5","text":"Read: list posts and get single post by id; 404 for missing"},
+ {"id":"R6","text":"Update post (PUT/PATCH) with JSON body; 404 for missing"},
+ {"id":"R7","text":"Delete post; 404 for missing"},
+ {"id":"R8","text":"Persistence via sqlite3"},
+ {"id":"R9","text":"X-API-Key header authentication; missing/wrong key rejected with 401/403"},
+ {"id":"R10","text":"JSON request bodies; invalid JSON / missing fields rejected with 400"},
+ {"id":"R11","text":"JSON responses with Content-Type application/json, including errors"},
+ {"id":"R12","text":"Unknown routes return 404 JSON, server does not crash on bad input"}
+]

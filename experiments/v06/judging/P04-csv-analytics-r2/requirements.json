@@ -1,0 +1,15 @@
+[
+ {"id":"R1","text":"Reads CSV files given as input"},
+ {"id":"R2","text":"Computes per-column count"},
+ {"id":"R3","text":"Computes per-column min"},
+ {"id":"R4","text":"Computes per-column max"},
+ {"id":"R5","text":"Computes per-column mean"},
+ {"id":"R6","text":"Computes per-column median (correct for even and odd counts)"},
+ {"id":"R7","text":"Computes per-column stdev"},
+ {"id":"R8","text":"Can filter rows by a condition"},
+ {"id":"R9","text":"Can select a subset of columns"},
+ {"id":"R10","text":"Exports a JSON report"},
+ {"id":"R11","text":"Delivered as a single file csv_analytics.py"},
+ {"id":"R12","text":"Uses only the Python standard library"},
+ {"id":"R13","text":"Handles bad input (missing file, unknown column, non-numeric values, empty file) with clear errors, not tracebacks"}
+]

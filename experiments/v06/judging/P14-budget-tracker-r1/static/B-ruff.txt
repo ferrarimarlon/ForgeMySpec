@@ -1,0 +1,32 @@
+budget_tracker.py:23:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+budget_tracker.py:23:25: UP031 Use format specifiers instead of percent format
+budget_tracker.py:25:25: UP031 Use format specifiers instead of percent format
+budget_tracker.py:27:25: UP031 Use format specifiers instead of percent format
+budget_tracker.py:29:25: UP031 Use format specifiers instead of percent format
+budget_tracker.py:37:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+budget_tracker.py:37:25: UP031 Use format specifiers instead of percent format
+budget_tracker.py:47:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+budget_tracker.py:47:25: UP031 Use format specifiers instead of percent format
+budget_tracker.py:56:89: E501 Line too long (99 > 88)
+budget_tracker.py:60:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+budget_tracker.py:60:25: UP031 Use format specifiers instead of percent format
+budget_tracker.py:75:89: E501 Line too long (102 > 88)
+budget_tracker.py:97:12: UP031 Use format specifiers instead of percent format
+budget_tracker.py:109:11: UP031 Use format specifiers instead of percent format
+budget_tracker.py:117:25: UP031 Use format specifiers instead of percent format
+budget_tracker.py:125:11: UP031 Use format specifiers instead of percent format
+budget_tracker.py:128:89: E501 Line too long (91 > 88)
+budget_tracker.py:137:11: UP031 Use format specifiers instead of percent format
+budget_tracker.py:138:11: UP031 Use format specifiers instead of percent format
+budget_tracker.py:138:89: E501 Line too long (91 > 88)
+budget_tracker.py:143:15: UP031 Use format specifiers instead of percent format
+budget_tracker.py:153:89: E501 Line too long (97 > 88)
+budget_tracker.py:154:89: E501 Line too long (101 > 88)
+budget_tracker.py:177:15: UP031 Use format specifiers instead of percent format
+tests/test_budget_tracker.py:42:89: E501 Line too long (100 > 88)
+tests/test_budget_tracker.py:45:89: E501 Line too long (92 > 88)
+tests/test_budget_tracker.py:59:89: E501 Line too long (112 > 88)
+tests/test_budget_tracker.py:73:27: E741 Ambiguous variable name: `l`
+tests/test_budget_tracker.py:74:26: E741 Ambiguous variable name: `l`
+Found 30 errors.
+No fixes available (13 hidden fixes can be enabled with the `--unsafe-fixes` option).

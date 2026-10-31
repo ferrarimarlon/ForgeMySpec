@@ -1,0 +1,41 @@
+{
+ "requirements_total": 14,
+ "probes_total": 21,
+ "A": {"probes_passed": 19,
+       "scores": {"functional": 5, "coverage": 5, "security": 3, "robustness": 4, "quality": 4, "tests": 0},
+       "requirements_met": 13, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "security", "requirement": "R9",
+         "evidence": "P16/P17; manual: 'note_taker.py delete -y ../victim' printed 'Deleted victim' and removed $HOME/victim.md (A/note_taker.py:108)",
+         "summary": "Note ids are not validated, so show/edit/delete can read, edit or delete .md files outside ~/.note-taker via '../' paths."},
+        {"severity": "low", "category": "silent", "requirement": "R6",
+         "evidence": "manual: 'delete -y plan' deleted 'project-plan' via substring match (A/note_taker.py:112)",
+         "summary": "Fuzzy prefix/substring id matching can act on a note other than the one named (mitigated by the default confirmation prompt)."},
+        {"severity": "low", "category": "quality", "requirement": null,
+         "evidence": "static/A-ruff.txt: E702 semicolon statements at lines 50-56, 8x E501",
+         "summary": "Minor style issues (multiple statements per line, long lines)."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 258},
+ "B": {"probes_passed": 20,
+       "scores": {"functional": 4, "coverage": 5, "security": 5, "robustness": 3, "quality": 4, "tests": 0},
+       "requirements_met": 13, "requirements_partial": 1, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "silent", "requirement": "R8",
+         "evidence": "P14; manual: title $'line1\\nline2: x' wrote a raw newline inside title, list then shows title '\"line1' (B/note_taker.py:23-24)",
+         "summary": "_quote does not escape newlines, so a multi-line title produces broken YAML frontmatter and a corrupted title with no error."},
+        {"severity": "low", "category": "silent", "requirement": "R3",
+         "evidence": "manual: plain.md without frontmatter is omitted from 'list' without warning (B/note_taker.py:120-123)",
+         "summary": "Notes with malformed or missing frontmatter are silently left out of list and search."},
+        {"severity": "low", "category": "functional", "requirement": "R2",
+         "evidence": "manual: two notes titled '日本語' got ids 'note' and 'note-2' (B/note_taker.py:19)",
+         "summary": "Slugify drops all non-ASCII characters, so non-Latin titles get the generic id 'note'."},
+        {"severity": "low", "category": "quality", "requirement": null,
+         "evidence": "static/B-ruff.txt: C901 parse complexity, E741 ambiguous 'l', UP031 percent-formatting",
+         "summary": "Minor style and lint issues."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 231},
+ "blinding_guess": {"spec_framework_side": "unsure", "confidence": 0.5, "why": "Both are compact single-file argparse CLIs with similar structure and no tests or spec artifacts to tell them apart."},
+ "notes": "Both use NOTE_TAKER_DIR as an override and otherwise ~/.note-taker; probes ran with a temporary HOME. The only bandit/ruff security flags are low-severity subprocess warnings for launching $EDITOR (shlex-split, no shell), which is expected here. A has more features (confirmation on delete, updated timestamp, multi-tag filter, fuzzy ids, a nicer show view) but does not confine ids to the notes directory. B is stricter (id regex, frontmatter validation after edit) but mishandles multi-line titles and silently skips malformed notes. Neither side ships tests. The P20 stdlib check used find_spec against the stdlib path because the local Python is 3.9."
+}

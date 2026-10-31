@@ -1,0 +1,116 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:26:32Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "score 100/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "9 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "equal_split_exact": {
+   "kind": "boundary",
+   "statement": "Shares of an expense are equal up to one cent, sum exactly to the amount in cents, and leftover cents go to the first participants in sorted order.",
+   "must_include": [
+    "equal split among participants"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "json_persistence": {
+   "kind": "boundary",
+   "statement": "An added expense is written to the JSON file and reloaded by a fresh load; a missing file loads as an empty ledger.",
+   "must_include": [
+    "persisted in JSON file"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "balances_per_person": {
+   "kind": "boundary",
+   "statement": "Balance of each person is paid minus share; the balances sum to zero.",
+   "must_include": [
+    "balance per person"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "greedy_plan_settles": {
+   "kind": "boundary",
+   "statement": "The plan pairs the largest debtor with the largest creditor, has at most n-1 transfers, and applying it zeroes all balances.",
+   "must_include": [
+    "greedy settlement plan"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "invalid_input_exit_2": {
+   "kind": "boundary",
+   "statement": "Invalid amount, empty participants or corrupt JSON exits 2 with a message and leaves the file unchanged.",
+   "must_include": [
+    "persisted in JSON file"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "single_file_stdlib": {
+   "kind": "boundary",
+   "statement": "expense_splitter.py imports only standard library modules and is the only project module the tests import.",
+   "must_include": [
+    "single file expense_splitter.py",
+    "stdlib only"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/expense-splitter",
+ "inputs_sha": "fd6a62a8a9bb2ed3ddca86bdca77239a2334fcd467024d636a26821561ada45f",
+ "schema": 2
+}

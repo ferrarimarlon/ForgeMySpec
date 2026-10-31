@@ -1,0 +1,18 @@
+version: '0.1'
+purpose: Manual eval seeds to detect scope drift in Claude implementations
+source_prompt: Build a state machine CLI in Python. Load a machine definition from
+  JSON (states, initial state, final states, transitions with events and optional
+  guard conditions on a context), validate it (unknown states, unreachable states,
+  missing initial state), run a sequence of events against it, and keep a history
+  of transitions that can be printed. Single file state_machine.py, stdlib only.
+checks:
+  must_include:
+  - load machine from JSON
+  - unknown states rejected
+  - unreachable states rejected
+  - missing initial state rejected
+  - guard conditions on context
+  - run sequence of events
+  - printable transition history
+  - single file stdlib only
+cases: []

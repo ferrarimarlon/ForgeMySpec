@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "EH4HSK",
+   "nonce": "522eb5498ee2c7fad2ff712e434ed428",
+   "created_at": "2026-10-31T21:03:28.188Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/secret-vault",
+     "content_sha": "561b31e980e1d760946ceb861e5555424cc40f2319547dd14c4000571977788d",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

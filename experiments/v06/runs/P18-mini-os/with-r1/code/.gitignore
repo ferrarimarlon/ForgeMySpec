@@ -1,0 +1,5 @@
+
+# ForgeMySpec local state.
+.forgemyspec/state/
+.forgemyspec/backups/
+build/

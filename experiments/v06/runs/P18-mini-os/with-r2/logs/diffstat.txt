@@ -1,0 +1,18 @@
+ Makefile                                           |  36 ++++++++
+ README.md                                          |  11 +++
+ .../.claude/commands/implement-from-spec.md        |   8 ++
+ forgemyspec-bundle/mini-os/CLAUDE.md               |  45 ++++++++++
+ forgemyspec-bundle/mini-os/acceptance-checklist.md |  19 ++++
+ .../mini-os/evals/scope_drift_cases.yaml           |  13 +++
+ forgemyspec-bundle/mini-os/spec.lock               |   5 ++
+ forgemyspec-bundle/mini-os/spec.yaml               | 100 +++++++++++++++++++++
+ os/boot.asm                                        |  84 +++++++++++++++++
+ os/build/boot.bin                                  | Bin 0 -> 512 bytes
+ os/build/kernel.bin                                | Bin 0 -> 16384 bytes
+ os/build/kernel.elf                                | Bin 0 -> 5068 bytes
+ os/build/kernel.o                                  | Bin 0 -> 1340 bytes
+ os/build/os.img                                    | Bin 0 -> 16896 bytes
+ os/kernel.c                                        |  61 +++++++++++++
+ os/linker.ld                                       |   9 ++
+ tests_os/test_os.py                                |  76 ++++++++++++++++
+ 17 files changed, 467 insertions(+)

@@ -1,0 +1,90 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T21:19:54Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "score 100/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "4 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "boot_sector_layout": {
+   "kind": "boundary",
+   "statement": "The first 512 bytes of os.img are the boot sector and bytes 510-511 are 0x55 0xAA.",
+   "must_include": [
+    "512-byte boot sector with 0x55AA signature"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "freestanding_kernel": {
+   "kind": "boundary",
+   "statement": "Kernel C sources compile with -ffreestanding -nostdlib and the linked kernel has no undefined symbols or libc includes.",
+   "must_include": [
+    "kernel written in freestanding C",
+    "no external libraries"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "vga_driver": {
+   "kind": "boundary",
+   "statement": "The kernel writes to VGA text memory at 0xB8000 (80x25 cells, character plus attribute).",
+   "must_include": [
+    "VGA text output at 0xB8000"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "qemu_boot_banner": {
+   "kind": "boundary",
+   "statement": "Running os.img headless in qemu-system-i386 leaves the banner text in VGA memory at 0xB8000.",
+   "must_include": [
+    "boots in QEMU"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/mini-os",
+ "inputs_sha": "8479f87847c97e1c782daebd5239ad533cba604bc28583382054a0766583c0c2",
+ "schema": 2
+}

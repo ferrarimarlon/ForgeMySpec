@@ -1,0 +1,20 @@
+[
+ {"id":"R1","text":"CLI written in Python, single file password_checker.py"},
+ {"id":"R2","text":"Stdlib only (no third-party imports)"},
+ {"id":"R3","text":"Policy rule: minimum length is enforced"},
+ {"id":"R4","text":"Policy rule: uppercase requirement is enforced"},
+ {"id":"R5","text":"Policy rule: lowercase requirement is enforced"},
+ {"id":"R6","text":"Policy rule: digit requirement is enforced"},
+ {"id":"R7","text":"Policy rule: symbol requirement is enforced"},
+ {"id":"R8","text":"Policy rule: forbidden common passwords are rejected"},
+ {"id":"R9","text":"Policy is configurable (rules can be turned on/off / values changed)"},
+ {"id":"R10","text":"check reports every failed rule, not just the first"},
+ {"id":"R11","text":"Compute and report Shannon entropy in bits"},
+ {"id":"R12","text":"generate subcommand produces random passwords that satisfy the policy"},
+ {"id":"R13","text":"Generated passwords use a cryptographically secure RNG"},
+ {"id":"R14","text":"Policy can be loaded from policy.json"},
+ {"id":"R15","text":"validate-policy subcommand validates a policy file and reports errors"},
+ {"id":"R16","text":"Subcommands check, generate, validate-policy exist"},
+ {"id":"R17","text":"Exit status distinguishes pass/fail (implied CLI convention)"},
+ {"id":"R18","text":"Invalid/missing policy file handled gracefully without traceback"}
+]

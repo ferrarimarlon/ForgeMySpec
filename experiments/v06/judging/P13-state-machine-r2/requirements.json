@@ -1,0 +1,19 @@
+[
+ {"id":"R1","text":"CLI program in Python"},
+ {"id":"R2","text":"Single file state_machine.py"},
+ {"id":"R3","text":"Stdlib only (no third-party imports)"},
+ {"id":"R4","text":"Load a machine definition from a JSON file"},
+ {"id":"R5","text":"Definition contains states, initial state, final states, transitions"},
+ {"id":"R6","text":"Transitions have events (from state + event -> to state)"},
+ {"id":"R7","text":"Transitions support optional guard conditions evaluated on a context"},
+ {"id":"R8","text":"Validation: detect transitions/initial/final referencing unknown states"},
+ {"id":"R9","text":"Validation: detect unreachable states"},
+ {"id":"R10","text":"Validation: detect missing initial state"},
+ {"id":"R11","text":"Run a sequence of events against the machine"},
+ {"id":"R12","text":"Invalid/unhandled events and guard-blocked transitions handled with clear error (non-zero exit or reported), no traceback"},
+ {"id":"R13","text":"Keep a history of transitions"},
+ {"id":"R14","text":"History can be printed"},
+ {"id":"R15","text":"Report final state / whether machine reached a final state"},
+ {"id":"R16","text":"Malformed JSON / missing file handled gracefully without traceback"},
+ {"id":"R17","text":"Guards evaluated safely (no arbitrary code execution, e.g. no eval of untrusted input)"}
+]
