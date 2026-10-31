@@ -22,11 +22,11 @@ context:
     - If dest file already exists, skip the move and log a warning.
 
 constraints:
-  - Single file: organizer.py only.
+  - "Single file: organizer.py only."
   - No external dependencies — stdlib only.
   - Extension mapping exactly as specified (6 categories including other/).
   - --once exits after one pass; --watch loops indefinitely until Ctrl-C.
-  - Log format: "YYYY-MM-DD HH:MM:SS - INFO - Moved <filename> → <subdir>/".
+  - "Log format: \"YYYY-MM-DD HH:MM:SS - INFO - Moved <filename> → <subdir>/\"."
   - All files in experiments/with-framework/03-dir-organizer/.
 
 success_criteria:
@@ -56,7 +56,7 @@ hypotheses:
     confidence: 0.93
 
 required_evidence:
-  - Shell session: create test dir with .jpg, .pdf, .mp4, .zip, .unknown, .hidden; run --once; verify each landed in correct subdir.
+  - "Shell session: create test dir with .jpg, .pdf, .mp4, .zip, .unknown, .hidden; run --once; verify each landed in correct subdir."
   - cat organizer.log shows one line per moved file with correct format.
   - .hidden file NOT present in any subdir.
   - organizer.log NOT moved.

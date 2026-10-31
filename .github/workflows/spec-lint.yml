@@ -1,17 +1,25 @@
-name: Spec Lint & Scope Check
+name: Spec Gate
 
 on:
   push:
     paths:
       - '**/spec.yaml'
+      - '**/*.dfy'
+      - '**/contract.lock'
+      - '**/shell/**'
+      - '**/tests_py/**'
       - '**/.forgemyspec-policy.yaml'
   pull_request:
     paths:
       - '**/spec.yaml'
+      - '**/*.dfy'
+      - '**/contract.lock'
+      - '**/shell/**'
+      - '**/tests_py/**'
       - '**/.forgemyspec-policy.yaml'
 
 jobs:
-  lint-and-scope:
+  gate:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,101 +31,59 @@ jobs:
         with:
           python-version: "3.9"
 
-      - name: Install forgemyspec
+      - name: Set up Dafny
+        uses: dafny-lang/setup-dafny-action@v1
+        with:
+          dafny-version: "4.11.0"
+
+      - name: Install harness
         run: |
           python -m pip install --upgrade pip
           pip install -e .
 
-      - name: Get changed spec files
+      - name: Find bundles touched by this change
         id: changed
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            specs=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- '*.yaml' | grep 'spec\.yaml$' | tr '\n' ' ')
-          else
-            specs=$(git diff --name-only HEAD~1 HEAD -- '**/spec.yaml' | tr '\n' ' ')
-          fi
-          echo "specs=$specs" >> "$GITHUB_OUTPUT"
-
-      - name: Lint specs and check scope drift
-        if: steps.changed.outputs.specs != ''
         env:
-          CHANGED_SPECS: ${{ steps.changed.outputs.specs }}
+          EVENT: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          BEFORE: ${{ github.event.before }}
         run: |
-          python - <<'EOF'
-          import sys
-          import os
-          import pathlib
-          import yaml
-          from forgemyspec.linting import lint_spec
-          from forgemyspec.scope_eval import evaluate_scope_drift
-          from forgemyspec.generator import load_spec
+          if [ "$EVENT" = "pull_request" ]; then
+            range="origin/$BASE_REF...HEAD"
+          elif [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            range=""
+          else
+            range="$BEFORE..HEAD"
+          fi
+          if [ -n "$range" ]; then
+            files=$(git diff --name-only "$range")
+          else
+            files=$(git ls-files)
+          fi
+          # A bundle is the nearest directory (walking up) that holds a spec.yaml.
+          bundles=""
+          for f in $files; do
+            d=$(dirname "$f")
+            while [ "$d" != "." ] && [ ! -f "$d/spec.yaml" ]; do d=$(dirname "$d"); done
+            if [ -f "$d/spec.yaml" ]; then bundles="$bundles $d"; fi
+          done
+          bundles=$(echo $bundles | tr ' ' '\n' | sort -u | tr '\n' ' ')
+          echo "bundles=$bundles" >> "$GITHUB_OUTPUT"
+          echo "Bundles: ${bundles:-none}"
 
-          W = 62
-
-          def header(path, status):
-              icon = "[+]" if status == "PASS" else ("[!]" if status == "WARN" else "[x]")
-              print()
-              print("  " + "=" * W)
-              print(f"  {icon}  {path}")
-              print("  " + "=" * W)
-
-          def row(status, code, location, message):
-              icon = "[+]" if status == "pass" else ("[!]" if status == "warn" else "[x]")
-              print(f"    {icon}  {code:<18}  {location:<30}  {message}")
-
-          specs = os.environ["CHANGED_SPECS"].split()
-          specs = [p for p in specs if pathlib.Path(p).exists()]
-          if not specs:
-              print("No changed spec.yaml files found.")
-              sys.exit(0)
-
-          failed = False
-          summary = []
-
-          for path in sorted(specs):
-              try:
-                  spec_data = load_spec(path)
-              except yaml.YAMLError as e:
-                  header(path, "FAIL")
-                  row("fail", "YAML-PARSE", path, str(e).splitlines()[0])
-                  failed = True
-                  summary.append((path, "FAIL", 0, 0))
-                  continue
-
-              candidate_text = pathlib.Path(path).read_text(encoding="utf-8")
-              lint_report = lint_spec(spec_data)
-              scope_result = evaluate_scope_drift(spec_data, candidate_text)
-
-              spec_failed = lint_report.has_errors or not scope_result.passed
-              if spec_failed:
-                  failed = True
-
-              overall = "FAIL" if spec_failed else ("WARN" if lint_report.warning_count else "PASS")
-              header(path, overall)
-
-              print(f"\n    {'CODE':<18}  {'LOCATION':<30}  MESSAGE")
-              print(f"    {'-'*18}  {'-'*30}  {'-'*30}")
-
-              if not lint_report.issues and scope_result.passed:
-                  print(f"    [+]  (no issues)")
-              else:
-                  for issue in lint_report.issues:
-                      status = "fail" if issue.severity == "error" else "warn"
-                      row(status, issue.code, issue.location, issue.message)
-                  for v in scope_result.violations:
-                      row("fail", "SCOPE", "scope_contract", v)
-
-              print(f"\n    Lint: {lint_report.score}/100  ({lint_report.error_count} errors, {lint_report.warning_count} warnings)  |  Scope: {scope_result.score}/100")
-              summary.append((path, overall, lint_report.score, scope_result.score))
-
-          print()
-          print("  " + "=" * W)
-          print("  SUMMARY")
-          print("  " + "=" * W)
-          for path, status, lint_score, scope_score in summary:
-              icon = "[+]" if status == "PASS" else ("[!]" if status == "WARN" else "[x]")
-              print(f"  {icon}  {path}  —  Lint: {lint_score}/100  Scope: {scope_score}/100")
-          print()
-
-          sys.exit(1 if failed else 0)
-          EOF
+      - name: Gate formal bundles, lint the rest
+        if: steps.changed.outputs.bundles != ''
+        env:
+          BUNDLES: ${{ steps.changed.outputs.bundles }}
+        run: |
+          status=0
+          for b in $BUNDLES; do
+            echo "::group::$b"
+            if [ -f "$b/contract.dfy" ]; then
+              PYTHONPATH=src python -m forgemyspec gate "$b" || status=1
+            else
+              PYTHONPATH=src python -m forgemyspec lint "$b/spec.yaml" || status=1
+            fi
+            echo "::endgroup::"
+          done
+          exit $status

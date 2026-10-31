@@ -15,19 +15,19 @@ context:
   assumptions:
     - Input <input> is either a single .csv file path or a directory containing .csv files.
     - CSV files use comma delimiter and have a header row.
-    - Numeric detection: try float(cell) — if it succeeds the cell is numeric.
+    - "Numeric detection: try float(cell) — if it succeeds the cell is numeric."
     - Missing values are empty strings — skipped in numeric stats.
     - std deviation uses statistics.stdev (sample); falls back to 0.0 if fewer than 2 values.
-    - Filter syntax: "column_name op value" where op ∈ {==, !=, >, <, >=, <=}.
+    - "Filter syntax: \"column_name op value\" where op ∈ {==, !=, >, <, >=, <=}."
     - Filter value is coerced to float if column is numeric, else compared as string.
     - --columns is a comma-separated list of column names.
-    - JSON report keys per column: count, min, max, mean, median, stdev (null for non-numeric).
+    - "JSON report keys per column: count, min, max, mean, median, stdev (null for non-numeric)."
 
 constraints:
-  - Single file: csv_analytics.py only.
+  - "Single file: csv_analytics.py only."
   - No external dependencies — stdlib only (csv, json, statistics, argparse, pathlib, re).
-  - Stats computed: count (non-missing), min, max, mean, median, stdev for numeric cols.
-  - Non-numeric columns: only count (non-missing) in stats; min/max/mean/median/stdev = null.
+  - "Stats computed: count (non-missing), min, max, mean, median, stdev for numeric cols."
+  - "Non-numeric columns: only count (non-missing) in stats; min/max/mean/median/stdev = null."
   - --filter accepts exactly one condition string (single filter only).
   - --output defaults to report.json in cwd if not specified.
   - Table output uses fixed-width formatting (no external tabulate).

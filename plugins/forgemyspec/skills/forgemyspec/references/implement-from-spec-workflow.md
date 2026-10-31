@@ -1,21 +1,27 @@
 # Implement from spec (handoff)
 
-After `spec.yaml` and the bundle exist, implementation should be **strictly spec-first**.
+After `spec.yaml` is linted and the contract is locked, implementation is **strictly spec-first** and
+ends only when the deterministic gate passes.
 
-## Entry
+## Order
 
-Use the generated `.claude/commands/implement-from-spec.md` or equivalent instructions. The agent should:
+1. `/forgemyspec`: `spec.yaml` with a `formal` section. Run `lint --formal` and `package`.
+2. `/forgemyspec-formalize`: `contract.dfy` + `tests.dfy`. Run `lock --check`, get the user's approval, then `lock`.
+3. `/forgemyspec-implement`: `impl.dfy`, `shell/`, `tests_py/`, then `gate` until every stage passes.
+4. `/forgemyspec-amend`: whenever implementation shows the spec or contract is wrong. Change the minimal delta, get approval, and relock if the contract changed.
 
-1. Read `spec.yaml` end-to-end.
-2. Map `actions` to an ordered or phased plan (respecting dependencies implied by `supports` and hypotheses).
-3. Implement only what traceability covers; expand scope only by updating the spec and assumptions.
-4. Collect **required_evidence** (commands run, test output, screenshots if applicable).
-5. Walk `acceptance-checklist.md` before claiming done.
+## Evidence
+
+The gate report is the primary evidence. Add any `required_evidence` it does not cover (command
+output, examples), then walk `acceptance-checklist.md` before claiming done.
 
 ## Memory
 
-Update `CLAUDE.md` with **durable** project decisions (conventions, pitfalls). Do not store transient debug output there.
+Update the bundle's `CLAUDE.md` with **durable** decisions and pitfalls only. Dafny lessons that apply
+to every bundle belong in `references/dafny-patterns.md`.
 
 ## Scope drift
 
-Compare work against `metadata.scope_contract` and `evals/scope_drift_cases.yaml` when evaluating whether the implementation stayed on brief.
+Scope is enforced mechanically: every `must_include` phrase maps to an obligation, every obligation to
+a proof or a test, and the lock keeps the approved contract fixed. `evals/scope_drift_cases.yaml` holds
+seeds for manual review on top of that.

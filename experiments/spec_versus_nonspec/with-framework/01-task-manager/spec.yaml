@@ -20,11 +20,11 @@ context:
     - Terminal supports basic ANSI width; table formatting uses fixed-width columns.
 
 constraints:
-  - Single file implementation: task_manager.py only.
+  - "Single file implementation: task_manager.py only."
   - No external dependencies — stdlib only (sqlite3, argparse, datetime, textwrap).
   - Database file named tasks.db in cwd.
-  - Task fields exactly: id (auto-increment), title, description, priority (low/medium/high), status (todo/in-progress/done), due_date (YYYY-MM-DD or empty).
-  - CLI entry via argparse subcommands: add, list, update, delete, done.
+  - "Task fields exactly: id (auto-increment), title, description, priority (low/medium/high), status (todo/in-progress/done), due_date (YYYY-MM-DD or empty)."
+  - "CLI entry via argparse subcommands: add, list, update, delete, done."
   - Table output must align columns without third-party libraries.
   - All files placed under experiments/with-framework/01-task-manager/.
 
@@ -57,9 +57,9 @@ hypotheses:
 
 required_evidence:
   - Shell session showing `add`, `list`, `update`, `done`, `delete` subcommands all exit 0.
-  - `list` output shows aligned table with at least 3 tasks of mixed priority/status.
-  - `list --status todo` returns only todo tasks.
-  - `python -c "import task_manager"` exits 0 (no import-time side effects).
+  - "`list` output shows aligned table with at least 3 tasks of mixed priority/status."
+  - "`list --status todo` returns only todo tasks."
+  - "`python -c \"import task_manager\"` exits 0 (no import-time side effects)."
   - tasks.db file exists after first run.
 
 actions:

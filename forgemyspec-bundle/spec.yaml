@@ -1,0 +1,187 @@
+version: "0.1"
+title: "ForgeMySpec as a Claude-Code-native harness with a Dafny formal layer"
+objective: >-
+  Turn the repository into a clonable project that runs entirely inside Claude Code:
+  Claude authors spec.yaml, then a Dafny contract and a Dafny implementation, and a
+  deterministic Python harness proves, tests, audits, mutation-checks and locks them
+  before translating the verified core to Python. Remove the external-LLM CLI path
+  and fix the defects found in the repository review.
+execution_mode: critical
+
+context:
+  system: >-
+    Repository /Users/marlonferrari/Desktop/ForgeMySpec (Python >=3.9 package in src/forgemyspec,
+    skills and default agent in plugins/forgemyspec symlinked into .claude/, benchmark data in
+    experiments/, CI in .github/workflows/). Today src/forgemyspec/llm.py calls OpenAI/Anthropic
+    over HTTP and cli.py generates specs through it; linting.py, nlp_policy.py and claude_skill.py
+    are deterministic. Dafny and .NET are not installed on the development machine.
+  assumptions:
+    - "Primary distribution is: clone the repo and open it in Claude Code; skills call the harness with `PYTHONPATH=src python3 -m forgemyspec`. Claude Code plugin-marketplace packaging is a later version."
+    - "Claude in the session is the only LLM; every harness step is deterministic and offline."
+    - "Dafny 4.x is the formal toolchain, installed with `brew install dafny` locally and `dafny-lang/setup-dafny-action` in CI."
+    - "Formalizable scope is the pure core logic (rules, invariants, state transitions); I/O, CLI parsing, files, network and databases are boundary code covered by Python tests."
+    - "The contract lives in an abstract Dafny module (contract.dfy) and the implementation in a module that refines it (impl.dfy), so the implementation can be mutated without touching the contract."
+    - "Obligation tags are plain Dafny comments of the form `// @obligation f1` placed directly above the clause or test they mark."
+    - "experiments/ is historical benchmark evidence: its content is preserved and only YAML quoting is repaired."
+    - "pydantic is removed as a dependency once the LLM draft-normalization path is deleted; PyYAML stays."
+
+constraints:
+  - "No code in src/, plugins/ or .github/ calls an external LLM or HTTP API, reads OPENAI_* or ANTHROPIC_* variables, or loads a .env file."
+  - "Harness runtime dependencies are Python >=3.9 standard library plus PyYAML; Dafny 4.x is the only external toolchain."
+  - "The gate fails closed: a missing or too-old dafny binary, a timeout, or an unparsable file is a FAIL with an actionable message, never a skip."
+  - "Banned in any .dfy file of a bundle: `assume`, `{:axiom}`, `{:verify false}`, `{:extern}`, `decreases *`, `requires false`, `ensures true`; bodiless methods or functions are banned in impl.dfy."
+  - "contract.dfy is never edited during the implement phase; any contract change goes through /forgemyspec-amend, explicit user approval and a new contract.lock."
+  - "Translated Python under generated/ is never hand-edited; the hand-written Python I/O shell imports it and stays separate."
+  - "Existing lint codes keep their meaning; new checks use LINT-FORMAL-* (spec level) and LINT-DFY-* (Dafny level) codes."
+  - "Commits stay local; nothing is pushed without an explicit user instruction at that moment."
+
+success_criteria:
+  - "`PYTHONPATH=src python3 -m unittest discover -s tests` passes with no network access and with OPENAI_API_KEY and ANTHROPIC_API_KEY unset."
+  - "`grep -rnE 'api\\.openai\\.com|api\\.anthropic\\.com|OPENAI_API_KEY|ANTHROPIC_API_KEY|load_dotenv' src plugins .github` prints nothing."
+  - "`PYTHONPATH=src python3 -m forgemyspec gate examples/budget-core` exits 0 and prints PASS for spec-lint, obligation-coverage, dafny-lint, contract-lock, verify, test, audit, mutation and python-boundary-tests."
+  - "The gate exits non-zero, naming the failed stage, for each injected fault: an `assume` added to impl.dfy, an obligation tag removed, one byte changed in contract.dfy after locking, an uncovered must_include phrase, and dafny absent from PATH."
+  - "The mutation stage reports total mutants, killed mutants and each survivor's file:line and operator, and meets policy mutation_min_kill_rate (default 0.9) on examples/budget-core."
+  - "Every committed spec.yaml loads with yaml.safe_load and lints with zero errors."
+  - "Every repository path referenced in README.md and CLAUDE.md exists in the tree."
+  - "CI installs Dafny, runs the unit tests and runs the gate on examples/budget-core and on every changed bundle."
+
+hypotheses:
+  - id: h1
+    description: "After deleting llm.py, config.py, branding.py, templates.py, models.py and the generator CLI, the remaining lint and packaging harness passes its tests offline with PyYAML as the only third-party dependency."
+    confidence: 0.9
+  - id: h2
+    description: "An abstract Dafny contract module refined by an implementation module verifies, runs {:test} methods and translates to importable Python with Dafny 4.x."
+    confidence: 0.7
+  - id: h3
+    description: "A deterministic Dafny lint detects every banned construct and flags every formal obligation lacking a tagged contract clause or a tagged test."
+    confidence: 0.85
+  - id: h4
+    description: "Operator mutation of impl.dfy (relational, equality, arithmetic, boolean and integer-literal swaps) combined with dafny verify and dafny test kills at least 90% of mutants on the budget-core example."
+    confidence: 0.7
+  - id: h5
+    description: "A contract.lock holding the SHA-256 of contract.dfy and the approving spec version detects any change to the contract after approval."
+    confidence: 0.95
+  - id: h6
+    description: "A formal.obligations section in spec.yaml that maps hypotheses and exact must_include phrases to Dafny obligations or named Python boundary tests gives a coverage check that fails when any requirement is uncovered, replacing the tautological CI scope check."
+    confidence: 0.8
+  - id: h7
+    description: "The skills drive the full flow inside Claude Code (spec, formalize, contract approval and lock, Dafny implementation, gate, Python translation) with every step running inside the session."
+    confidence: 0.8
+  - id: h8
+    description: "Quoting the offending list items repairs the five unparsable experiment specs while keeping their parsed text identical, and correcting paths makes README.md and CLAUDE.md reference only existing files."
+    confidence: 0.95
+
+required_evidence:
+  - "Unit-test run output showing all tests passing with API keys unset."
+  - "Empty output of the external-API grep from success_criteria."
+  - "Full gate report for examples/budget-core with every stage PASS, including the mutation table."
+  - "Gate output for each of the five injected faults showing the failed stage and a non-zero exit code."
+  - "Output of the Python boundary tests run against the translated budget-core module."
+  - "Script output listing every spec.yaml in the repo with its lint score and zero errors."
+  - "Script output confirming every path referenced in README.md and CLAUDE.md exists."
+  - "`dafny --version` output from the local machine and from the CI log."
+
+actions:
+  - id: a1
+    type: implement
+    description: "Delete llm.py, config.py, branding.py, templates.py, models.py and .env.example; reduce generator.py to load_spec/write/summarize; drop pydantic from pyproject.toml; remove or adapt the tests that covered deleted code."
+    requires_confirmation: false
+    supports: [h1]
+  - id: a2
+    type: implement
+    description: "Replace cli.py with a deterministic `python -m forgemyspec` entrypoint exposing lint, package, lock and gate subcommands; make lint_spec report LINT-STRUCT-000 instead of crashing when the spec file is empty or not a mapping."
+    requires_confirmation: false
+    supports: [h1, h7]
+  - id: a3
+    type: design
+    description: "Define the formal schema: spec.yaml `formal` section (module name, obligations with id, statement, hypotheses, must_include phrases, kind dafny|boundary, boundary test name), bundle layout (contract.dfy, impl.dfy, tests.dfy, contract.lock, generated/, shell/, tests_py/) and the obligation-tag convention; document it in spec-schema.md."
+    requires_confirmation: false
+    supports: [h2, h6]
+  - id: a4
+    type: implement
+    description: "Add LINT-FORMAL-* checks: every hypothesis and every exact must_include phrase is covered by at least one obligation, obligation ids are unique, hypothesis references exist, boundary obligations name a test."
+    requires_confirmation: false
+    supports: [h6]
+  - id: a5
+    type: implement
+    description: "Add dafny_lint.py with LINT-DFY-* checks for banned constructs (comments and strings stripped first), bodiless impl members, and obligation tags: each dafny obligation needs a tagged clause in contract.dfy and a tagged {:test} in tests.dfy."
+    requires_confirmation: false
+    supports: [h3]
+  - id: a6
+    type: implement
+    description: "Add contract lock: `lock` writes contract.lock with the SHA-256 of contract.dfy and spec version; the gate fails on missing lock or hash mismatch."
+    requires_confirmation: false
+    supports: [h5]
+  - id: a7
+    type: implement
+    description: "Add dafny_gate.py running dafny version check, `dafny verify`, `dafny test`, `dafny audit` and `dafny translate py` through subprocess with timeouts, parsing exit codes into stage results."
+    requires_confirmation: false
+    supports: [h2, h7]
+  - id: a8
+    type: implement
+    description: "Add mutation.py: generate operator mutants of impl.dfy bodies only, cap them with policy max_mutants (default 40), run verify then test on each in a temp dir, honor `// @equivalent-mutant: <reason>` suppressions, report kill rate and survivors, and enforce mutation_min_kill_rate."
+    requires_confirmation: false
+    supports: [h4]
+  - id: a9
+    type: implement
+    description: "Build examples/budget-core: spec.yaml with formal obligations, contract.dfy (balance never negative, withdraw rejects overdraft, deposit adds exactly the amount), impl.dfy, tests.dfy, a thin Python shell and Python boundary tests over the translated module."
+    requires_confirmation: false
+    supports: [h2, h4, h6]
+  - id: a10
+    type: implement
+    description: "Install Dafny locally with `brew install dafny` and record the version used."
+    requires_confirmation: true
+    supports: [h2]
+  - id: a11
+    type: implement
+    description: "Add skill /forgemyspec-formalize (spec to contract.dfy plus tests.dfy, stop for user approval, then lock); rewrite /forgemyspec to author spec.yaml in-session and lint via the harness; rewrite /forgemyspec-implement to write impl.dfy, run the gate and translate; extend /forgemyspec-amend for contract re-approval; update the default agent decision flow."
+    requires_confirmation: false
+    supports: [h7]
+  - id: a12
+    type: implement
+    description: "Quote the offending list items in the five unparsable experiment specs; fix README.md and CLAUDE.md paths and rewrite their workflow sections for the in-session Dafny flow; untrack src/forgemyspec.egg-info, experiments/mini-os/build and committed *.db files and add them to .gitignore."
+    requires_confirmation: false
+    supports: [h8]
+  - id: a13
+    type: implement
+    description: "Update CI: tests.yml installs Dafny and runs unit tests plus the gate on examples/budget-core; spec-lint.yml runs the gate on changed bundles, diffs against github.event.before on push, and drops the self-referential scope check."
+    requires_confirmation: false
+    supports: [h6, h7]
+  - id: a14
+    type: validate
+    description: "Run the unit tests, the external-API grep, the full gate, the five fault injections, the all-specs lint script and the doc path check, and capture their output as evidence."
+    requires_confirmation: false
+    supports: [h1, h2, h3, h4, h5, h6, h7, h8]
+
+decision_rules:
+  - "If the abstract-module refinement split fails to verify or translate in Dafny 4.x, fall back to a single file with `// @contract-begin` / `// @contract-end` regions, lock only those regions, and record the decision in CLAUDE.md."
+  - "If a mutant survives and is semantically equivalent, suppress it only with an `// @equivalent-mutant: <reason>` comment that the gate report lists; never lower the kill-rate threshold to make a run pass."
+  - "If a must_include requirement cannot be expressed in Dafny, declare it as a boundary obligation with a named Python test; never drop it from coverage."
+  - "If contract semantics are ambiguous while formalizing, stop and ask the user before writing contract.lock."
+  - "If removing a module breaks a test that encodes behavior still in scope, keep the behavior and adapt the test."
+  - "If a stage needs network or an API key to pass, treat that as a defect in the harness."
+
+metadata:
+  source_prompt: >-
+    Esse projeto tem o objetivo de criar especificações sólidas e já testadas antes de uma IA tocar,
+    para ter harness máximo e alucinação mínima. Queremos introduzir a linguagem Dafny: transformar a
+    especificação em Dafny, já com os testes, para ter mais certeza no nível de harness, diminuindo o
+    risco de fazer tudo por LLM. Seguir com a opção A (implementação em Dafny, verificada, traduzida
+    para Python), sanitizando o repositório: em vez de um código separado, gerar tudo dentro do Claude
+    Code, como uma skill com harness, num projeto clonável usado pelo Claude Code. Corrigir também os
+    problemas da revisão (specs YAML inválidas, docs com caminhos inexistentes, artefatos de build
+    commitados, checagem de escopo tautológica no CI).
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "no external LLM API calls"
+      - "dafny verify"
+      - "dafny test"
+      - "dafny audit"
+      - "dafny translate py"
+      - "contract lint"
+      - "mutation check"
+      - "contract lock"
+      - "obligation coverage"
+      - "Dafny 4.x external toolchain"
+      - "PyYAML only runtime dependency"

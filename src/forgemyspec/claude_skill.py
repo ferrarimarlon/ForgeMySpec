@@ -7,7 +7,7 @@ from typing import Any, Dict, List
 
 import yaml
 
-from .generator import load_spec
+from .spec_io import load_spec
 
 
 @dataclass
@@ -41,7 +41,7 @@ def package_claude_skill(spec_path: str, output_dir: str) -> ClaudeSkillPackageR
     eval_template_path = evals_dir / "scope_drift_cases.yaml"
 
     memory_path.write_text(render_claude_memory(spec_data), encoding="utf-8")
-    command_path.write_text(render_implement_command(), encoding="utf-8")
+    command_path.write_text(render_implement_command(spec_data), encoding="utf-8")
     checklist_path.write_text(render_acceptance_checklist(spec_data), encoding="utf-8")
     eval_template_path.write_text(render_scope_eval_template(spec_data), encoding="utf-8")
 
@@ -127,7 +127,18 @@ def render_claude_memory(spec_data: Dict[str, Any]) -> str:
     return "\n".join(sections).strip() + "\n"
 
 
-def render_implement_command() -> str:
+def render_implement_command(spec_data: Dict[str, Any] | None = None) -> str:
+    if isinstance(spec_data, dict) and isinstance(spec_data.get("formal"), dict):
+        return (
+            "Implement strictly from `./spec.yaml`, `./CLAUDE.md` and the locked `./contract.dfy` + `./tests.dfy`.\n\n"
+            "Execution steps:\n"
+            "1. Confirm `contract.lock` exists. If it does not, run /forgemyspec-formalize and get the user's approval first.\n"
+            "2. Never edit `contract.dfy`, `tests.dfy` or the spec's `formal` section; changes go through /forgemyspec-amend.\n"
+            "3. Write `impl.dfy` as a module refining the contract, then `shell/` and `tests_py/` for boundary obligations.\n"
+            "4. From the repository root, run `PYTHONPATH=src python3 -m forgemyspec gate <path-to-this-bundle>` "
+            "until every stage is PASS.\n"
+            "5. Return a final report with: changed files, the full gate report, assumptions made, and residual risks.\n"
+        )
     return (
         "Implement strictly from `./spec.yaml` and `./CLAUDE.md`.\n\n"
         "Execution steps:\n"

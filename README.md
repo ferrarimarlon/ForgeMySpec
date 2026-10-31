@@ -1,12 +1,16 @@
 # ForgeMySpec
 
-![ForgeMySpec v0.1.0 interactive CLI](docs/cli-demo.png)
-
 [![Tests](https://github.com/ferrarimarlon/forgemyspec/actions/workflows/tests.yml/badge.svg)](https://github.com/ferrarimarlon/forgemyspec/actions/workflows/tests.yml)
 
-**Turn a human request into a machine-executable contract — before the first line of code is written.**
+**Turn a request into a contract that a machine checks — before an AI writes the code that has to meet it.**
 
-ForgeMySpec compiles natural-language requirements into a structured artifact bundle that gives a coding agent a stable, auditable contract to work from. The bundle is a **runtime-ready execution harness for Claude**: concrete files that drive implementation and verification alongside the agent.
+ForgeMySpec is a clonable harness for **Claude Code**. Claude writes the spec, a Dafny contract, and the
+implementation inside your session. A deterministic harness, with no LLM and no network, then proves, tests,
+audits, mutation-checks, and locks the result before translating the verified core to Python.
+
+The goal is maximum harness and minimum hallucination. Every requirement ends up as either a
+**proof obligation** checked by the Dafny verifier or a **named test**, and the contract you approve
+can't be quietly weakened afterwards.
 
 ## Why Use This?
 
@@ -14,7 +18,7 @@ ForgeMySpec compiles natural-language requirements into a structured artifact bu
 
 ForgeMySpec matters most when the task stops being trivial. Once a requirement has interacting rules, validation paths, derived fields, security constraints, or multiple edge cases, “just write the code” starts to look correct long before it is actually safe or complete. ForgeMySpec turns that ambiguity into an executable contract first, so the agent implements against a stable target instead of improvising under context pressure.
 
-Across 17 benchmark projects, both approaches usually produced something that looked functional. The difference showed up in the parts that are expensive to discover later: silent bugs, structural drift, and security mistakes that do not necessarily break the happy path. ForgeMySpec consistently held quality higher, and the gap widened as the scenarios became more complex.
+Across 17 benchmark projects (run with the earlier, pre-Dafny version of ForgeMySpec), both approaches usually produced something that looked functional. The difference showed up in the parts that are expensive to discover later: silent bugs, structural drift, and security mistakes that do not necessarily break the happy path. ForgeMySpec consistently held quality higher, and the gap widened as the scenarios became more complex.
 
 | | With spec | Without |
 |---|:---:|:---:|
@@ -36,43 +40,174 @@ Full data: [`experiments/COMPARATIVE_REPORT.md`](experiments/COMPARATIVE_REPORT.
 
 ## How it works
 
-You write a **prompt**. ForgeMySpec runs a compile pipeline: LLM draft, normalization into a `Spec` model, **lint** against policy, then **packaging** into files the agent can re-read. The repository also ships **Claude Code skills** under `.claude/skills/`, so the same workflow can run **inside** Claude Code (with MCP context when available), not only via the terminal CLI.
-
-```text
-                         +------------------+
-                         |  You write the   |
-                         |  prompt          |
-                         +--------+---------+
-                                  |
-                                  v
-              +-------------------------------------------+
-              |  ForgeMySpec: draft -> normalize -> lint    |
-              |            -> pass gate -> package        |
-              +--------------------+----------------------+
-                                   |
-           +-----------------------+------------------------+
-           |                       |                        |
-           v                       v                        v
-  +----------------+    +----------------------+   +---------------------+
-  |  spec.yaml     |    |  Claude bundle       |   |  Claude Code skills |
-  |  (contract)    |    |  CLAUDE.md,          |   |  in this repo       |
-  |                |    |  implement command,  |   |  (.claude/skills/)  |
-  |                |    |  checklist, evals    |   |  same pipeline      |
-  +--------+-------+    +----------+-----------+   +----------+----------+
-           |                       |                        |
-           +-----------------------+------------------------+
-                                   |
-                                   v
-                        +------------------------+
-                        |  Implement from the    |
-                        |  contract (CLI output  |
-                        |  or in-session skills) |
-                        +------------------------+
+```
+/forgemyspec            Claude writes spec.yaml               harness: lint, obligation coverage
+        │
+/forgemyspec-formalize  Claude writes contract.dfy + tests.dfy
+        │               ── you approve the contract ──        harness: lock (SHA-256)
+        │
+/forgemyspec-implement  Claude writes impl.dfy + Python shell harness: gate
+                                                              → generated/core-py (verified Python)
 ```
 
-For the linear step list and policy details, see [The Compilation Pipeline](#the-compilation-pipeline) below.
+| Step | Who | What is checked, deterministically |
+| --- | --- | --- |
+| Spec | Claude | Structure, traceability (actions → hypotheses), evidence quality, and **obligation coverage**: every `must_include` phrase and every hypothesis maps to a Dafny obligation or a named Python test. |
+| Contract | Claude, approved by **you** | An abstract Dafny module whose clauses are tagged per obligation. Vacuous or unsound constructs are rejected. The lock records hashes of the contract, the Dafny tests, and the obligation map. |
+| Implementation | Claude | A module that *refines* the contract. It must verify, pass the tests, pass `dafny audit`, and **kill the mutants**: a wrong implementation has to be rejected by the contract plus tests. |
+
+### The gate
+
+```bash
+PYTHONPATH=src python3 -m forgemyspec gate examples/budget-core
+```
+
+| Stage | Fails when |
+| --- | --- |
+| `spec-lint` | the spec is malformed, untraceable, or below the policy score |
+| `obligation-coverage` | a requirement or hypothesis has no obligation (phrases must match exactly) |
+| `dafny-lint` | `assume`, `{:axiom}`, `{:verify false}`, `{:extern}`, `{:only}`, `decreases *`, `requires false`, `ensures true`, or `expect` outside tests; a contract method with a body or without `ensures`; a contract function without a body; an obligation without a tagged clause and a tagged test |
+| `contract-lock` | `contract.dfy`, `tests.dfy`, the `formal` section, or the spec version changed since approval |
+| `toolchain` | Dafny is missing or older than the policy minimum |
+| `verify` · `test` · `audit` | Dafny rejects the proof, a `{:test}` fails (run on the Python target), or the auditor reports findings |
+| `translate` | the core cannot be translated to Python |
+| `python-boundary-tests` | a `tests_py/` test fails, or a boundary obligation's test is missing or skipped |
+| `mutation` | fewer than 90% of operator mutants of `impl.dfy` are rejected, which means the contract and tests accept wrong code |
+
+Every stage fails closed: nothing is skipped because a tool is missing, and later stages report
+`BLOCKED`. On the example the whole gate takes about 7 seconds.
+
+### What still depends on the LLM
+
+The harness removes the LLM from **checking**, not from **writing**. The residual risk is the
+translation from your words to the contract: Dafny proves the code meets the `ensures` clauses, not that
+those clauses mean what you meant. ForgeMySpec narrows that gap in four ways:
+
+1. **You approve the contract**, which is short and written as clauses plus concrete examples, before any implementation exists.
+2. **Coverage is mechanical.** A requirement with no obligation fails the gate, and paraphrased phrases are rejected.
+3. **Mutation testing measures strength.** A contract that lets wrong code through is caught even when every proof passes.
+4. **The lock** stops the implementation phase from weakening the contract to make its own code verify.
 
 ---
+
+## Quick start
+
+Requirements: Python 3.9+, PyYAML, and Dafny 4.x (`brew install dafny`, or the
+[Dafny releases](https://github.com/dafny-lang/dafny/releases)).
+
+```bash
+git clone https://github.com/ferrarimarlon/forgemyspec && cd forgemyspec
+pip install PyYAML
+PYTHONPATH=src python3 -m forgemyspec gate examples/budget-core   # RESULT: PASS
+```
+
+Then open the folder in Claude Code. `.claude/settings.json` selects the `forgemyspec-default` agent,
+and the skills are available as slash commands:
+
+| Command | Does |
+| --- | --- |
+| `/forgemyspec` | Grounds the request (code, MCP sources) and writes `spec.yaml` with its `formal` section, then lints and packages it |
+| `/forgemyspec-formalize` | Writes `contract.dfy` and `tests.dfy`, asks for your approval, then locks |
+| `/forgemyspec-implement` | Writes `impl.dfy`, the Python shell and boundary tests, and runs the gate until it passes |
+| `/forgemyspec-amend` | Changes the minimal delta when the spec or contract turns out wrong; re-approval and relock when the contract changes |
+
+Harness commands (all deterministic, run from the repository root):
+
+```bash
+PYTHONPATH=src python3 -m forgemyspec lint <spec.yaml> [--formal]
+PYTHONPATH=src python3 -m forgemyspec package <spec.yaml>
+PYTHONPATH=src python3 -m forgemyspec lock <bundle> [--check]
+PYTHONPATH=src python3 -m forgemyspec gate <bundle>
+```
+
+---
+
+## Example: `examples/budget-core`
+
+A ledger of deposits and withdrawals. The rules are proven in Dafny, and users reach them through a
+small Python CLI.
+
+| File | Role |
+| --- | --- |
+| [`spec.yaml`](examples/budget-core/spec.yaml) | Hypotheses, scope phrases, and 8 obligations (6 Dafny, 2 boundary) |
+| [`contract.dfy`](examples/budget-core/contract.dfy) | `abstract module BudgetCore`: exact outcomes for deposit/withdraw, overdraft rejection, non-negative balances, and replay defined by a spec function |
+| [`tests.dfy`](examples/budget-core/tests.dfy) | Concrete examples per obligation, including the boundary `withdraw(10, 10)` |
+| [`contract.lock`](examples/budget-core/contract.lock) | What was approved |
+| [`impl.dfy`](examples/budget-core/impl.dfy) | `module BudgetImpl refines BudgetCore`, with the replay loop proven by invariants |
+| [`shell/budget_cli.py`](examples/budget-core/shell/budget_cli.py) | Parsing, printing, and the `start >= 0` precondition (translated code does not check `requires`) |
+| [`tests_py/test_cli.py`](examples/budget-core/tests_py/test_cli.py) | Boundary tests against the translated core |
+
+```
+$ printf 'deposit 10\nwithdraw 4\nwithdraw 7\ndeposit -1\ndeposit 2\n' > ledger.txt
+$ PYTHONPATH=examples/budget-core/generated/core-py:examples/budget-core \
+    python3 -m shell.budget_cli ledger.txt
+balance=8 rejected=2
+```
+
+(`generated/` is written by the gate, so run the gate once first.)
+
+---
+
+## Spec structure
+
+`spec.yaml` is the source of truth; every other file is a view of it or a check against it. The full
+schema is in [`spec-schema.md`](plugins/forgemyspec/skills/forgemyspec/references/spec-schema.md).
+
+| Area | Fields | Role |
+|---|---|---|
+| Identity | `version`, `title`, `objective` | What is being built and why |
+| Execution | `execution_mode` | Always `critical` |
+| Context | `context.system`, `context.assumptions` | Environment framing and explicit premises |
+| Boundaries | `constraints` | Hard limits, including what stays out of scope |
+| Outcomes | `success_criteria`, `required_evidence` | What "done" means and what observable proof is required |
+| Reasoning | `hypotheses` | Affirmative, testable beliefs with `confidence` (0–1) |
+| Work plan | `actions` | Steps whose `supports` link to the hypotheses they advance |
+| Governance | `decision_rules` | When to stop, escalate, or choose |
+| Provenance | `metadata` | `source_prompt`, `generator`, `scope_contract.must_include` |
+| Formal map | `formal` | Contract module name and the obligations (Dafny or boundary) that cover every requirement |
+
+---
+
+## Compiler policy
+
+An optional `./.forgemyspec-policy.yaml` (or `FORGEMYSPEC_POLICY=/path`) tunes the gate:
+
+```yaml
+min_items: {assumptions: 1, constraints: 1, success_criteria: 1, hypotheses: 1,
+            required_evidence: 1, actions: 1, decision_rules: 1}
+allowed_action_types: [analyze, design, implement, validate, review]
+require_action_support_links: true
+required_metadata_fields: [source_prompt]
+lint_min_passing_score: 70
+mutation_min_kill_rate: 0.9
+max_mutants: 40
+dafny_min_version: "4.0"
+dafny_timeout_seconds: 300
+```
+
+---
+
+## Repository layout
+
+```
+src/forgemyspec/          deterministic harness (Python 3.9+, PyYAML only)
+├── __main__.py           lint · package · lock · gate
+├── linting.py            spec lint + obligation coverage (LINT-*, LINT-FORMAL-*)
+├── dafny_lint.py         Dafny-aware scanner and contract rules (LINT-DFY-*)
+├── contract_lock.py      approval lock
+├── dafny_runner.py       verify / test / audit / translate via subprocess
+├── mutation.py           operator mutants of impl.dfy
+├── gate.py               stage orchestration and report
+├── claude_skill.py       bundle files (CLAUDE.md, checklist, command, eval seeds)
+├── spec_io.py · scope_eval.py · nlp_policy.py · bundle.py
+plugins/forgemyspec/      skills and the default agent (symlinked into .claude/)
+examples/budget-core/     end-to-end formal bundle
+experiments/              benchmark data behind the numbers above, and the mini-os case study
+tests/                    harness tests, including fault injection and end-to-end gate runs
+```
+
+Dafny lessons learned while building the harness are in
+[`dafny-patterns.md`](plugins/forgemyspec/skills/forgemyspec/references/dafny-patterns.md).
 
 ## The Problem
 
@@ -94,269 +229,21 @@ The **effective context window** is shared across all of that. So the explicit t
 
 From there, missing details get silently filled by pattern-matching. “Helpful” additions slip in because no hard execution contract exists. Completion gets reported in broad language even when acceptance criteria remain fuzzy.
 
-**ForgeMySpec addresses this** by compiling the request into a **compact contract before implementation churn**, **materialized as files** the agent can re-read as the Claude Code context stack grows.
-
-Architecturally, each stage targets a specific failure mode:
-
-| Layer | What it solves |
-| --- | --- |
-| **Synthesis** (LLM → structured draft) | Moves the objective from implicit chat into explicit schema fields. |
-| **Normalization** (`Spec` model) | One canonical shape: stable hypothesis/action IDs, deduped lists, typed values—so the contract is **diffable** and comparable across turns. |
-| **Lint + policy gate** | Deterministic enforcement: required sections, traceability (`actions` → `supports` → `hypotheses`), metadata, minimum evidence—**machine-checkable** completion criteria. |
-| **Packaging** (artifact bundle) | **`spec.yaml`** is the single source of truth; **`CLAUDE.md`** aligns **project memory** with guardrails; **checklist** and **scope eval seeds** make acceptance and drift **re-verifiable** after long tool traces. |
-
-Together, that turns the “small slice” of user intent into a **durable handle** inside the same harness. Claude Code still layers platform rules, skills, MCPs, and tools; the bundle adds a **revisit contract** on disk the agent can reload whenever conversation recall thins out. (See [The Compilation Pipeline](#the-compilation-pipeline) for the linear flow.)
-
----
-
-## What ForgeMySpec Produces
-
-Each compilation run outputs a bundle of five artifacts:
-
-| Artifact | What It Does |
-|---|---|
-| `spec.yaml` | The operational contract: objective, assumptions, constraints, success criteria, hypotheses, actions, decision rules |
-| `CLAUDE.md` | Persistent project memory: guardrails, known pitfalls, decision log — Claude reads this on every turn |
-| `.claude/commands/implement-from-spec.md` | The implementation entrypoint — a step-by-step execution recipe |
-| `acceptance-checklist.md` | The delivery gate: every criterion stated as a checkable assertion with required evidence |
-| `evals/scope_drift_cases.yaml` | Machine-checkable scope seeds — required and forbidden patterns in the implementation |
-
-These files give the agent a stable anchor it can revisit throughout a long session: a compact contract on disk, re-readable at any step without keeping the whole requirement in working memory.
-
----
-
-## Ways To Use It
-
-| Flavor | What It Does |
-|---|---|
-| **Python CLI** (`forgemyspec`) | Runs locally with your API key. Interactive or direct-prompt mode. Writes the artifact bundle to your chosen output directory (default: `forgemyspec-bundle`). |
-| **Claude Code** | **Skills:** `.claude/skills/` (symlinks into `plugins/forgemyspec/skills/`) expose `/forgemyspec` and `/forgemyspec-implement`. **Default agent:** `.claude/settings.json` sets `defaultAgent` to **`forgemyspec-default`**, whose definition lives in `plugins/forgemyspec/agents/forgemyspec-default.md` (symlinked under `.claude/agents/`). That agent preloads those skills and routes spec-first work—no marketplace plugin required. |
-
-**Slash commands (skills):**
-
-- **`/forgemyspec`** — Compile a requirement into `spec.yaml` and the full artifact bundle. Gathers MCP context first.
-- **`/forgemyspec-implement`** — Execute implementation when a bundle already exists. No re-compilation.
-
----
-
-## Interactive CLI
-
-Write the task. Choose an output folder. ForgeMySpec generates the bundle. The status panel shows provider, workspace, pipeline stage, and available slash commands.
-
-```bash
-# Interactive mode
-.venv/bin/forgemyspec
-
-# Direct prompt
-.venv/bin/forgemyspec "build a deterministic SQL expression analyzer CLI"
-
-# From file
-.venv/bin/forgemyspec --from-file prompt.txt
-```
-
----
-
-## Using Claude Code (preconfigured)
-
-This repository is set up for **Claude Code** out of the box: open the project folder in Claude Code and you inherit the same spec-first workflow without installing a marketplace plugin.
-
-| Already in the repo | What it does |
-| --- | --- |
-| `.claude/settings.json` | Sets **`defaultAgent`** to **`forgemyspec-default`**, so new sessions use the ForgeMySpec agent by default. |
-| `.claude/agents/forgemyspec-default.md` | Agent definition (source: `plugins/forgemyspec/agents/`). Preloads the `forgemyspec` and `forgemyspec-implement` skills. |
-| `.claude/skills/` | Symlinks to `plugins/forgemyspec/skills/` — **`/forgemyspec`** and **`/forgemyspec-implement`** are available as slash commands. |
-| Root `CLAUDE.md` | Project memory the agent reads every turn (spec-first rules and conventions). |
-
-**Typical flow**
-
-1. **New feature or ambiguous request** — Run **`/forgemyspec`** (or ask in natural language; the default agent should route to compiling a bundle first). Point the skill at your requirement; it can use MCP tools for repo or ticket context if you have them connected. The bundle lands under a dedicated directory (e.g. `./forgemyspec-bundle/`), not inside `.claude/skills/`.
-2. **You already have a validated `spec.yaml` for the task** — Run **`/forgemyspec-implement`** and follow the bundle’s checklist and commands.
-3. **Keep memory honest** — Put durable decisions in the **bundle’s** `CLAUDE.md` and the root **`CLAUDE.md`** only when they are project-wide; avoid using skills output directories as scratch pads.
-
-If your Claude Code UI lets you pick an agent, choose **`forgemyspec-default`**; if you rely on defaults only, this repo already selects it for you.
-
----
-
-## The Compilation Pipeline
-
-```
-Human request
-    │
-    ▼
-LLM draft JSON
-    │
-    ▼
-Normalization → internal Spec model
-    │
-    ▼
-Programmatic lint + policy checks
-    │
-    ▼
-Score / pass gate
-    │
-    ▼
-Claude artifact bundle
-```
-
-The pipeline is deliberately split:
-
-- **Generation** handles synthesis — the LLM turns a prompt into structured JSON
-- **Normalization** handles shape — deduplication, stable IDs, consistent types
-- **Lint** handles enforcement — deterministic checks over structure and traceability
-- **Packaging** handles Claude usability — writing files the agent can re-read mid-session
-
-Semantic truth still depends on the original request. Structural integrity, traceability, and packaging readiness are enforced by code.
-
----
-
-## The Spec Structure
-
-The operational contract lives in `spec.yaml`. Every other artifact is a view of the same content.
-
-| Area | Fields | Role |
-|---|---|---|
-| Identity | `version`, `title`, `objective` | What is being built and why |
-| Execution | `execution_mode` | How the run should proceed |
-| Context | `context.system`, `context.assumptions` | Environment framing and explicit premises |
-| Boundaries | `constraints` | Hard limits — what must stay true or stay out |
-| Outcomes | `success_criteria`, `required_evidence` | What "done" means and what proof is required |
-| Reasoning | `hypotheses` | Working beliefs with `id`, `description`, `confidence` (0–1) |
-| Work plan | `actions` | Discrete steps with `id`, `type`, `supports` (hypothesis links) |
-| Governance | `decision_rules` | When to stop, escalate, or choose between options |
-| Provenance | `metadata` | Source prompt, generator, model, scope contract |
-
-### Traceability graph
-
-Each action can list hypothesis IDs in `supports`. This links planned work to the hypotheses it validates, so the spec is auditable as a **directed graph** between actions and hypotheses. The linter enforces that every hypothesis is referenced by at least one action when policy requires it.
-
-### Scope contract
-
-`metadata.scope_contract` holds two explicit fences:
-
-```yaml
-must_include:   # items that must remain in scope
-must_not_include: # items explicitly fenced out
-```
-
-This feeds scope evaluation and makes drift detectable against the original intent.
-
----
-
-## What Lint Checks
-
-The lint layer applies deterministic checks over the generated spec:
-
-- Required fields and expected types
-- Minimum content counts per section
-- Hypothesis ID format and confidence range
-- Action ID, type, and confirmation flags
-- Traceability links from actions to hypotheses via `supports`
-- Required metadata fields
-- Duplicate or near-duplicate list entries
-
-This gives every compilation a machine-checkable quality gate before the artifacts reach a coding agent.
-
----
-
-## Why This Works For Claude
-
-Claude performs best when the execution surface is compact, explicit, and revisitable. A long implementation session is easier to control when constraints are already materialized in files the agent can re-read at any step:
-
-- **one file** for the operational spec
-- **one file** for persistent memory
-- **one checklist** for acceptance
-- **one command** as the implementation entrypoint
-
-That structure reduces accidental scope expansion and raises the chance of reproducible delivery across runs.
-
----
-
-## API Key Setup
-
-Create `./.venv/.env`:
-
-```env
-# Anthropic
-ANTHROPIC_API_KEY="sk-ant-..."
-ANTHROPIC_MODEL="claude-sonnet-4-6"
-
-# or OpenAI
-OPENAI_API_KEY="sk-..."
-OPENAI_MODEL="gpt-4o"
-```
-
-Or export directly:
-
-```bash
-export ANTHROPIC_API_KEY="sk-ant-..."
-```
-
----
-
-## Compiler Policy
-
-An optional policy file controls how strict compilation and the pass gate should be.
-
-**Default path:** `./.forgemyspec-policy.yaml`  
-**Override:** `export FORGEMYSPEC_POLICY=/path/to/policy.yaml`
-
-```yaml
-min_items:
-  assumptions: 1
-  constraints: 2
-  success_criteria: 2
-  hypotheses: 1
-  required_evidence: 2
-  actions: 2
-  decision_rules: 2
-
-allowed_action_types: [analyze, design, implement, validate, review]
-require_action_support_links: true
-required_metadata_fields: [source_prompt]
-scope_contract_field: scope_contract
-
-lint_base_score: 100
-lint_error_penalty: 18
-lint_warning_penalty: 5
-lint_min_passing_score: 70
-
-scope_eval_base_score: 100
-scope_violation_penalty: 25
-```
-
----
-
-## Architecture
-
-```
-src/forgemyspec/
-├── cli.py           ← user flow and interactive session
-├── generator.py     ← compiles draft JSON into internal Spec model
-├── linting.py       ← deterministic quality checks
-├── scope_eval.py    ← evaluates scope contract adherence
-├── claude_skill.py  ← writes the Claude artifact bundle
-└── nlp_policy.py    ← loads policy and scoring configuration
-
-.claude/skills/
-├── forgemyspec/           ← MCP-aware spec compilation skill
-└── forgemyspec-implement/ ← implementation-only skill for existing bundles
-
-examples/
-├── sample-bundle/   ← reference output: parser CLI
-└── mini-os/         ← reference output: bare-metal x86 OS
-```
+ForgeMySpec answers this by materializing the request as files the agent can re-read as the context
+stack grows, and then by moving the definition of "done" out of the conversation and into checks: a
+proof, a test, or a lock that does not depend on what the model remembers.
 
 ---
 
 ## Case Study: Building a Bare-Metal OS
 
-The `examples/mini-os/` directory is a complete end-to-end demonstration. ForgeMySpec compiled a full spec from a **short seed phrase**, and `/implement-from-spec` built a bootable x86 disk image.
+The `experiments/mini-os/` directory is a complete end-to-end demonstration. ForgeMySpec compiled a full spec from a **short seed phrase**, and `/implement-from-spec` built a bootable x86 disk image.
 
 ![MiniOS v0.1 running in QEMU — boot summary, memory map, and GDT](docs/minios-qemu.png)
 
 ### The original prompt
 
-The checked-in `examples/mini-os/spec.yaml` stores a fuller `metadata.source_prompt` (what the compiler session actually recorded): path, architecture, and tooling constraints layered on top of that seed:
+The checked-in `experiments/mini-os/spec.yaml` stores a fuller `metadata.source_prompt` (what the compiler session actually recorded): path, architecture, and tooling constraints layered on top of that seed:
 
 ```yaml
 source_prompt: >
@@ -368,7 +255,7 @@ source_prompt: >
 | Layer | Content |
 | --- | --- |
 | **Seed** | Five-word phrase: `build a simple operating system`. |
-| **Full prompt record** | `metadata.source_prompt` in `spec.yaml` adds repository path (`examples/mini-os`), architecture (x86 bare-metal), stack constraints (minimal resources, no external libraries), deliverables (bootloader + kernel, VGA text), and run target (QEMU). |
+| **Full prompt record** | `metadata.source_prompt` in `spec.yaml` adds the repository path, architecture (x86 bare-metal), stack constraints (minimal resources, no external libraries), deliverables (bootloader + kernel, VGA text), and run target (QEMU). |
 
 Seed plus metadata together are the complete, replayable input stored on disk.
 
@@ -382,7 +269,7 @@ Running `/forgemyspec` with that prompt text produced the full bundle in one pas
 - Bootloader must be exactly 512 bytes, ending with `0xAA55` BIOS signature
 - Kernel is freestanding C only — no libc, no crt0, no runtime
 - Zero external libraries; toolchain is `nasm` + `gcc -m32` + `ld`
-- All files inside `examples/mini-os/`
+- All files inside `experiments/mini-os/`
 - `make run` is the single command to boot in QEMU
 
 **Hypotheses the spec reasoned over:**
@@ -406,7 +293,7 @@ Running `/forgemyspec` with that prompt text produced the full bundle in one pas
 
 Each action declares `supports` links to the hypotheses it validates — the spec is auditable as a graph.
 
-**Scope contract — what the spec explicitly fenced out:**
+**Scope contract — what the spec explicitly fenced out** (at the time, the schema still had `must_not_include`; exclusions now live in `constraints`):
 
 ```yaml
 must_include:
@@ -422,7 +309,7 @@ must_not_include:
   - filesystem driver
   - keyboard or interrupt handling
   - multitasking or scheduling
-  - anything outside examples/mini-os/
+  - anything outside the project directory
 ```
 
 ### Scope drift evaluation
@@ -484,10 +371,12 @@ A few failures surfaced first in QEMU or on the host. Each was logged into a per
 
 An agent asked to "build a simple OS" has a natural instinct to keep adding things: keyboard input, a basic scheduler, interrupt handling. Each addition feels helpful. None of them announce themselves as out of scope — they just accumulate quietly.
 
-The spec's explicit `must_not_include` list made the boundary visible **before** implementation began. Late review no longer had to discover an OS that overshot the original ask by surprise.
+The spec's explicit exclusion list made the boundary visible **before** implementation began. Late review no longer had to discover an OS that overshot the original ask by surprise.
 
 ---
 
-## What's Next
+## What's next
 
-- Conflict-mediation structure for specs with contradictory requirements
+- Formalize parts of the harness itself (lock comparison, coverage rules) in Dafny and run them through the gate.
+- Package the skills as a Claude Code plugin with the harness inside it.
+- Conflict mediation for specs with contradictory requirements.

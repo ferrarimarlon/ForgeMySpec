@@ -28,12 +28,21 @@ class LintReport:
         return self.error_count > 0
 
 
-def lint_spec(spec_data: Dict[str, Any], policy: CompilerPolicy | None = None) -> LintReport:
+def lint_spec(
+    spec_data: Any,
+    policy: CompilerPolicy | None = None,
+    require_formal: bool = False,
+) -> LintReport:
     compiler_policy = policy or load_compiler_policy()
     issues: List[LintIssue] = []
 
     def add(severity: str, code: str, message: str, location: str = "spec") -> None:
         issues.append(LintIssue(severity=severity, code=code, message=message, location=location))
+
+    if not isinstance(spec_data, dict):
+        found = "empty file" if spec_data is None else type(spec_data).__name__
+        add("error", "LINT-STRUCT-000", f"Spec must be a YAML mapping; found {found}")
+        return _build_report(issues, compiler_policy)
 
     _validate_required_structure(spec_data, add)
 
@@ -68,6 +77,12 @@ def lint_spec(spec_data: Dict[str, Any], policy: CompilerPolicy | None = None) -
     _warn_duplicates(required_evidence, add, "required_evidence")
     _warn_duplicates(decision_rules, add, "decision_rules")
 
+    _validate_formal(spec_data, hypotheses, add, compiler_policy, require_formal)
+
+    return _build_report(issues, compiler_policy)
+
+
+def _build_report(issues: List[LintIssue], compiler_policy: CompilerPolicy) -> LintReport:
     error_count = sum(1 for issue in issues if issue.severity == "error")
     warning_count = sum(1 for issue in issues if issue.severity == "warning")
     score = max(
@@ -362,6 +377,113 @@ def _validate_evidence_quality(required_evidence: List[Any], add) -> None:
                 "Evidence item describes an artifact, not an observable output; prefer runnable examples, test results, or concrete outputs",
                 f"required_evidence[{index}]",
             )
+
+
+_OBLIGATION_ID = re.compile(r"^[a-z][a-z0-9_]*$")
+_DAFNY_IDENTIFIER = re.compile(r"^[A-Za-z][A-Za-z0-9_]*$")
+OBLIGATION_KINDS = ("dafny", "boundary")
+
+
+def _validate_formal(
+    spec_data: Dict[str, Any],
+    hypotheses: List[Any],
+    add,
+    policy: CompilerPolicy,
+    require_formal: bool,
+) -> None:
+    formal = spec_data.get("formal")
+    if formal is None:
+        if require_formal:
+            add("error", "LINT-FORMAL-000", "Missing 'formal' section required by the Dafny gate", "formal")
+        return
+    if not isinstance(formal, dict):
+        add("error", "LINT-FORMAL-001", "'formal' must be a mapping", "formal")
+        return
+
+    module = formal.get("module")
+    if not isinstance(module, str) or not _DAFNY_IDENTIFIER.match(module.strip()):
+        add("error", "LINT-FORMAL-001", "formal.module must be a Dafny identifier", "formal.module")
+
+    obligations = formal.get("obligations")
+    if not isinstance(obligations, list) or not obligations:
+        add("error", "LINT-FORMAL-001", "formal.obligations must be a non-empty list", "formal.obligations")
+        return
+
+    hypothesis_ids = {
+        item.get("id")
+        for item in hypotheses
+        if isinstance(item, dict) and isinstance(item.get("id"), str) and item.get("id").strip()
+    }
+    metadata = spec_data.get("metadata") if isinstance(spec_data.get("metadata"), dict) else {}
+    contract = metadata.get(policy.scope_contract_field)
+    must_include = _coerce_strings(contract.get("must_include")) if isinstance(contract, dict) else []
+
+    seen_ids: set[str] = set()
+    covered_hypotheses: set[str] = set()
+    covered_phrases: set[str] = set()
+
+    for index, item in enumerate(obligations, start=1):
+        location = f"formal.obligations[{index}]"
+        if not isinstance(item, dict):
+            add("error", "LINT-FORMAL-002", "Obligation entry must be an object", location)
+            continue
+
+        obligation_id = item.get("id")
+        if not isinstance(obligation_id, str) or not _OBLIGATION_ID.match(obligation_id):
+            add("error", "LINT-FORMAL-002", "Obligation id must match [a-z][a-z0-9_]*", f"{location}.id")
+        elif obligation_id in seen_ids:
+            add("error", "LINT-FORMAL-002", f"Obligation id is not unique: {obligation_id}", f"{location}.id")
+        else:
+            seen_ids.add(obligation_id)
+
+        statement = item.get("statement")
+        if not isinstance(statement, str) or not statement.strip():
+            add("error", "LINT-FORMAL-009", "Obligation statement must be non-empty", f"{location}.statement")
+
+        kind = item.get("kind")
+        if kind not in OBLIGATION_KINDS:
+            add("error", "LINT-FORMAL-003", f"Obligation kind must be one of {list(OBLIGATION_KINDS)}", f"{location}.kind")
+        elif kind == "boundary":
+            test = item.get("test")
+            if not isinstance(test, str) or not test.strip():
+                add("error", "LINT-FORMAL-006", "Boundary obligation must name its Python test id", f"{location}.test")
+
+        refs = item.get("hypotheses")
+        if not isinstance(refs, list) or not refs:
+            add("error", "LINT-FORMAL-004", "Obligation must list the hypotheses it covers", f"{location}.hypotheses")
+        else:
+            for ref in refs:
+                if ref not in hypothesis_ids:
+                    add("error", "LINT-FORMAL-004", f"Obligation references unknown hypothesis id: {ref}", f"{location}.hypotheses")
+                else:
+                    covered_hypotheses.add(ref)
+
+        phrases = item.get("must_include", [])
+        if not isinstance(phrases, list):
+            add("error", "LINT-FORMAL-005", "Obligation must_include must be a list", f"{location}.must_include")
+            continue
+        for phrase in phrases:
+            if phrase not in must_include:
+                add(
+                    "error",
+                    "LINT-FORMAL-005",
+                    f"Obligation must_include entry is not an exact scope_contract.must_include phrase: {phrase!r}",
+                    f"{location}.must_include",
+                )
+            else:
+                covered_phrases.add(phrase)
+
+    for hypothesis_id in sorted(hypothesis_ids - covered_hypotheses):
+        add("error", "LINT-FORMAL-007", f"Hypothesis is not covered by any formal obligation: {hypothesis_id}", "formal.obligations")
+    for phrase in must_include:
+        if phrase not in covered_phrases:
+            add("error", "LINT-FORMAL-008", f"must_include phrase is not covered by any formal obligation: {phrase!r}", "formal.obligations")
+
+
+def _coerce_strings(value: Any) -> List[str]:
+    if not isinstance(value, list):
+        return []
+    return [item.strip() for item in value if isinstance(item, str) and item.strip()]
 
 
 def _warn_duplicates(values: List[Any], add, field: str) -> None:

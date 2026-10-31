@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Set
@@ -38,6 +39,10 @@ class CompilerPolicy:
     lint_min_passing_score: int = 70
     scope_eval_base_score: int = 100
     scope_violation_penalty: int = 25
+    mutation_min_kill_rate: float = 0.9
+    max_mutants: int = 40
+    dafny_min_version: str = "4.0"
+    dafny_timeout_seconds: int = 300
 
 
 def load_compiler_policy(path: str | None = None) -> CompilerPolicy:
@@ -53,10 +58,6 @@ def load_compiler_policy(path: str | None = None) -> CompilerPolicy:
         break
 
     return policy
-
-
-def load_lexical_policy(path: str | None = None) -> CompilerPolicy:
-    return load_compiler_policy(path)
 
 
 def _candidate_paths(path: str | None) -> list[Path]:
@@ -127,6 +128,20 @@ def _apply_overrides(policy: CompilerPolicy, data: Dict[str, Any]) -> None:
     _set_int(policy, "lint_min_passing_score", data.get("lint_min_passing_score"), minimum=0)
     _set_int(policy, "scope_eval_base_score", data.get("scope_eval_base_score"), minimum=1)
     _set_int(policy, "scope_violation_penalty", data.get("scope_violation_penalty"), minimum=0)
+    _set_int(policy, "max_mutants", data.get("max_mutants"), minimum=1)
+    _set_int(policy, "dafny_timeout_seconds", data.get("dafny_timeout_seconds"), minimum=1)
+
+    kill_rate = data.get("mutation_min_kill_rate")
+    if kill_rate is not None:
+        if isinstance(kill_rate, bool) or not isinstance(kill_rate, (int, float)) or not 0 <= kill_rate <= 1:
+            raise PolicyConfigError("'mutation_min_kill_rate' must be a number between 0 and 1")
+        policy.mutation_min_kill_rate = float(kill_rate)
+
+    min_version = data.get("dafny_min_version")
+    if min_version is not None:
+        if not isinstance(min_version, str) or not re.fullmatch(r"\d+(\.\d+)*", min_version.strip()):
+            raise PolicyConfigError("'dafny_min_version' must be a dotted version string such as '4.0'")
+        policy.dafny_min_version = min_version.strip()
 
 
 def _set_int(policy: CompilerPolicy, attr: str, value: Any, minimum: int) -> None:

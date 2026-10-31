@@ -1,7 +1,12 @@
 .env
 .env.*
-!.env.example
 .venv/
 __pycache__/
 *.pyc
 .DS_Store
+*.egg-info/
+build/
+*.db
+
+# Written by `python -m forgemyspec gate`; regenerated on every run.
+generated/

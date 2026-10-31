@@ -1,2 +1,0 @@
-[console_scripts]
-forgemyspec = forgemyspec.cli:main

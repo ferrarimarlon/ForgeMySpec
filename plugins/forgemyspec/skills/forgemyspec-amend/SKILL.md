@@ -16,6 +16,7 @@ Use this skill when a `spec.yaml` already exists and needs to change — **not**
 | Scope change | User adds, removes, or reprioritizes a requirement during implementation |
 | Hypothesis confidence revised | Evidence changes the probability estimate |
 | Major pivot | The objective itself changes (requires explicit user approval and version bump) |
+| Contract wrong | A Dafny clause or test is wrong or too weak (a mutant survived, a proof is impossible as stated) |
 
 ## Principle
 
@@ -68,17 +69,10 @@ Before writing, mentally (or via lint) verify:
 - `execution_mode` still `critical`
 - `required_evidence` items still describe observable outputs, not source artifacts
 
-If the project has the ForgeMySpec package available, write the amended spec to a temp path first and lint it:
+Write the amended spec to a scratch path first and lint it with the harness (from the repository root):
 
 ```bash
-python - <<'EOF'
-from forgemyspec.linting import lint_spec, format_lint_report
-from forgemyspec.generator import load_spec
-
-spec_data = load_spec("/tmp/spec-amended.yaml")
-report = lint_spec(spec_data)
-print(format_lint_report(report))
-EOF
+PYTHONPATH=src python3 -m forgemyspec lint <scratch>/spec.yaml --formal
 ```
 
 Fix any lint errors before showing the diff.
@@ -121,21 +115,22 @@ For surgical fixes (assumption correction, confidence revision), version does no
 After writing:
 
 ```bash
-python - <<'EOF'
-from forgemyspec.linting import lint_spec, format_lint_report
-from forgemyspec.claude_skill import package_claude_skill
-from forgemyspec.generator import load_spec
-
-spec_data = load_spec("<spec-path>")
-report = lint_spec(spec_data)
-print(format_lint_report(report))
-if not report.has_errors:
-    package_claude_skill("<spec-path>", "<bundle-dir>")
-    print("Bundle re-packaged.")
-EOF
+PYTHONPATH=src python3 -m forgemyspec package <bundle>/spec.yaml
 ```
 
 If lint fails, fix and repeat. Do not leave the spec in a failing state.
+
+### 7b. Re-approve and relock the contract (when it is affected)
+
+`contract.lock` covers `contract.dfy`, `tests.dfy`, the spec's `formal` section and the spec version.
+If the amendment touches any of them (a new or changed obligation, a version bump, a clause that
+must change):
+
+1. Propose the contract or test delta the same way as the spec delta: minimal, shown as a diff.
+2. Never weaken a clause just so an implementation verifies. If the clause is wrong, say why with
+   evidence (a counterexample, a requirement the user stated).
+3. After the user approves, apply it and run `PYTHONPATH=src python3 -m forgemyspec lock <bundle>`.
+4. Rerun `PYTHONPATH=src python3 -m forgemyspec gate <bundle>`.
 
 ### 8. Update CLAUDE.md (only if the change is architecturally significant)
 
@@ -176,3 +171,4 @@ Add a single bullet under **Known Pitfalls** or **Decisions** — only if a futu
 - Do not change `hypothesis.id` values unless absolutely necessary — it breaks `action.supports` links.
 - Do not remove `execution_mode: critical` — every spec is a high-stakes contract.
 - Do not list source code or the implementation itself as `required_evidence`.
+- Do not edit `contract.dfy`, `tests.dfy` or `formal` and relock without the user's explicit approval of that change.

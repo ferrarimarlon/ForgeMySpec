@@ -1,80 +1,62 @@
 ---
 name: forgemyspec
-description: Compiles a human requirement into a validated operational spec (spec.yaml) and Claude execution artifacts (CLAUDE.md, acceptance checklist, implement command, scope eval seeds). Use when the user wants spec-driven development, a concrete execution contract before coding, or to reduce scope drift. Prefer this skill inside Claude Code where MCP tools can supply repository, docs, or ticket context before drafting the spec.
+description: Compiles a human requirement into a validated operational spec (spec.yaml) plus Claude execution artifacts (CLAUDE.md, acceptance checklist, implement command, scope eval seeds), including the `formal` section that maps every requirement to a Dafny obligation or a Python boundary test. Use when the user wants spec-driven development, a concrete execution contract before coding, or to reduce scope drift and hallucination. First step of the ForgeMySpec flow; /forgemyspec-formalize comes next.
 ---
 
-# ForgeMySpec (in-session compiler)
+# ForgeMySpec: compile the spec
 
-This skill mirrors the **ForgeMySpec** pipeline: **gather context → structured spec → lint discipline → packaged artifacts**. Running inside Claude, you use **MCPs and native tools** for context that the external CLI cannot see automatically.
+You (Claude, in this session) are the compiler. No external LLM or API is called at any step.
+The harness in this repository is deterministic: it lints what you write and refuses what is incomplete.
 
-## When to apply
-
-- The user asks for a spec, execution contract, or “ForgeMySpec-style” bundle before implementation.
-- The task needs explicit constraints, success criteria, evidence, and traceability (actions ↔ hypotheses).
-- The user wants to leverage **MCP-connected** sources (codebase, issues, wikis, APIs) while authoring the spec.
-
-## Workflow
-
-### 1. Pull context (MCPs first)
-
-Before drafting `spec.yaml`, use whatever MCP or workspace tools are available to ground the requirement:
-
-- Repository layout, existing modules, tests, CI.
-- Prior decisions (ADRs, README, tickets).
-- External docs or APIs the feature must integrate with.
-
-Summarize only **stable facts** the spec should reference (file paths, interfaces, invariants). See `references/mcp-and-context.md`.
-
-### 2. Author `spec.yaml`
-
-Follow the schema in `references/spec-schema.md`. Include:
-
-- Clear `objective`, `constraints`, `success_criteria`, `required_evidence`.
-- `hypotheses` with ids and `confidence` in `[0, 1]`.
-- `actions` with `supports` linking to hypothesis ids (traceability).
-- `metadata.source_prompt` (the user’s request text) and optional `scope_contract` if in/out scope is known.
-
-Match team policy if `.forgemyspec-policy.yaml` exists in the project (minimum counts, required metadata fields, allowed action types).
-
-### 3. Validate (deterministic gate)
-
-If the **ForgeMySpec Python package** is installed in the environment, run the CLI on the saved spec path to run LLM-assisted generation or to lint:
-
-```bash
-forgemyspec --prompt "..." --output-dir ./forgemyspec-bundle
+```
+/forgemyspec            → spec.yaml (you)              → harness: lint + package
+/forgemyspec-formalize  → contract.dfy + tests.dfy     → user approves → harness: lock
+/forgemyspec-implement  → impl.dfy + Python shell      → harness: gate → translated Python
 ```
 
-For a spec already on disk, the codebase linter is `forgemyspec.linting.lint_spec`—in practice, ensure structural checks manually or run project tests if present.
+All harness commands run from the repository root:
 
-When the CLI is **not** available, self-check against `references/spec-schema.md`: required top-level keys, non-empty strings, hypothesis/action id uniqueness, `supports` ⊆ hypothesis ids, boolean `requires_confirmation`.
+```bash
+PYTHONPATH=src python3 -m forgemyspec <lint|package|lock|gate> <path>
+```
 
-### 4. Emit the artifact bundle
+## 1. Ground the requirement
 
-Write the same files the external packager produces (see repository `src/forgemyspec/claude_skill.py` for canonical renderers):
+Read the code, tests, README, tickets, or MCP sources the requirement touches before drafting.
+Keep only stable facts (paths, interfaces, invariants). See `references/mcp-and-context.md`.
+If the request is ambiguous or constraints conflict, ask the user. A wrong spec is worse than no spec.
 
-| File | Purpose |
-| --- | --- |
-| `spec.yaml` | Source of truth |
-| `CLAUDE.md` | Persistent memory + guardrails snapshot |
-| `.claude/commands/implement-from-spec.md` | Implementation entrypoint |
-| `acceptance-checklist.md` | Delivery gate |
-| `evals/scope_drift_cases.yaml` | Scope drift eval seeds |
+## 2. Author `spec.yaml`
 
-Use a dedicated output directory (for example `./forgemyspec-bundle` or `./forgemyspec-skill`) so project skills under `.claude/skills/` stay separate from generated bundles.
+Write it to `<bundle-dir>/spec.yaml` (for example `./forgemyspec-bundle/<task>/`). The schema is in
+`references/spec-schema.md`. The rules the linter enforces:
 
-### 5. Implementation handoff
+- `execution_mode: critical`.
+- Hypotheses are affirmative and testable. Things that will not be built go in `constraints`.
+- Every action links via `supports` to the hypotheses it directly advances. Only `validate`/`review`/`test` actions may support all of them.
+- `required_evidence` items are observable outputs (test runs, command output), never "the source code".
+- `metadata.source_prompt` holds the user's request. `metadata.scope_contract.must_include` holds short, exact phrases for every non-negotiable requirement.
+- `formal` decides what will be **proven** and what will be **tested at the boundary**:
+  - `formal.module`: the Dafny name of the abstract contract module.
+  - One obligation per checkable rule: `id` (`[a-z][a-z0-9_]*`), `kind: dafny | boundary`, `statement`, `hypotheses`, and `must_include` copied **verbatim** from the scope contract.
+  - `kind: dafny` for pure logic: rules, invariants, arithmetic, state transitions.
+  - `kind: boundary` for I/O, parsing, files, network, and for **enforcing the core's preconditions** (translated code does not check `requires`). Give it `test: <module>.<Class>.<method>` relative to `tests_py/`.
+  - Every hypothesis and every `must_include` phrase must be covered by at least one obligation.
 
-Point the user or a follow-up turn to `references/implement-from-spec-workflow.md` and the generated `implement-from-spec` command.
+Quote YAML list items that contain `: `, start with a backtick, or start with a quote character.
 
-## Relationship to the external CLI
+## 3. Lint and package
 
-- **This skill**: Claude-native workflow; MCP-rich context; manual or hybrid drafting.
-- **CLI (`forgemyspec`)**: Subcontracts LLM draft generation and deterministic lint/package when run from a terminal with API keys.
+```bash
+PYTHONPATH=src python3 -m forgemyspec lint <bundle-dir>/spec.yaml --formal
+PYTHONPATH=src python3 -m forgemyspec package <bundle-dir>/spec.yaml
+```
 
-Both target the **same artifact shapes** so teams can mix terminal compilation and in-session iteration.
+Fix every error, and every warning you can, then repeat. `package` writes `CLAUDE.md`,
+`acceptance-checklist.md`, `.claude/commands/implement-from-spec.md` and `evals/scope_drift_cases.yaml`
+next to the spec. Generated bundles never go in `.claude/skills/`.
 
-## Bundled references
+## 4. Hand off
 
-- `references/spec-schema.md` — YAML shape and field roles
-- `references/mcp-and-context.md` — How to use MCP context effectively
-- `references/implement-from-spec-workflow.md` — Post-spec implementation steps
+Show the user the obligations table (id, kind, statement) and the assumptions, ask for approval, then
+continue with `/forgemyspec-formalize`.
