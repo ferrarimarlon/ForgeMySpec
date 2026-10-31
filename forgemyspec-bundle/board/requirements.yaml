@@ -287,3 +287,13 @@
     ok: true
   - do: external copy removed
     ok: true
+- id: R28
+  status: done
+  title: Always the full board from the command, never a summary line
+  quote: A tela tá feia, cara. A tela descaracterizou.
+  steps:
+  - do: 'rule: paste the command output whole, never a hand-made line'
+    ok: true
+  - do: rule in CLAUDE.md and memory
+    ok: true
+  evidence: The last two replies used a one-line summary; this reply uses the full board.
