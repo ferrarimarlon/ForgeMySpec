@@ -484,9 +484,39 @@ def pending_gates(root: Path) -> List[Tuple[project.Bundle, str]]:
     return pending
 
 
+def _last_reply(event: Dict[str, Any]) -> str:
+    text = event.get("last_assistant_message")
+    if isinstance(text, str):
+        return text
+    try:
+        lines = Path(event.get("transcript_path") or "").read_text(encoding="utf-8").splitlines()
+    except OSError:
+        return ""
+    for line in reversed(lines):
+        try:
+            entry = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if entry.get("type") == "assistant":
+            blocks = (entry.get("message") or {}).get("content") or []
+            texts = [b.get("text", "") for b in blocks if isinstance(b, dict) and b.get("type") == "text"]
+            if texts:
+                return "\n".join(texts)
+    return ""
+
+
+def has_board(text: str) -> bool:
+    return re.search(r"ForgeMySpec · \d+ requirements", text) is not None
+
+
 def stop(event: Dict[str, Any]) -> Dict[str, Any]:
-    """Never blocks and writes nothing in the chat: the panel shows the state; pre-commit and CI refuse unverified work."""
+    """Writes nothing in the chat. In a project with a requirements board, a reply without the board is sent back
+    once to paste it (`forgemyspec board`); gates stay with pre-commit and CI."""
+    from .board import board_file
+
     root = project.find_root(event.get("cwd"))
+    if board_file(root).exists() and not event.get("stop_hook_active") and not has_board(_last_reply(event)):
+        return {"decision": "block", "reason": M.STOP_BOARD_MISSING.format(command=harness_command(root, "board"))}
     project.append_ledger(root, {
         "event": "turn-end", "session": event.get("session_id"),
         "pending": [b.name for b, _ in pending_gates(root)], "ts": _now(),

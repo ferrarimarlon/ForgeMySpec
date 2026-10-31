@@ -67,6 +67,22 @@ class BoardTests(unittest.TestCase):
         self.assertIn("H 67% M 33%", text)
         self.assertIn(" 50%", text)
 
+    def test_stop_hook_sends_back_a_reply_without_the_board_once(self) -> None:
+        from forgemyspec import hooks
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_project(Path(tmp)).resolve()
+            base = {"cwd": str(root), "session_id": "s"}
+            self.assertEqual(hooks.stop(dict(base, last_assistant_message="no board")), {})  # no board file: silent
+            (root / board.PROJECT_BOARD_FILE).write_text("- {id: R1, status: open, title: One}\n", encoding="utf-8")
+            missing = hooks.stop(dict(base, last_assistant_message="done, see above"))
+            present = hooks.stop(dict(base, last_assistant_message="ok\n```\nForgeMySpec · 1 requirements\n```"))
+            again = hooks.stop(dict(base, last_assistant_message="still none", stop_hook_active=True))
+        self.assertEqual(missing["decision"], "block")
+        self.assertIn("forgemyspec board", missing["reason"])
+        self.assertEqual(present, {})
+        self.assertEqual(again, {})
+
 
 if __name__ == "__main__":
     unittest.main()

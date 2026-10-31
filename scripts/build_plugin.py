@@ -25,6 +25,7 @@ HOOKS = {
                         "hooks": [{"type": "command", "command": HOOK + "pre-tool-use", "timeout": 15}]}],
         "SessionStart": [{"hooks": [{"type": "command", "command": HOOK + "session-start", "timeout": 15}]}],
         "UserPromptSubmit": [{"hooks": [{"type": "command", "command": HOOK + "user-prompt-submit", "timeout": 15}]}],
+        "Stop": [{"hooks": [{"type": "command", "command": HOOK + "stop", "timeout": 30}]}],
     }
 }
 
@@ -72,7 +73,7 @@ class PluginTests(unittest.TestCase):
         manifest = json.loads((PLUGIN / ".claude-plugin" / "plugin.json").read_text())
         self.assertEqual(manifest["name"], "forgemyspec")
         hooks = json.loads((PLUGIN / "hooks" / "hooks.json").read_text())["hooks"]
-        self.assertEqual(set(hooks), {"PreToolUse", "SessionStart", "UserPromptSubmit"})
+        self.assertEqual(set(hooks), {"PreToolUse", "SessionStart", "UserPromptSubmit", "Stop"})
 
     def test_guard_denies_a_lock_file(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

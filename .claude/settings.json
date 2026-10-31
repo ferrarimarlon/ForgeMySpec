@@ -1,3 +1,16 @@
 {
-  "agent": "forgemyspec-default"
+  "agent": "forgemyspec-default",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 30,
+            "command": "PYTHONPATH=\"$CLAUDE_PROJECT_DIR/src\" python3 -m forgemyspec hook stop"
+          }
+        ]
+      }
+    ]
+  }
 }

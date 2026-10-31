@@ -297,3 +297,19 @@
   - do: rule in CLAUDE.md and memory
     ok: true
   evidence: The last two replies used a one-line summary; this reply uses the full board.
+- id: R29
+  status: done
+  title: Guarantee the board in every reply (plugin enforces it)
+  quote: É garantido que o plugin sempre vai plotar essa tela?
+  steps:
+  - do: Stop hook reads the last reply and blocks once if the board is missing
+    ok: true
+  - do: the block reason tells Claude to paste `forgemyspec board`
+    ok: true
+  - do: Stop hook added to the plugin's hooks
+    ok: true
+  - do: 'pipe test: reply without board → block; with board → pass'
+    ok: true
+  - do: active in this repo (only this check; guards stay off)
+    ok: true
+  evidence: test_board stop-hook test; plugin hooks include Stop; .claude/settings.json Stop hook.

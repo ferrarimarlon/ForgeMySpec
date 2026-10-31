@@ -472,6 +472,7 @@ TEMPLATE_EVAL_PURPOSE = "Manual eval seeds to detect scope drift in Claude imple
 # Conversation board (`board`)
 # ---------------------------------------------------------------------------
 
+STOP_BOARD_MISSING = "The reply has no requirements board. Run `{command}` and paste its output whole, in a code block, at the end of the reply."
 BOARD_TITLE = "ForgeMySpec · {n} requirements"
 BOARD_ROW = "{label:<9} {bar} {value}"
 BOARD_DONE_LABEL = "done"

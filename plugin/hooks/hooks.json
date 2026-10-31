@@ -33,6 +33,17 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "FORGEMYSPEC_HARNESS=\"${CLAUDE_PLUGIN_ROOT}/harness\" PYTHONPATH=\"${CLAUDE_PLUGIN_ROOT}/harness\" python3 -m forgemyspec hook stop",
+            "timeout": 30
+          }
+        ]
+      }
     ]
   }
 }
