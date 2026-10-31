@@ -391,3 +391,14 @@
   - do: experiments kept (17-project benchmark, mini-os case study)
     check: 'cmd: grep -q "10 / 17" README.md && grep -q "mini-os" README.md && grep -q "COMPARATIVE_REPORT" README.md'
   evidence: 'board verify R34: 4/4 checks passed.'
+- id: R35
+  status: done
+  title: Board tokens match the current session
+  quote: Esses 870 mil tokens… difere do que eu estou vendo aqui no Claude… No Claude tá dando 109 mil só.
+  steps:
+  - do: activity reads the most recently written transcript, not the first registered session
+    check: 'cmd: grep -q "current = max(transcripts" src/forgemyspec/board.py'
+  - do: label says output tokens
+    check: 'cmd: grep -q "output tokens\"" src/forgemyspec/messages.py'
+  - do: board tests
+    check: 'test: test_board'

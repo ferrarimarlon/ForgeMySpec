@@ -167,8 +167,9 @@ def _focus_at(focuses: List[tuple], stamp: str) -> Optional[str]:
 
 
 def activity(root: Path) -> Dict[str, Any]:
-    """Harness runs and guard checks against model writes, model tokens, the last context size, and `per`:
-    runs, writes and tokens of each requirement while it was in focus (`board start R<n>`)."""
+    """Harness runs and guard checks against model writes, model output tokens, the last context size, and `per`:
+    runs, writes and tokens of each requirement while it was in focus (`board start R<n>`). Read from the
+    current session: the most recently written transcript."""
     from .approvals import _transcripts
 
     runs = writes = tokens = context = 0
@@ -178,7 +179,8 @@ def activity(root: Path) -> Dict[str, Any]:
     seen = set()
     transcripts = _transcripts(root)
     if transcripts:
-        for line in transcripts[0].read_text(encoding="utf-8", errors="replace").splitlines():
+        current = max(transcripts, key=lambda p: p.stat().st_mtime)
+        for line in current.read_text(encoding="utf-8", errors="replace").splitlines():
             try:
                 entry = json.loads(line)
             except json.JSONDecodeError:
