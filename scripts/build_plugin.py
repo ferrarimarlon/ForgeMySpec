@@ -1,4 +1,4 @@
-"""Exports ForgeMySpec as a Claude Code plugin into its own repository (default: ../forgemyspec-plugin).
+"""Exports ForgeMySpec as a Claude Code plugin into its own repository (default: plugin/ in this repository).
 
 The plugin carries the deterministic harness, the skills, the agent and the hooks (file and shell guards, state
 summary). It is the place where the gates run on other projects; this repository stays the source.
@@ -121,6 +121,6 @@ def build(target: Path) -> None:
 
 
 if __name__ == "__main__":
-    out = Path(sys.argv[1]).expanduser().resolve() if len(sys.argv) > 1 else ROOT.parent / "forgemyspec-plugin"
+    out = Path(sys.argv[1]).expanduser().resolve() if len(sys.argv) > 1 else ROOT / "plugin"
     build(out)
     print(out)

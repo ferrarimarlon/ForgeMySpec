@@ -136,11 +136,11 @@
   - do: replaced by the board in the chat
     ok: true
 - id: R15
-  status: doing
-  title: Gates as a plugin in another repository
+  status: done
+  title: Gates as a plugin (plugin/ subfolder for now)
   quote: constrói os gates para um plugin que a gente vai colocar em outro repositório
   steps:
-  - do: plugin repository created (local)
+  - do: plugin built into plugin/ in this repo
     ok: true
   - do: harness, skills, agent and hooks exported
     ok: true
@@ -148,8 +148,8 @@
     ok: true
   - do: committed
     ok: true
-  - do: pushed to GitHub (your order)
-    ok: false
+  evidence: scripts/build_plugin.py → plugin/; smoke test OK; claude plugin validate passed.
+  next: Move to its own repository when you decide.
 - id: R16
   status: done
   title: Fix the guard's false blocks
@@ -278,3 +278,12 @@
   - do: test
     ok: true
   evidence: board start R<n>; per-requirement H%/M%; test_board effort test passes.
+- id: R27
+  status: done
+  title: Keep the plugin here, in a subfolder
+  quote: mantém o plugin aqui por enquanto… A gente cria uma subpasta
+  steps:
+  - do: plugin/ subfolder
+    ok: true
+  - do: external copy removed
+    ok: true
