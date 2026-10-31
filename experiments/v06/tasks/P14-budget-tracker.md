@@ -1,0 +1,1 @@
+Build a budget tracker CLI in Python. Define monthly budgets per category, record expenses (amount, category, date, note) into a JSON file, reject unknown categories and invalid amounts, report spending per category against the budget, and alert when a category reaches 80% and 100% of its budget. Single file budget_tracker.py, stdlib only.

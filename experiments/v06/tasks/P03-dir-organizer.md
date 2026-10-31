@@ -1,0 +1,1 @@
+Build a Directory Organizer in Python. Watch a target directory and move files into subdirectories by extension. Two modes: --watch and --once. Log moves to organizer.log. Skip files already in subdirs and hidden files. Single file organizer.py, stdlib only.

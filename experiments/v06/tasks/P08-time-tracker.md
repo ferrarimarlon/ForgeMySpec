@@ -1,0 +1,1 @@
+Build a time tracker CLI in Python. Subcommands: start <project>, stop, log, report. Persist sessions in a JSON file, refuse to start a session while another is active, detect overlapping sessions, show durations formatted as HH:MM:SS, and report total time per project. Single file time_tracker.py, stdlib only.

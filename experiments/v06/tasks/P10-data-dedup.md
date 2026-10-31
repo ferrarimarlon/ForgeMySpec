@@ -1,0 +1,1 @@
+Build a CSV deduplicator CLI in Python. Remove duplicate rows by a key made of one or more columns (composite keys), with three strategies: keep first, keep last, or error (exit non-zero and report duplicates). Write the result to an output CSV and print a summary of how many duplicates were found and removed. Single file data_dedup.py, stdlib only.

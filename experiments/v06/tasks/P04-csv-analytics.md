@@ -1,0 +1,1 @@
+Build a CSV Analytics Tool. Read CSV files, compute per-column stats (count, min, max, mean, median, stdev), filter rows, select columns, export JSON report. Single file csv_analytics.py, stdlib only.

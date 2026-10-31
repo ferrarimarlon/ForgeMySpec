@@ -1,0 +1,1 @@
+Build a grade calculator CLI in Python. Read a CSV of students and assessment scores plus a weights definition, normalize weights that do not sum to 100%, compute each student's weighted final grade, letter grade and GPA points, and print class statistics (mean, median, standard deviation, highest, lowest). Single file grade_calc.py, stdlib only.

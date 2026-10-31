@@ -1,0 +1,1 @@
+Build a CLI expense splitter in Python. Record expenses for a group (payer, amount, description, participants; split equally among participants), persist them in a JSON file, show each person's balance, and compute a settlement plan with the minimum number of transfers using a greedy algorithm. Single file expense_splitter.py, stdlib only.

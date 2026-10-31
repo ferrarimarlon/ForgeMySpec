@@ -1,0 +1,1 @@
+Build a Markdown Note-Taking CLI. Subcommands: new, list, show, edit, delete. Store notes as .md files with YAML frontmatter in ~/.note-taker/. Search by tag or keyword. Single file note_taker.py, stdlib only.
