@@ -1,0 +1,17 @@
+{
+ "requests": [
+  {
+   "code": "XI6B2R",
+   "nonce": "74ac7a672ff8fee1b47ca12569a6299f",
+   "created_at": "2026-10-31T20:13:32.860Z",
+   "items": [
+    {
+     "action": "approve",
+     "target": "forgemyspec-bundle/scheduler",
+     "content_sha": "d93459d56829b38db1a72401199a2c5e4ff2367bac030ca7dddc309ed6085930",
+     "used_at": null
+    }
+   ]
+  }
+ ]
+}

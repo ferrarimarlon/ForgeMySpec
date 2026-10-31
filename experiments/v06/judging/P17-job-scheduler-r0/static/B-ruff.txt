@@ -1,0 +1,30 @@
+scheduler.py:48:9: B904 Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling
+scheduler.py:48:30: UP031 Use format specifiers instead of percent format
+scheduler.py:87:30: UP031 Use format specifiers instead of percent format
+scheduler.py:87:89: E501 Line too long (97 > 88)
+scheduler.py:89:30: UP031 Use format specifiers instead of percent format
+scheduler.py:90:89: E501 Line too long (94 > 88)
+scheduler.py:94:30: UP031 Use format specifiers instead of percent format
+scheduler.py:98:34: UP031 Use format specifiers instead of percent format
+scheduler.py:100:30: UP031 Use format specifiers instead of percent format
+scheduler.py:109:89: E501 Line too long (89 > 88)
+scheduler.py:131:30: UP031 Use format specifiers instead of percent format
+scheduler.py:133:30: UP031 Use format specifiers instead of percent format
+scheduler.py:139:89: E501 Line too long (93 > 88)
+scheduler.py:158:12: UP031 Use format specifiers instead of percent format
+scheduler.py:158:89: E501 Line too long (99 > 88)
+scheduler.py:162:89: E501 Line too long (90 > 88)
+scheduler.py:177:5: C901 `run` is too complex (11 > 10)
+scheduler.py:183:15: UP031 Use format specifiers instead of percent format
+scheduler.py:183:89: E501 Line too long (97 > 88)
+scheduler.py:191:15: UP031 Use format specifiers instead of percent format
+scheduler.py:195:15: UP031 Use format specifiers instead of percent format
+scheduler.py:199:15: UP031 Use format specifiers instead of percent format
+scheduler.py:201:19: UP031 Use format specifiers instead of percent format
+scheduler.py:208:19: UP031 Use format specifiers instead of percent format
+scheduler.py:211:19: UP031 Use format specifiers instead of percent format
+scheduler.py:219:15: UP031 Use format specifiers instead of percent format
+tests/test_scheduler.py:168:89: E501 Line too long (97 > 88)
+tests/test_scheduler.py:170:89: E501 Line too long (92 > 88)
+Found 28 errors.
+No fixes available (14 hidden fixes can be enabled with the `--unsafe-fixes` option).

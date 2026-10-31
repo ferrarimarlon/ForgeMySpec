@@ -31,7 +31,9 @@ HERE = Path(__file__).resolve().parent
 TASKS = HERE / "tasks"
 OUT = HERE / "runs"
 TMP = Path("/private/tmp/fms-v06")
-MODEL = "sonnet"
+MODEL = "claude-sonnet-5-5"
+# Frozen copy of Claude Code 2.1.296 (sha256 c9b5341637becbd4…); the Homebrew 2.1.116 cannot run the 5.5 models.
+CLAUDE_BIN = str(TMP / "tools" / "claude")
 CALL_TIMEOUT = 60 * 60          # one claude -p call
 MAX_CALLS = 12                  # per build
 MAX_APPROVALS = 8               # approver rounds per build (with arm)
@@ -59,7 +61,7 @@ def tty(cmd: list, cwd: Path, env: dict) -> subprocess.CompletedProcess:
 
 
 def claude(root: Path, message: str, sid: str, resume: bool, logdir: Path, n: int) -> dict:
-    cmd = ["claude", "-p", message, "--model", MODEL, "--permission-mode", "bypassPermissions",
+    cmd = [CLAUDE_BIN, "-p", message, "--model", MODEL, "--permission-mode", "bypassPermissions",
            "--setting-sources", "project,local", "--strict-mcp-config", "--output-format", "json"]
     cmd += ["-r", sid] if resume else ["--session-id", sid]
     started = time.time()

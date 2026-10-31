@@ -1,0 +1,112 @@
+version: "0.1"
+title: Priority Job Scheduler CLI
+objective: A single-file, stdlib-only Python CLI (scheduler.py) that manages jobs with dependencies and priorities, persisted in scheduler.json.
+execution_mode: critical
+context:
+  system: Empty Python repository; deliverable is scheduler.py at the repository root with unittest tests in tests/.
+  assumptions:
+    - "Job id matches ^[A-Za-z0-9_]{1,32}$."
+    - "Priority is an integer from 1 to 10 inclusive."
+    - "add takes --id, --name, --priority and optional --depends-on (comma-separated ids)."
+    - "Errors print a message to stderr and exit with code 1; success exits 0."
+    - "run-next simulates execution: the job is set to running, then done, in one invocation, and its id is printed."
+    - "The execution order shown by report is a topological order of all jobs, ties broken by higher priority, then by id ascending."
+    - "fail <id> applies to a job that exists and is not already done, failed or cancelled; otherwise it is rejected with exit 1."
+    - "Status ready is displayed by status and report but never written to scheduler.json."
+constraints:
+  - "Python standard library only; no third-party packages."
+  - "Single source file scheduler.py; no web server, no daemon, no real job execution."
+  - "No retries, scheduling by time, or concurrency."
+success_criteria:
+  - "Every obligation test passes."
+  - "scheduler.json never contains the status ready."
+hypotheses:
+  - {id: h1, description: "add rejects invalid ids, duplicate ids, out-of-range priorities, self-dependencies and unknown dependencies, leaving scheduler.json unchanged.", confidence: 0.9}
+  - {id: h2, description: "add rejects any job that would create a dependency cycle.", confidence: 0.85}
+  - {id: h3, description: "The execution order is topological with higher priority first among available jobs.", confidence: 0.85}
+  - {id: h4, description: "A pending job whose depends_on are all done is reported ready, recomputed on every load.", confidence: 0.9}
+  - {id: h5, description: "Failing a job cancels all of its transitive dependents.", confidence: 0.9}
+  - {id: h6, description: "run-next runs the highest-priority ready job through running to done.", confidence: 0.9}
+  - {id: h7, description: "State persists in scheduler.json, and ready is never persisted.", confidence: 0.9}
+  - {id: h8, description: "The CLI provides add, run-next, fail, status and report commands.", confidence: 0.9}
+required_evidence:
+  - "Output of python3 -m unittest discover -s tests with all tests passing."
+  - "Gate report ending in RESULT: PASS."
+actions:
+  - {id: a1, description: "Design the data model and persistence format.", type: design, requires_confirmation: false, supports: [h7]}
+  - {id: a2, description: "Implement validation, cycle detection and ordering in scheduler.py.", type: implement, requires_confirmation: false, supports: [h1, h2, h3]}
+  - {id: a3, description: "Implement readiness, failure propagation, run-next and commands.", type: implement, requires_confirmation: false, supports: [h4, h5, h6, h8]}
+  - {id: a4, description: "Run unittest suite and the gate.", type: validate, requires_confirmation: false, supports: [h1, h2, h3, h4, h5, h6, h7, h8]}
+decision_rules:
+  - "If a requirement is ambiguous, stop and ask the user."
+  - "If a test fails, fix scheduler.py; never weaken the tests."
+metadata:
+  source_prompt: "Build a Priority Job Scheduler CLI in Python (single file scheduler.py, stdlib only). Jobs: id (alphanumeric and underscore, 1-32 chars, unique), name, priority (1-10), depends_on (list of ids). Validation on add: reject duplicate id, self-dependency, unknown dependency. Cycle detection: reject any add that would create a cycle. Execution order: topological order with priority as tiebreak (higher first). A job is ready when it is pending and all of its depends_on are done; recompute on load. Failure propagation: when a job fails, all transitive dependents become cancelled. Status values: pending, ready, running, done, failed, cancelled. run-next: takes the highest-priority ready job, marks it running, then done (simulated). Persistence in scheduler.json; ready is never persisted, it is recomputed on load. Commands: add, run-next, fail <id>, status, report."
+  generator: claude-code-session
+  scope_contract:
+    must_include:
+      - "reject duplicate id"
+      - "reject self-dependency"
+      - "reject unknown dependency"
+      - "reject any add that would create a cycle"
+      - "topological order with priority as tiebreak"
+      - "ready when pending and all depends_on are done"
+      - "all transitive dependents become cancelled"
+      - "run-next takes the highest-priority ready job"
+      - "ready is never persisted"
+      - "commands: add, run-next, fail, status, report"
+formal:
+  module: SchedulerCore
+  obligations:
+    - id: validation_rejects
+      kind: boundary
+      statement: "add rejects a duplicate id, a self-dependency, an unknown dependency, a malformed id and an out-of-range priority, with exit 1 and scheduler.json unchanged."
+      hypotheses: [h1]
+      must_include: ["reject duplicate id", "reject self-dependency", "reject unknown dependency"]
+      test: "test_scheduler.ValidationTests.test_add_rejections"
+    - id: cycle_rejected
+      kind: boundary
+      statement: "An add that would close a dependency cycle is rejected and nothing is persisted."
+      hypotheses: [h2]
+      must_include: ["reject any add that would create a cycle"]
+      test: "test_scheduler.CycleTests.test_cycle_rejected"
+    - id: order_priority_tiebreak
+      kind: boundary
+      statement: "The execution order lists dependencies before dependents and picks the higher priority first among available jobs."
+      hypotheses: [h3]
+      must_include: ["topological order with priority as tiebreak"]
+      test: "test_scheduler.OrderTests.test_topological_with_priority"
+    - id: ready_recomputed
+      kind: boundary
+      statement: "On load a pending job whose depends_on are all done is ready; others stay pending."
+      hypotheses: [h4]
+      must_include: ["ready when pending and all depends_on are done"]
+      test: "test_scheduler.ReadyTests.test_ready_recomputed_on_load"
+    - id: failure_cascade
+      kind: boundary
+      statement: "fail marks the job failed and every transitive dependent cancelled; unrelated jobs are untouched."
+      hypotheses: [h5]
+      must_include: ["all transitive dependents become cancelled"]
+      test: "test_scheduler.FailTests.test_transitive_cancel"
+    - id: run_next_highest
+      kind: boundary
+      statement: "run-next picks the highest-priority ready job and leaves it done, unblocking its dependents."
+      hypotheses: [h6]
+      must_include: ["run-next takes the highest-priority ready job"]
+      test: "test_scheduler.RunNextTests.test_runs_highest_priority_ready"
+    - id: ready_not_persisted
+      kind: boundary
+      statement: "scheduler.json never contains the status ready, even after status or report."
+      hypotheses: [h7]
+      must_include: ["ready is never persisted"]
+      test: "test_scheduler.PersistenceTests.test_ready_never_persisted"
+    - id: commands_exist
+      kind: boundary
+      statement: "The CLI accepts add, run-next, fail <id>, status and report and exits 0 on valid use."
+      hypotheses: [h8]
+      must_include: ["commands: add, run-next, fail, status, report"]
+      test: "test_scheduler.CliTests.test_all_commands"
+scope:
+  paths: ["scheduler.py", "scheduler.json", "tests/**"]
+  tests: tests
+  pythonpath: ["."]

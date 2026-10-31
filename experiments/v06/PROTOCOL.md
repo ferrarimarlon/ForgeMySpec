@@ -37,8 +37,8 @@ outcomes, not inputs.
 
 ## Isolation
 
-- Each build is a separate headless process: `claude -p` with `--model sonnet`, the same alias for every build,
-  with the resolved model id recorded. It is not a subagent of the session that runs the experiment, so no
+- Each build is a separate headless process: `claude -p` with `--model claude-sonnet-5-5`, pinned for every
+  build, run by a frozen copy of Claude Code 2.1.296. The resolved model id is recorded. It is not a subagent of the session that runs the experiment, so no
   context, memory or instructions of that session reach the builder.
 - The directory is under `/private/tmp/fms-v06/runs/`, outside the home directory, so no CLAUDE.md of the
   experimenter applies. Flags: `--setting-sources project,local` (no user settings, plugins or permissions),
@@ -82,11 +82,11 @@ results. Then all 18 tasks × 2 arms × 3 repetitions = 108 builds.
 
 ## Blind judge
 
-A third headless process (`--model opus`) per task and repetition:
+A third headless process (`--model claude-opus-5-5`) per task and repetition:
 
 - It receives `A/` and `B/` in a random order (seeded). The key stays outside its directory.
 - Framework artifacts are removed: `forgemyspec-bundle/`, `spec.yaml`, `*.dfy`, `planted/`, locks, `.forgemyspec/`,
-  `.claude/`, `CLAUDE.md`, acceptance checklists, `evals/`, the board file and the install files.
+  `.claude/`, `CLAUDE.md`, acceptance checklists, `evals/`, the board file and the install files (including `.gitignore`).
   Translated Dafny code (`generated/`) stays, because it is the implementation. This can unblind the judge, and
   that is measured: at the end the judge guesses which side, if any, used a spec framework, with a confidence.
 - Procedure: (1) from the prompt alone, write the requirement list; (2) write black-box probes per requirement
@@ -114,7 +114,8 @@ issue, scope drift, quality). Also reported: the probe pass counts and the blind
 - Per arm: mean and standard deviation over the 3 repetitions; per task: the paired difference (with − without).
 - Over the 18 tasks: the mean paired difference with a 95% bootstrap interval (10,000 resamples, seed
   `20261031`) and a Wilcoxon signed-rank test, for issues (critical + high), probe pass rate, the overall
-  score (mean of the 6 dimensions), tokens and cost.
+  score (mean of functional, coverage, security, robustness and quality; `tests` reported apart, see
+  Deviation 2), tokens and cost.
 - Split by complexity class as in the earlier report: simple (P03, P10, P12, P15), medium
   (P01, P06, P08, P13, P17), complex (P02, P04, P05, P11, P16), others (P07, P09, P14, P18).
 - Builds that crash or time out count as delivered, with whatever exists. They are reported, never dropped.
@@ -126,3 +127,17 @@ issue, scope drift, quality). Also reported: the probe pass counts and the blind
   is imperfect, and its effectiveness is measured.
 - Three repetitions per arm: small samples. Intervals are reported, not only means.
 - P06–P15 prompts were rewritten, see above.
+
+## Deviations
+
+1. Pilot 1 (before the main runs) used the Homebrew `claude` 2.1.116, where the `sonnet` alias resolved to
+   claude-sonnet-4-6 and the 2.1.116 CLI cannot run the 5.5 models. Fixed before any measured run: exact model
+   ids and a frozen copy of Claude Code 2.1.296 (sha256 prefix c9b5341637becbd4). The pilot was rerun with the
+   fixed setup. Neither pilot is part of the results.
+2. The pilot judge scored `tests` 0 for a side that shipped no tests, but no prompt asks for tests. So the
+   primary overall score is the mean of the other five dimensions, and the six-dimension mean and `tests` are
+   reported separately. Decided after the pilot, before any measured run.
+3. The pilot judge guessed the framework side from test docstrings ("obligations from spec.yaml"). Delivered
+   code is not edited, so this leak stays and is measured through the blinding guess.
+4. The second pilot judge guessed from `.gitignore`, which `init` writes with `.forgemyspec/` entries. `.gitignore`
+   is an install file, not delivered code, so it is now removed from both sides before judging.

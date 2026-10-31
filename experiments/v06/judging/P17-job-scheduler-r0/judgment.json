@@ -1,0 +1,26 @@
+{
+ "requirements_total": 16,
+ "probes_total": 26,
+ "A": {"probes_passed": 26,
+       "scores": {"functional": 5, "coverage": 5, "security": 5, "robustness": 5, "quality": 4, "tests": 0},
+       "requirements_met": 16, "requirements_partial": 0, "requirements_missing": 0,
+       "issues": [
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/A-ruff.txt (scheduler.py:52 B904, 4x E501)", "summary": "Minor lint findings: exception re-raised without 'from' and a few long lines."},
+        {"severity": "low", "category": "quality", "requirement": "R15", "evidence": "A/scheduler.py:186-188", "summary": "run-next exits with status 1 when no job is ready, which scripts may read as an error."}
+       ],
+       "own_tests": {"present": false, "ran": false, "passed": 0, "failed": 0},
+       "loc": 296},
+ "B": {"probes_passed": 24,
+       "scores": {"functional": 3, "coverage": 4, "security": 4, "robustness": 3, "quality": 4, "tests": 4},
+       "requirements_met": 14, "requirements_partial": 2, "requirements_missing": 0,
+       "issues": [
+        {"severity": "medium", "category": "silent", "requirement": "R10", "evidence": "probe p24_add_after_failed_dep_cancelled: add b depending on failed a -> b stays pending forever", "summary": "A job added with a dependency on a failed or cancelled job stays pending forever and is never cancelled."},
+        {"severity": "low", "category": "functional", "requirement": "R2", "evidence": "probe p04_id_trailing_newline; B/scheduler.py:13,86 ('^...$' with re.match) accepted id 'abc\\n' and persisted it", "summary": "ID validation accepts a trailing newline because it uses '$' with match instead of fullmatch."},
+        {"severity": "low", "category": "silent", "requirement": "R16", "evidence": "scheduler.json with priority \"x\" -> run-next prints 'TypeError: bad operand type for unary -' traceback", "summary": "load() checks only that keys exist, not their types or ranges, so a malformed state file crashes with a traceback."},
+        {"severity": "low", "category": "quality", "requirement": null, "evidence": "static/B-ruff.txt (28 findings: UP031, E501, C901 run, B904)", "summary": "Uses %-formatting throughout, and one large run() dispatcher is flagged as too complex."}
+       ],
+       "own_tests": {"present": true, "ran": true, "passed": 11, "failed": 0},
+       "loc": 225},
+ "blinding_guess": {"spec_framework_side": "B", "confidence": 0.6, "why": "B ships a .gitignore referencing '.forgemyspec/' state directories and a test suite, which suggests a spec-driven workflow."},
+ "notes": "Bandit reports for both sides are empty and no security-relevant code (subprocess, eval, pickle) exists in either side. B has no direct cycle-detection gap: cycles cannot normally form through add because dependencies must already exist; p09 uses a pre-seeded dangling dependency, and A rejects that state file outright at load time while B's would_create_cycle catches the cycle. B's tests needed unittest because pytest is not installed; all 11 passed. Neither priority tiebreak (A: insertion order, B: id) is mandated by the spec. A has no tests of its own."
+}

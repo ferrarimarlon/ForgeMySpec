@@ -1,0 +1,144 @@
+{
+ "passed": true,
+ "ran_at": "2026-10-31T20:14:24Z",
+ "stages": [
+  {
+   "name": "spec-lint",
+   "status": "PASS",
+   "details": [
+    "[LINT-HY-007] hypotheses[7].description: Hypothesis appears to describe what will NOT be built; hypotheses must be affirmative and testable",
+    "score 95/100 (minimum 70)"
+   ]
+  },
+  {
+   "name": "obligation-coverage",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "spec-lock",
+   "status": "PASS",
+   "details": []
+  },
+  {
+   "name": "python-boundary-tests",
+   "status": "PASS",
+   "details": [
+    "11 tests, 0 failed, 0 skipped"
+   ]
+  }
+ ],
+ "evidence": {
+  "validation_rejects": {
+   "kind": "boundary",
+   "statement": "add rejects a duplicate id, a self-dependency, an unknown dependency, a malformed id and an out-of-range priority, with exit 1 and scheduler.json unchanged.",
+   "must_include": [
+    "reject duplicate id",
+    "reject self-dependency",
+    "reject unknown dependency"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "cycle_rejected": {
+   "kind": "boundary",
+   "statement": "An add that would close a dependency cycle is rejected and nothing is persisted.",
+   "must_include": [
+    "reject any add that would create a cycle"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "order_priority_tiebreak": {
+   "kind": "boundary",
+   "statement": "The execution order lists dependencies before dependents and picks the higher priority first among available jobs.",
+   "must_include": [
+    "topological order with priority as tiebreak"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "ready_recomputed": {
+   "kind": "boundary",
+   "statement": "On load a pending job whose depends_on are all done is ready; others stay pending.",
+   "must_include": [
+    "ready when pending and all depends_on are done"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "failure_cascade": {
+   "kind": "boundary",
+   "statement": "fail marks the job failed and every transitive dependent cancelled; unrelated jobs are untouched.",
+   "must_include": [
+    "all transitive dependents become cancelled"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "run_next_highest": {
+   "kind": "boundary",
+   "statement": "run-next picks the highest-priority ready job and leaves it done, unblocking its dependents.",
+   "must_include": [
+    "run-next takes the highest-priority ready job"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "ready_not_persisted": {
+   "kind": "boundary",
+   "statement": "scheduler.json never contains the status ready, even after status or report.",
+   "must_include": [
+    "ready is never persisted"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  },
+  "commands_exist": {
+   "kind": "boundary",
+   "statement": "The CLI accepts add, run-next, fail <id>, status and report and exits 0 on valid use.",
+   "must_include": [
+    "commands: add, run-next, fail, status, report"
+   ],
+   "fails": [],
+   "survivors": [],
+   "tests_ok": true,
+   "blocked": false,
+   "status": "fragile",
+   "reason": "boundary"
+  }
+ },
+ "strength": {},
+ "tier": "full",
+ "bundle": "forgemyspec-bundle/scheduler",
+ "inputs_sha": "01d7b5043b2464dbb273f2e530a377f4a2d1d01d4caeb7a79859a8a93da70bc5",
+ "schema": 2
+}
