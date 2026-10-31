@@ -1,8 +1,13 @@
-name: Tests
+name: CI
 
 on:
   push:
   pull_request:
+
+# One job for the whole repository; a newer push cancels the run still in progress.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:

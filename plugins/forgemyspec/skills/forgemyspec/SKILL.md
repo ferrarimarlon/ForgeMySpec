@@ -42,11 +42,13 @@ Write it to `<bundle>/spec.yaml` (for example `./forgemyspec-bundle/<task>/`). T
 - `formal` decides what will be **proven** and what will be **tested at the boundary**:
   - `formal.module`: the Dafny name of the abstract contract module.
   - One obligation per checkable rule: `id` (`[a-z][a-z0-9_]*`), `kind: dafny | boundary`, `statement`, `hypotheses`, and `must_include` copied **verbatim** from the scope contract.
-  - `kind: dafny` for pure logic: rules, invariants, arithmetic, state transitions.
+  - `kind: dafny` only for **critical** pure logic: money, security, permissions, trust decisions, or when the
+    user asks for proof. Everything else is `kind: boundary` with Python tests.
   - `kind: boundary` for I/O, parsing, files, network, and for **enforcing the core's preconditions** (translated code does not check `requires`). Give it `test: <module>.<Class>.<method>`.
   - Every hypothesis and every `must_include` phrase must be covered by at least one obligation.
-- Code that does not fit in Dafny (frontends, integrations): make a **spec-only** bundle with
-  `scope.paths` (the paths it covers), `scope.tests` and/or `scope.verify_command`.
+- **Default: a spec-only bundle.** An ordinary feature gets `scope.paths` (the paths it covers), `scope.tests`
+  and/or `scope.verify_command`, and only boundary obligations. Propose a formal Dafny bundle only for critical
+  logic or when the user asks; it costs far more time and tokens.
 
 Quote YAML list items that contain `: `, start with a backtick, or start with a quote character.
 

@@ -94,6 +94,8 @@ class BashGuardTests(_Project):
             "git commit --no-verify -m x",
             "git commit -nm x",
             "git -c core.hooksPath=/dev/null commit -m x",
+            "git config --unset core.hooksPath",
+            "cd budget-core && echo x > contract.lock",
             "echo x > budget-core/contract.lock",
             "sed -i '' 's/a/b/' budget-core/contract.dfy",
             "echo x | tee lib/new.py",
@@ -111,6 +113,11 @@ class BashGuardTests(_Project):
             "python3 - <<'EOF'\nif 3 > 2: print(open('budget-core/impl.dfy').read()[:5])\nEOF",
             "git commit -m 'normal message'",
             "echo x > app/new.py",
+            # false blocks fixed: a version literal, a sed expression, a cd, reading hooksPath
+            "python3 - <<'EOF'\nv = \"0.5\"\nPath('/tmp/fms-out.txt').write_text(v)\nEOF",
+            "sed -i '' 's/print/echo/' app/main.py",
+            "cd /tmp && echo x > fms-relative.txt",
+            "git config --get core.hooksPath",
         ]
         for command in denied:
             with self.subTest(command=command):

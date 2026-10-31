@@ -39,7 +39,7 @@ def _sha(data: bytes) -> str:
 # ---------------------------------------------------------------------------
 
 
-def content_sha(root: Path, action: str, target: str) -> str:
+def content_sha(root: Path, action: str, target: str, package: Optional[Path] = None) -> str:
     """Hash of exactly what the approval covers; any change makes an earlier approval stale."""
     from .bundle import BundleLayout
     from .contract_lock import compute_lock, compute_spec_lock
@@ -52,10 +52,12 @@ def content_sha(root: Path, action: str, target: str) -> str:
     if action == "init":
         from .install import PACKAGE
 
+        # The harness that will be installed: the one the command runs (the guard passes it from PYTHONPATH).
+        source = package if package is not None and package.is_dir() else PACKAGE
         digest = hashlib.sha256(str(path).encode("utf-8"))
-        for p in sorted(PACKAGE.rglob("*")):
+        for p in sorted(source.rglob("*")):
             if p.is_file() and "__pycache__" not in p.parts:
-                digest.update(p.relative_to(PACKAGE).as_posix().encode("utf-8") + b"\0" + p.read_bytes())
+                digest.update(p.relative_to(source).as_posix().encode("utf-8") + b"\0" + p.read_bytes())
         return digest.hexdigest()
     layout = BundleLayout.at(path)
     if action == "unlock":
@@ -201,14 +203,14 @@ def _typed(root: Path, code: str, since: str) -> bool:
     return any(code in text.upper() for t in _transcripts(root) for _stamp, text in human_messages(t, since))
 
 
-def check(root: Path, action: str, target: str, terminal: bool) -> Verdict:
+def check(root: Path, action: str, target: str, terminal: bool, package: Optional[Path] = None) -> Verdict:
     from . import kernel
 
     if terminal:
         approved, reason = kernel.decide_approval(True, False, False, False)
         return Verdict(approved, reason, None, "terminal")
     target = _normalize(root, target)
-    current = content_sha(root, action, target)
+    current = content_sha(root, action, target, package)
     candidates = [(r, item) for r in _read(root, APPROVALS_FILE).get("requests", []) if _intact(r)
                   for item in r.get("items", []) if item.get("action") == action and item.get("target") == target]
     typed = [(r, item) for r, item in candidates if _typed(root, r["code"], r["created_at"])]

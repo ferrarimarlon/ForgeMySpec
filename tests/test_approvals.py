@@ -130,6 +130,18 @@ class ApprovalTests(unittest.TestCase):
         state.write_text(json.dumps(data), encoding="utf-8")
         self.assertEqual(self._check().reason, "no-typed-code")
 
+    def test_init_hashes_the_harness_the_command_runs(self) -> None:
+        import shutil
+
+        from forgemyspec.install import PACKAGE
+
+        copy = Path(self._tmp.name) / "harness" / "forgemyspec"
+        shutil.copytree(PACKAGE, copy, ignore=shutil.ignore_patterns("__pycache__"))
+        same = approvals.content_sha(self.root, "init", ".", copy)
+        self.assertEqual(same, approvals.content_sha(self.root, "init", "."))
+        (copy / "messages.py").write_text("# changed\n", encoding="utf-8")
+        self.assertNotEqual(approvals.content_sha(self.root, "init", ".", copy), same)
+
     def test_terminal_is_an_approval(self) -> None:
         self.assertTrue(approvals.check(self.root, "approve", "draft-spec", terminal=True).approved)
 

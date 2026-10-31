@@ -179,7 +179,7 @@ _HEREDOC = re.compile(r"<<-?\s*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\1")
 _SEPARATORS = {";", "&&", "||", "|", "&", "\n", "(", ")"}
 _REDIRECTS = {">", ">>", ">|", "&>", "&>>"}
 _CODE_WRITES = re.compile(r"open\([^)]*['\"][wax]\+?b?['\"]|\.write_text\(|\.write_bytes\(|shutil\.(copy|move|rmtree)|os\.(remove|rename|replace|unlink)")
-_LITERAL = re.compile(r"""['"]([^'"\s]+\.[A-Za-z0-9]+|[^'"\s]*/[^'"\s]+)['"]""")
+_LITERAL = re.compile(r"""['"]([^'"\s/]*[A-Za-z_][^'"\s/]*\.[A-Za-z][A-Za-z0-9]*|[^'"\s]*/[^'"\s]+)['"]""")
 _HUMAN_COMMANDS = {"lock", "unlock", "approve", "init", "suspend"}
 
 
@@ -245,7 +245,21 @@ def _write_targets(group: List[str]) -> List[str]:
     if cmd == "tee":
         targets += args
     elif cmd in {"sed", "perl"} and any(a.startswith("-i") or a == "-pi" for a in words[1:]):
-        targets += args[1:] if args else []
+        rest = words[1:]
+        files = []
+        skip = False
+        for j, a in enumerate(rest):
+            if skip:
+                skip = False
+                continue
+            if a in {"-e", "-f"}:
+                skip = True
+                continue
+            if a.startswith("-") or a == "" or (j > 0 and rest[j - 1] == "-i" and cmd == "sed" and a == ""):
+                continue
+            files.append(a)
+        given_e = any(a in {"-e", "-f"} for a in rest)
+        targets += files if given_e else files[1:]
     elif cmd in {"cp", "mv", "install", "ln", "rsync"} and args:
         targets.append(args[-1])
     elif cmd in {"rm", "rmdir", "touch", "truncate", "chmod", "chown", "unlink"}:
@@ -259,7 +273,7 @@ def _git_skips_hooks(group: List[str]) -> bool:
     if not group or os.path.basename(group[0]) != "git":
         return False
     if any("core.hookspath" in t.lower() for t in group):
-        return True
+        return not any(t in {"--get", "--get-all", "--list", "-l", "--show-origin"} for t in group)
     if "commit" in group:
         after = group[group.index("commit") + 1:]
         return any(t == "--no-verify" or re.fullmatch(r"-[a-zA-Z]*n[a-zA-Z]*", t) is not None for t in after)
@@ -282,14 +296,15 @@ def _human_command(group: List[str]) -> Optional[Tuple[str, str]]:
     return action, (words[1] if len(words) > 1 else ".")
 
 
-def _human_decision(root: Path, cwd: Path, action: str, target: str) -> Tuple[bool, str]:
+def _human_decision(root: Path, cwd: Path, action: str, target: str, package: Optional[str] = None) -> Tuple[bool, str]:
     from . import approvals
 
     path = Path(target).expanduser()
     path = (path if path.is_absolute() else cwd / path).resolve()
     command = f"forgemyspec {action} {target}"
     try:
-        verdict = approvals.check(root, action, str(path), terminal=False)
+        pkg = (Path(package) if Path(package).is_absolute() else cwd / package) / "forgemyspec" if package else None
+        verdict = approvals.check(root, action, str(path), terminal=False, package=pkg)
     except Exception as exc:  # cannot compute what is approved: strict mode denies
         return False, M.GUARD_HUMAN_COMMAND.format(command=command, reason=M.APPROVAL_UNREADABLE.format(item=f"{action}:{target}", error=exc))
     if verdict.approved:
@@ -305,25 +320,35 @@ def decide_bash(root: Path, config: Dict[str, Any], bundles: List[project.Bundle
         step = M.GUARD_HUMAN_COMMAND_STEP.format(command=harness_command(root, "request-approval", "<action>:<target>"))
         return False, M.GUARD_HUMAN_COMMAND.format(command="write_lock(...)", reason="") + M.GUARD_NEXT.format(step=step)
 
-    targets: List[str] = []
+    targets: List[Tuple[str, Path]] = []
+    here = cwd
     for group in _simple_commands(_tokens(line)):
+        if group and group[0] == "cd":
+            dest = Path(group[1]).expanduser() if len(group) > 1 else Path.home()
+            here = (dest if dest.is_absolute() else here / dest).resolve()
+            continue
         human = _human_command(group)
         if human:
-            allow, message = _human_decision(root, cwd, *human)
+            env = dict(t.split("=", 1) for t in group if re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", t))
+            package = env.get("PYTHONPATH", "").split(os.pathsep)[0] or None
+            allow, message = _human_decision(root, here, *human, package=package)
             if not allow:
                 return False, message
         if _git_skips_hooks(group):
             return False, M.GUARD_NO_VERIFY + M.GUARD_NEXT.format(step=M.GUARD_NO_VERIFY_STEP)
-        targets += _write_targets(group)
+        targets += [(t, here) for t in _write_targets(group)]
 
     scripts = bodies + [m.group(2) for m in re.finditer(r"-c\s+(['\"])(.*?)\1", line, re.S)]
     for script in scripts:
         if _CODE_WRITES.search(script):
-            targets += [m.group(1) for m in _LITERAL.finditer(script)]
+            for m in _LITERAL.finditer(script):
+                literal = Path(m.group(1)).expanduser()
+                if not (literal if literal.is_absolute() else here / literal).is_dir():  # a folder name is no write
+                    targets.append((m.group(1), here))
 
-    for target in targets:
+    for target, base in targets:
         path = Path(target).expanduser()
-        path = (path if path.is_absolute() else cwd / path).resolve()
+        path = (path if path.is_absolute() else base / path).resolve()
         allow, message = decide_path(root, config, bundles, path, "Write", {})
         if not allow:
             return False, M.GUARD_SHELL_WRITE.format(path=project.rel(root, path) or target, reason=message)

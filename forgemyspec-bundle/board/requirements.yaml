@@ -119,7 +119,7 @@
   - do: v0.6 committed
     ok: true
   - do: lean CI (R17)
-    ok: false
+    ok: true
 - id: R14
   status: blocked
   title: Live panel embedded in the chat at zero tokens
@@ -146,7 +146,7 @@
   - do: guards fixed (R16)
     ok: false
 - id: R16
-  status: open
+  status: done
   title: Fix the guard's false blocks
   quote: tá burocrático demais
   done: 'Logged: script literals, sed -i, cd, reading hooksPath, init hash.'
@@ -155,9 +155,10 @@
   - do: defects logged
     ok: true
   - do: defects fixed with tests
-    ok: false
+    ok: true
+  evidence: 5 false blocks fixed; test_hooks and test_approvals cover each; 77 tests OK.
 - id: R17
-  status: open
+  status: done
   title: 'Lean CI: one job'
   quote: cancela aquele workflow e eu quero mais performance
   done: No workflow running now.
@@ -166,11 +167,12 @@
   - do: no workflow running
     ok: true
   - do: spec-lint.yml removed
-    ok: false
+    ok: true
   - do: one CI job
-    ok: false
+    ok: true
+  evidence: spec-lint.yml and forgemyspec.yml removed; one CI workflow with cancel-in-progress.
 - id: R18
-  status: open
+  status: done
   title: Dafny only for critical logic; spec-only by default
   quote: Tem que achar um trade-off
   done: Approved in spec v0.6.
@@ -179,7 +181,8 @@
   - do: approved in spec v0.6
     ok: true
   - do: /forgemyspec skill text updated
-    ok: false
+    ok: true
+  evidence: '/forgemyspec skill: spec-only by default, Dafny only for critical logic.'
 - id: R19
   status: done
   title: Status bars in the chat
@@ -219,3 +222,11 @@
     é que você explica
   done: Rule in CLAUDE.md and in my memory.
   evidence: CLAUDE.md 'Conversation board' section.
+- id: R23
+  status: done
+  title: Show the board while work happens, not tool output
+  quote: eu tava esperando o quadro sendo atualizado aqui
+  done: The board is the reply at each step.
+  steps:
+  - do: board at each update
+    ok: true
