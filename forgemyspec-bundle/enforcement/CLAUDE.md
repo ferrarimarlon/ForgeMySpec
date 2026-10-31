@@ -9,67 +9,66 @@ You are implementing from spec-first constraints. Prioritize determinism, tracea
 - Do not store ephemeral logs or temporary debugging notes here.
 
 ## Current Spec Snapshot
-- Title: Enforcement estrito e caixa de risco por prompt, instalados por `forgemyspec init`
-- Objective: Tornar o fluxo ForgeMySpec impossível de pular dentro do Claude Code e visível a cada prompt. O comando `forgemyspec init` instala em qualquer repositório uma cópia do harness, as skills e o agente, hooks estritos determinísticos, um gate no pre-commit do git e um gate no CI. A cada prompt aparece uma caixa de risco, em português, mostrando quais requisitos estão provados, só testados ou furando, onde o projeto está furando e quanto do código ainda deixa espaço para o LLM alucinar. As decisões que sustentam essa confiança (cor de cada obrigação, status de cada requisito, decisão das travas e cobertura) vêm de um núcleo provado em Dafny, e a força de cada contrato também é medida contra erros plantados.
+- Title: Strict enforcement and a per-prompt risk box, installed by `forgemyspec init`
+- Objective: Make the ForgeMySpec flow impossible to skip inside Claude Code and visible on every prompt. The `forgemyspec init` command installs into any repository a copy of the harness, the skills and the agent, deterministic strict hooks, a git pre-commit gate and a CI gate. After every prompt a risk box shows which requirements are proven, only tested or leaking, where the project leaks, and how much of the code still leaves the LLM room to hallucinate. The decisions behind that trust (each obligation's color, each requirement's status, the guards' edit decision and coverage) come from a kernel proven in Dafny, and each contract's strength is also measured against planted errors.
 
 ## Non-Negotiable Guardrails
-- Somente hooks `type: command`. Os tipos `prompt` e `agent` chamam um LLM e são proibidos.
-- As decisões dos hooks são funções puras do stdin, dos arquivos do repositório e do estado do harness; sem rede e sem chaves de API.
-- Toda entrada de hook PreToolUse usa onFailure block, para que uma trava que quebre bloqueie a ação em vez de liberá-la.
-- Os hooks PreToolUse e UserPromptSubmit terminam em até 2 segundos num repositório de 10 mil arquivos; o hook de Stop lê o resultado do gate em cache e nunca roda o gate.
-- O init mescla com .claude/settings.json, CLAUDE.md, .gitignore e hooks do git existentes sem apagar entradas do usuário, grava um backup com data e hora de cada arquivo que altera e é idempotente: uma segunda execução não muda nada.
-- O init nunca altera estado remoto (sem push, sem chamadas à API do GitHub); a proteção de branch é documentada como passo manual.
-- Todo texto que o harness mostra ao usuário ou ao Claude (caixa de risco, motivos de bloqueio, relatório do gate, mensagens de lint, saída do init) é em português do Brasil e fica centralizado em um único módulo de mensagens.
-- Dependências de execução continuam sendo Python >=3.9 com biblioteca padrão mais PyYAML, e Dafny 4.x como única ferramenta externa.
-- Os dados de auditoria (ledger, cache do gate, marcas de turno) ficam em `.forgemyspec/state/`, que o init adiciona ao .gitignore.
-- Commits ficam locais; nada vai para o remoto sem ordem explícita do usuário naquele momento.
-- Travas, gate e caixa de risco obtêm a cor da obrigação, o status do requisito, a decisão de edição e a cobertura somente pelo núcleo traduzido; o Python não reimplementa essas regras.
-- O Python do núcleo em src/forgemyspec/_nucleo/ é gerado por `dafny translate` a partir de forgemyspec-bundle/nucleo e nunca é editado à mão; o CI confere que ele bate com uma tradução nova.
+- Only `type: command` hooks. The `prompt` and `agent` hook types call an LLM and are forbidden.
+- Hook decisions are pure functions of stdin, the repository files and the harness state; no network and no API keys.
+- Every PreToolUse hook entry uses onFailure block, so a guard that crashes blocks the action instead of allowing it.
+- The PreToolUse and UserPromptSubmit hooks finish within 2 seconds on a repository of 10 thousand files; the Stop hook reads the cached gate result and never runs the gate.
+- init merges with existing .claude/settings.json, CLAUDE.md, .gitignore and git hooks without deleting user entries, writes a timestamped backup of every file it changes, and is idempotent: a second run changes nothing.
+- init never changes remote state (no push, no GitHub API calls); branch protection is documented as a manual step.
+- Every text the harness shows the user or Claude (risk box, block reasons, gate report, lint messages, init output) is in English and lives in a single messages module.
+- Runtime dependencies stay Python >=3.9 with the standard library plus PyYAML, and Dafny 4.x as the only external tool.
+- Audit data (ledger, gate cache, turn markers) lives in `.forgemyspec/state/`, which init adds to .gitignore.
+- Commits stay local; nothing goes to the remote without an explicit instruction from the user at that moment.
+- The guards, the gate and the risk box get the obligation color, the requirement status, the edit decision and coverage only from the translated kernel; Python does not reimplement these rules.
+- The kernel's Python in src/forgemyspec/_kernel/ is generated by `dafny translate` from forgemyspec-bundle/kernel and never edited by hand; CI checks that it matches a fresh translation.
 
 ## Decision Rules
-- Se uma trava não consegue decidir (entrada ilegível, ferramenta desconhecida), negar em modo estrito e dizer a causa; nunca liberar por padrão.
-- Se o uso de tokens da transcrição não puder ser lido, mostrar 'tokens indisponíveis' na caixa; nunca estimar tokens.
-- Se o limite de repetições do Stop for atingido com o gate falhando, liberar o turno com um systemMessage dizendo que o trabalho não está verificado; nunca apresentá-lo como pronto.
-- Se uma trava bloquear trabalho legítimo, ampliar a regra pelo config.yaml ou pelo scope.paths de um bundle com aprovação do usuário; nunca criar uma flag de desvio que o Claude possa ligar.
-- Se um hook passar do tempo limite, guardar a parte cara (descoberta de bundles, hashes) em cache em .forgemyspec/state em vez de remover a checagem.
-- Se um texto de mensagem não tiver tradução no módulo de mensagens, o teste falha; nunca deixar texto em inglês escapar para o usuário.
-- Se uma propriedade do núcleo não puder ser provada como está escrita, parar e emendar com o usuário; nunca devolver a decisão para Python não provado.
-- Se um erro plantado sobreviver, fortalecer o contrato ou os testes com nova aprovação do usuário; nunca apagar o erro plantado para o gate passar.
+- If a guard cannot decide (unreadable input, unknown tool), deny in strict mode and state the cause; never allow by default.
+- If the transcript's token usage cannot be read, show 'tokens unavailable' in the box; never estimate tokens.
+- If the Stop repeat limit is reached with the gate failing, release the turn with a systemMessage saying the work is not verified; never present it as done.
+- If a guard blocks legitimate work, widen the rule through config.yaml or a bundle's scope.paths with the user's approval; never add a bypass flag Claude can turn on.
+- If a hook would exceed its time budget, cache the expensive part (bundle discovery, hashes) in .forgemyspec/state instead of dropping the check.
+- If a message text is not in the messages module, the test fails; never let text outside the catalog reach the user.
+- If a kernel property cannot be proven as written, stop and amend with the user; never move the decision back into unproven Python.
+- If a planted error survives, strengthen the contract or the tests with the user's new approval; never delete the planted error.
 
 ## Success Criteria
-- `forgemyspec init <repo-git-temporário>` cria .forgemyspec/harness, .forgemyspec/config.yaml, .claude/skills, .claude/agents, um .claude/settings.json mesclado com `agent: forgemyspec-default` e os hooks, um bloco marcado no CLAUDE.md, .githooks/pre-commit com core.hooksPath configurado e .github/workflows/forgemyspec.yml; uma segunda execução informa que nada mudou; `init --check` sai com 0 numa instalação nova e com 1 depois que uma entrada de hook é removida.
-- Testes de pipe da trava PreToolUse retornam deny, com um motivo que diz o próximo passo, para: edição fora de qualquer bundle aprovado e da lista de permitidos; contract.dfy, tests.dfy ou a seção formal depois do lock; contract.lock; generated/; .forgemyspec/state; .claude/settings*.json; .forgemyspec/config.yaml. Retornam allow para impl.dfy e shell/ num bundle travado e para caminhos permitidos.
-- Testes de pipe da trava de Bash negam `forgemyspec lock`, `unlock` e `approve`, `git commit --no-verify` e redirecionamentos, sed -i, tee, cp, mv ou rm que atinjam um caminho protegido, e permitem comandos só de leitura.
-- Uma trava que lança exceção resulta em chamada de ferramenta bloqueada (onFailure block conferido na entrada do hook e num teste de pipe que sai com 2).
-- O hook de Stop retorna decision block nomeando o bundle e as etapas que falharam quando um bundle travado não tem gate PASS para o conteúdo atual, permite encerrar quando tem, e depois das continuações com stop_hook_active permite encerrar com um systemMessage dizendo que o trabalho não está verificado.
-- O gate registra evidência por obrigação: erros de verificação atribuídos às obrigações pela cláusula do contrato que citam, testes Dafny e Python atribuídos pelas suas tags, e mutantes sobreviventes atribuídos às obrigações do método que os contém.
-- Depois de cada turno o hook de Stop mostra uma caixa de risco em várias linhas, nenhuma com mais de 60 caracteres, com: requisitos atendidos sobre o total; uma linha por requisito de must_include com PROVADO, FRÁGIL ou FURANDO e o motivo; a divisão do espaço para alucinar (provado, só exemplos, livre) em linhas e porcentagem com a variação desde o turno anterior; cada furo com arquivo:linha; os itens que só o usuário garante (contrato e premissas, e quando ele os aprovou); e uma nota com os tokens do LLM no turno ou 'tokens indisponíveis'.
-- SessionStart e UserPromptSubmit injetam um resumo de estado listando cada bundle com sua fase (spec, aprovado, travado, gate PASS ou FAIL) e o próximo passo obrigatório.
-- Todas as mensagens do harness saem em português do Brasil, e o lint detecta negação em hipóteses escritas em português (não, nunca, sem, exceto, evitar e variações) além das palavras em inglês.
-- README.md, CLAUDE.md, as skills e as referências em plugins/forgemyspec e o agente padrão estão em português do Brasil.
-- O hook de pre-commit roda o gate nos bundles com mudanças em stage e rejeita o commit quando algum falha; o workflow de CI roda a mesma checagem.
-- Este repositório é inicializado com o próprio `init` em modo estrito, e todo o trabalho da v0.2 a partir desse ponto passa pelas travas.
-- A caixa de risco aparece na sessão do Claude Code no VS Code do usuário depois de um turno real, confirmado pelo usuário.
-- `gate forgemyspec-bundle/nucleo` passa em todas as etapas, inclusive mutação e erros plantados, com as propriedades: Provado exige zero falhas, zero mutantes vivos e testes passando; requisito atendido exige bundle aprovado, gate atual e nenhuma obrigação furando; edição em caminho protegido nunca é liberada; implementação só é liberada com contrato travado; cobertura sem faltantes equivale a toda frase e hipótese coberta.
-- Uma etapa `erros-plantados` no gate exige, por padrão, pelo menos 3 implementações em erros/ e que todas sejam rejeitadas por dafny verify ou dafny test; examples/budget-core passa com seus erros plantados, e o gate falha nomeando o erro sobrevivente quando uma cláusula que o pegava é removida do contrato.
-- A caixa de risco mostra, por bundle formal, a força do contrato: mutantes mortos sobre válidos e erros plantados rejeitados sobre o total.
-- O CI falha quando src/forgemyspec/_nucleo/ diverge de uma tradução nova do núcleo.
-- O README tem uma seção 'Base de confiança' listando o que é provado, o que é só testado e o que continua sendo confiança (Dafny e Z3, Python, git e a aprovação do usuário).
+- `forgemyspec init <temporary-git-repo>` creates .forgemyspec/harness, .forgemyspec/config.yaml, .claude/skills, .claude/agents, a merged .claude/settings.json with `agent: forgemyspec-default` and the hooks, a marked block in CLAUDE.md, .githooks/pre-commit with core.hooksPath set, and .github/workflows/forgemyspec.yml; a second run reports that nothing changed; `init --check` exits 0 on a fresh install and 1 after a hook entry is removed.
+- Pipe tests of the PreToolUse guard return deny, with a reason that names the next step, for: an edit outside every approved bundle and the allow list; contract.dfy, tests.dfy, planted/ or the formal section after the lock; contract.lock; generated/; .forgemyspec/state; .claude/settings*.json; .forgemyspec/config.yaml. They object to nothing for impl.dfy and shell/ in a locked bundle and for allowed paths.
+- Pipe tests of the Bash guard deny `forgemyspec lock`, `unlock`, `approve` and `init`, `git commit --no-verify`, and redirections, sed -i, tee, cp, mv or rm that hit a denied path, and allow read-only commands.
+- A guard that raises an exception results in a blocked tool call (onFailure block checked in the hook entry and a pipe test that exits 2).
+- The Stop hook returns decision block naming the bundle and the failed stages when a locked bundle has no PASS gate for its current content, allows stopping when it has one, and after the stop_hook_active continuations allows stopping with a systemMessage saying the work is not verified.
+- The gate records evidence per obligation: verification errors attributed to obligations through the contract clause they cite, Dafny and Python tests attributed through their tags, and surviving mutants attributed to the obligations of the method that contains them.
+- After every turn the Stop hook shows a multi-line risk box, no line longer than 60 characters, with: requirements met out of total; one line per must_include requirement with PROVEN, FRAGILE or LEAKING and the reason; the room-to-hallucinate split (proven, examples only, free) in lines and percent with the change since the previous turn; each leak with file:line; the items only the user guarantees (contract and assumptions, and when they approved them); and a note with the turn's LLM tokens or 'tokens unavailable'.
+- SessionStart and UserPromptSubmit inject a state summary listing each bundle with its phase (draft, approved, gate PASS or FAIL) and the next required step.
+- Every harness message is in English, and the lint detects negation in hypotheses written in English or Portuguese without flagging the Portuguese contraction 'no'.
+- The pre-commit hook runs the gate on bundles with staged changes and rejects the commit when one fails; the CI workflow runs the same check.
+- This repository is initialized with its own `init` in strict mode, and all work after that point goes through the guards.
+- The risk box appears in the user's Claude Code session in VS Code after a real turn, confirmed by the user.
+- `gate forgemyspec-bundle/kernel` passes every stage, including mutation and planted errors, with these properties: Proven requires zero failures, zero surviving mutants and passing tests; a met requirement requires an approved bundle, a current gate and no leaking obligation; an edit to a protected path is never allowed; an implementation is only allowed with a locked contract; coverage with no missing items is equivalent to every phrase and hypothesis being covered.
+- A `planted-errors` gate stage requires, by default, at least 3 implementations in planted/ and that all of them are rejected by dafny verify or dafny test; examples/budget-core passes with its planted errors, and the gate fails naming the surviving error when the clauses that caught it are removed from the contract.
+- The risk box shows, for each formal bundle, the contract's strength: killed mutants out of valid ones and planted errors rejected out of the total.
+- CI fails when src/forgemyspec/_kernel/ diverges from a fresh translation of the kernel.
+- The README has a 'Trusted base' section listing what is proven, what is only tested and what remains trust (Dafny and Z3, Python, git and the user's approval).
 
 ## Assumptions
-- O modelo de ameaça é um agente que deriva sob pressão de contexto, não um adversário: as travas cobrem todas as ferramentas de arquivo e os caminhos comuns de escrita pelo shell, e o pre-commit e o CI pegam o que escapar por comando de shell.
-- A distribuição é um comando, não um plugin: `forgemyspec init <repo>` copia o harness para `<repo>/.forgemyspec/harness/`, de modo que hooks, pre-commit e CI rodam sem pip, sem rede e sem plugin.
-- Aprovação é ato humano: `lock`, `unlock` e `approve` são recusados quando o Claude os executa, e o usuário os roda no próprio terminal.
-- Nem todo código cabe em Dafny. Um bundle pode ser só de spec: declara os caminhos que cobre em `scope.paths`, é aprovado com `approve` (lock da spec) e seu gate é o lint da spec mais um `verify_command` declarado.
-- A caixa mede risco, não atividade. Cada cor sai de regras fixas sobre as evidências do gate, nunca do LLM: PROVADO = obrigação Dafny verificada, testes com a tag dela passando, nenhum mutante sobrevivente atribuído a ela e lock válido; FRÁGIL = provado com mutante sobrevivente atribuído a ela, ou obrigação de fronteira coberta só por testes de exemplo; FURANDO = sem cobertura, falhando em alguma etapa ou alterado depois da última rodada do gate.
-- O espaço para alucinar é medido em linhas de código do projeto inteiro: provado (corpos atrás de obrigações PROVADAS), só exemplos (código de fronteira e corpos FRÁGEIS) e livre (código fora de bundle aprovado, ou em bundle FURANDO). Documentação e configuração aparecem à parte, como texto não verificado.
-- Não existe divisão de tokens entre harness e LLM, porque o harness gasta zero tokens; os tokens do LLM aparecem só como nota de custo no fim da caixa.
-- O uso de tokens por turno é lido do JSONL da transcrição da sessão (campos de usage das mensagens do assistente). O formato não é contrato documentado, então o leitor falha de forma suave e mostra 'tokens indisponíveis' em vez de estimar.
-- Os elementos de interface do próprio Claude Code (indicador de raciocínio, cronômetro) não podem ser alterados; a caixa de risco é o systemMessage do hook de Stop.
-- Specs são escritas no idioma do usuário; as frases de must_include aparecem na caixa exatamente como estão na spec.
-- As decisões de confiança cabem em funções puras sobre tipos simples (bool, nat, seq e set de strings), então formam um núcleo Dafny pequeno; leitura de arquivos, caminhos e montagem de texto continuam como cola Python coberta por testes de fronteira.
-- Os erros plantados (implementações erradas plausíveis em erros/) são escritos pelo Claude e aprovados pelo usuário junto com o contrato, por isso o lock passa a cobrir também a pasta erros/.
-- O próprio ForgeMySpec é medido pela própria caixa: o núcleo é um bundle formal (forgemyspec-bundle/nucleo) e este bundle, com scope.paths, cobre o resto de src/, tests/ e plugins/ como bundle só de spec.
+- The threat model is an agent drifting under context pressure, not an adversary: the guards cover every file tool and the common shell write routes, and pre-commit and CI catch whatever a shell command slips past.
+- Distribution is a command, not a plugin: `forgemyspec init <repo>` copies the harness into `<repo>/.forgemyspec/harness/`, so hooks, pre-commit and CI run without pip, network or a plugin.
+- Approval is a human act: `lock`, `unlock`, `approve` and `init` are refused when Claude runs them, and the user runs them in their own terminal.
+- Not all code fits in Dafny. A bundle can be spec-only: it declares the paths it covers in `scope.paths`, is approved with `approve` (a spec lock), and its gate is the spec lint plus `scope.tests` and a declared `scope.verify_command`.
+- The box measures risk, not activity. Every color comes from fixed rules over gate evidence, never from the LLM: PROVEN = Dafny obligation verified, its tagged tests passing, no surviving mutant attributed to it and a valid lock; FRAGILE = proven with a surviving mutant attributed to it, or a boundary obligation covered only by example tests; LEAKING = uncovered, failing a stage, or changed since the last gate run.
+- Room to hallucinate is measured in lines of code across the whole project: proven (bodies behind PROVEN obligations), examples only (boundary code and FRAGILE bodies) and free (code outside an approved bundle, or in a LEAKING bundle). Docs and config are listed separately as unverified text.
+- There is no token split between harness and LLM, because the harness spends zero tokens; LLM tokens appear only as a cost note at the end of the box.
+- Per-turn token usage is read from the session transcript JSONL (usage fields of assistant messages). The format is not a documented contract, so the reader fails soft and shows 'tokens unavailable' instead of estimating.
+- Claude Code's own UI elements (the thinking indicator, the timer) cannot be changed; the risk box is the Stop hook's systemMessage, which reaches the user and not the model.
+- The trust decisions fit in pure functions over simple types (bool, nat, seq and set of strings), so they form a small Dafny kernel; file reading, path categories and text assembly stay as Python glue covered by boundary tests.
+- Planted errors (plausible wrong implementations in planted/) are written by Claude and approved by the user together with the contract, so the lock also covers planted/.
+- ForgeMySpec is measured by its own box: the kernel is a formal bundle (forgemyspec-bundle/kernel) and this bundle, through scope.paths, covers the rest of src/, tests/ and plugins/ as a spec-only bundle.
+- The whole product is in English: code, identifiers, messages, specs and documentation.
 
 ## Implementation Protocol
 1. Read `spec.yaml` first and implement only traceable scope.
@@ -79,7 +78,15 @@ You are implementing from spec-first constraints. Prioritize determinism, tracea
 5. Report residual risks and unresolved assumptions in the final summary.
 
 ## Decision Log
-- (record stable architecture or policy decisions here)
+- Approval is a human act: the guards refuse `lock`, `approve`, `unlock` and `init` from Claude's Bash tool.
+- "Allow" from the file guard means no objection: the hook prints nothing, so the user's normal permission flow still applies.
+- The four trust decisions live in the Dafny kernel (forgemyspec-bundle/kernel); Python only converts types (kernel.py).
+- CI never locks: it gates with the locks the user committed, so a contract change cannot pass CI unapproved.
+- Gate cache records carry `schema`; a different schema counts as "the gate never ran".
 
 ## Known Pitfalls
-- (record recurring implementation failure modes here)
+- Planted errors go stale when impl.dfy changes: regenerate them from the current impl.dfy, or the gate reports "rejected for the wrong reason".
+- Strip heredoc bodies before looking for shell redirections, or `if 3 > 2` inside a Python heredoc reads as a write.
+- In `python3 -c "..."`, the regex group with the code is group 2; group 1 is the quote.
+- `$(...)` resets `$?`: never print an exit code after a command substitution in the same echo.
+- Never call rm -rf on an unguarded variable path; use "${T:?}/..."

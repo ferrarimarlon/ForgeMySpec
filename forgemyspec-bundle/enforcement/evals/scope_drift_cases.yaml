@@ -1,27 +1,27 @@
 version: '0.1'
 purpose: Manual eval seeds to detect scope drift in Claude implementations
-source_prompt: "Como garantir que o fluxo fique embutido em tudo que o usu\xE1rio\
-  \ fizer: padr\xE3o de hooks estrito, distribu\xEDdo por um comando `forgemyspec\
-  \ init` em vez de plugin. Auditabilidade total dentro do chat, a n\xEDvel de prompt,\
-  \ com uma caixa que seja reflexo do risco que o usu\xE1rio est\xE1 correndo: o que\
-  \ est\xE1 atendido, o que est\xE1 furando e quanto espa\xE7o o LLM tem para alucinar,\
-  \ com quebras de linha para n\xE3o truncar. Tudo em portugu\xEAs, incluindo README\
-  \ e skills."
+source_prompt: 'How to make the flow part of everything the user does: a strict hook
+  mode, distributed by a `forgemyspec init` command instead of a plugin. Full auditability
+  inside the chat, per prompt, with a box that reflects the risk the user is taking:
+  what is met, what is leaking and how much room the LLM has to hallucinate, with
+  line breaks so it does not get truncated. ForgeMySpec was built with an LLM''s help,
+  so the decisions behind trust must be proven, not only tested. Everything in English:
+  code, documentation and screens.'
 checks:
   must_include:
   - forgemyspec init
-  - trava estrita de arquivos no PreToolUse
-  - trava de Bash
-  - "aprova\xE7\xE3o s\xF3 humana"
-  - checagem do gate no Stop
-  - caixa de risco por prompt
-  - "espa\xE7o para alucinar"
-  - "evid\xEAncia por obriga\xE7\xE3o"
-  - "inje\xE7\xE3o de estado"
-  - gate no pre-commit do git
-  - "bundles s\xF3 de spec com scope.paths"
-  - "sa\xEDda em portugu\xEAs"
-  - "README e skills em portugu\xEAs"
-  - "n\xFAcleo de confian\xE7a provado em Dafny"
-  - erros plantados
+  - strict PreToolUse file guard
+  - Bash guard
+  - human-only approval
+  - Stop hook gate check
+  - per-prompt risk box
+  - room to hallucinate
+  - per-obligation evidence
+  - state injection
+  - git pre-commit gate
+  - spec-only bundles with scope.paths
+  - English-only output
+  - English documentation
+  - trust kernel proven in Dafny
+  - planted errors
 cases: []

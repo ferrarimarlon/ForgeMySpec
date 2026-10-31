@@ -19,7 +19,7 @@ You are implementing from spec-first constraints. Prioritize determinism, tracea
 
 ## Decision Rules
 - If a contract clause turns out to be unprovable as written, stop and amend the spec and contract with user approval instead of weakening impl.dfy.
-- If a mutant survives, strengthen tests.dfy or the contract through re-approval, or justify an equivalent mutant in impl.dfy.
+- If a mutant or a planted error survives, strengthen tests.dfy or the contract through re-approval, or justify an equivalent mutant in impl.dfy.
 
 ## Success Criteria
 - `python3 -m forgemyspec gate examples/budget-core` exits 0 with every stage PASS.

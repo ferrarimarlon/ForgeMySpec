@@ -48,6 +48,18 @@ class ContractLockTests(unittest.TestCase):
         self.layout.impl.write_text(self.layout.impl.read_text() + "\n// refactor\n", encoding="utf-8")
         self.assertEqual(self.messages(), [])
 
+    def test_planted_errors_are_locked(self) -> None:
+        error = next(iter(self.layout.planted_files))
+        error.write_text(error.read_text(encoding="utf-8") + "\n", encoding="utf-8")
+        self.assertTrue(any("planted/" in message for message in self.messages()))
+
+    def test_v1_lock_is_rejected(self) -> None:
+        import yaml
+        data = yaml.safe_load(self.layout.lock.read_text(encoding="utf-8"))
+        data["lock_version"] = 1
+        self.layout.lock.write_text(yaml.safe_dump(data), encoding="utf-8")
+        self.assertTrue(any("lock format version" in message for message in self.messages()))
+
     def test_missing_lock_fails(self) -> None:
         self.layout.lock.unlink()
         self.assertEqual([issue.code for issue in check_lock(self.layout, self.spec)], ["LOCK-001"])

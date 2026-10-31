@@ -44,6 +44,15 @@ class BundleLayout:
         return self.root / "tests_py"
 
     @property
+    def planted(self) -> Path:
+        return self.root / "planted"
+
+    @property
+    def planted_files(self) -> List[Path]:
+        """Planted wrong implementations that the contract and the tests must reject."""
+        return sorted(self.planted.glob("*.dfy")) if self.planted.is_dir() else []
+
+    @property
     def dafny_files(self) -> List[Path]:
         # Dafny skips verification of files reached only through `include`,
         # so every stage passes all three files explicitly.

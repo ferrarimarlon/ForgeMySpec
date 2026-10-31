@@ -1,0 +1,20 @@
+version: '0.1'
+purpose: Manual eval seeds to detect scope drift in Claude implementations
+source_prompt: 'Make sure ForgeMySpec, built with an LLM''s help, builds quality specs
+  with harness and auditability: the decisions behind trust must be proven, not only
+  tested.'
+checks:
+  must_include:
+  - failure means leaking
+  - boundary obligation is at most fragile
+  - surviving mutant weakens
+  - proven requires full evidence
+  - met requires approval and a current gate
+  - requirement takes the worst obligation
+  - protected path always denied
+  - code outside the spec denied
+  - locked spec protected
+  - locked contract protected
+  - implementation requires a lock
+  - exact coverage
+cases: []

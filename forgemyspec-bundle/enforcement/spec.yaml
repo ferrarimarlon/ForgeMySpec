@@ -1,298 +1,300 @@
-version: "0.3"
-title: "Enforcement estrito e caixa de risco por prompt, instalados por `forgemyspec init`"
+version: "0.4"
+title: "Strict enforcement and a per-prompt risk box, installed by `forgemyspec init`"
 objective: >-
-  Tornar o fluxo ForgeMySpec impossível de pular dentro do Claude Code e visível a cada prompt. O comando
-  `forgemyspec init` instala em qualquer repositório uma cópia do harness, as skills e o agente, hooks estritos
-  determinísticos, um gate no pre-commit do git e um gate no CI. A cada prompt aparece uma caixa de risco, em
-  português, mostrando quais requisitos estão provados, só testados ou furando, onde o projeto está furando e
-  quanto do código ainda deixa espaço para o LLM alucinar. As decisões que sustentam essa confiança (cor de cada
-  obrigação, status de cada requisito, decisão das travas e cobertura) vêm de um núcleo provado em Dafny, e a força
-  de cada contrato também é medida contra erros plantados.
+  Make the ForgeMySpec flow impossible to skip inside Claude Code and visible on every prompt. The
+  `forgemyspec init` command installs into any repository a copy of the harness, the skills and the agent,
+  deterministic strict hooks, a git pre-commit gate and a CI gate. After every prompt a risk box shows which
+  requirements are proven, only tested or leaking, where the project leaks, and how much of the code still leaves
+  the LLM room to hallucinate. The decisions behind that trust (each obligation's color, each requirement's status,
+  the guards' edit decision and coverage) come from a kernel proven in Dafny, and each contract's strength is also
+  measured against planted errors.
 execution_mode: critical
 
 context:
   system: >-
-    ForgeMySpec v0.1 (sem commit, na main): harness determinístico em src/forgemyspec (lint, cobertura, lint de
-    Dafny, lock, gate, mutação), skills e agente em plugins/forgemyspec com symlinks em .claude/, bundle de exemplo
-    em examples/budget-core. Hooks de comando do Claude Code recebem JSON no stdin (tool_name, tool_input com
-    file_path absoluto, session_id, transcript_path, cwd; o Stop recebe também stop_hook_active e
-    last_assistant_message), exportam CLAUDE_PROJECT_DIR, disparam também em chamadas de subagentes, bloqueiam com
-    exit 2 ou permissionDecision deny, mantêm o Claude trabalhando no Stop com decision block (limitado pelo Claude
-    Code a 8 continuações seguidas), mostram systemMessage ao usuário, injetam
-    hookSpecificOutput.additionalContext no SessionStart e no UserPromptSubmit e aceitam onFailure block. O
-    .claude/settings.json atual usa a chave `defaultAgent`, que não existe no schema; a chave correta é `agent`.
-    Todas as mensagens do harness v0.1 estão em inglês, e a checagem de negação do lint (LINT-HY-007) só conhece
-    palavras em inglês.
+    ForgeMySpec v0.1 (commit eff3c28 on main): deterministic harness in src/forgemyspec (lint, coverage, Dafny lint,
+    lock, gate, mutation), skills and agent in plugins/forgemyspec symlinked into .claude/, example bundle
+    examples/budget-core. Claude Code command hooks receive JSON on stdin (tool_name, tool_input with an absolute
+    file_path, session_id, transcript_path, cwd; Stop also gets stop_hook_active and last_assistant_message), export
+    CLAUDE_PROJECT_DIR, also fire for subagent tool calls, block with exit 2 or permissionDecision deny, keep Claude
+    working on Stop with decision block (capped by Claude Code at 8 consecutive continuations), show systemMessage to
+    the user, inject hookSpecificOutput.additionalContext on SessionStart and UserPromptSubmit, and accept onFailure
+    block. The current .claude/settings.json uses the key `defaultAgent`, which is not in the settings schema; the
+    correct key is `agent`.
   assumptions:
-    - "O modelo de ameaça é um agente que deriva sob pressão de contexto, não um adversário: as travas cobrem todas as ferramentas de arquivo e os caminhos comuns de escrita pelo shell, e o pre-commit e o CI pegam o que escapar por comando de shell."
-    - "A distribuição é um comando, não um plugin: `forgemyspec init <repo>` copia o harness para `<repo>/.forgemyspec/harness/`, de modo que hooks, pre-commit e CI rodam sem pip, sem rede e sem plugin."
-    - "Aprovação é ato humano: `lock`, `unlock` e `approve` são recusados quando o Claude os executa, e o usuário os roda no próprio terminal."
-    - "Nem todo código cabe em Dafny. Um bundle pode ser só de spec: declara os caminhos que cobre em `scope.paths`, é aprovado com `approve` (lock da spec) e seu gate é o lint da spec mais um `verify_command` declarado."
-    - "A caixa mede risco, não atividade. Cada cor sai de regras fixas sobre as evidências do gate, nunca do LLM: PROVADO = obrigação Dafny verificada, testes com a tag dela passando, nenhum mutante sobrevivente atribuído a ela e lock válido; FRÁGIL = provado com mutante sobrevivente atribuído a ela, ou obrigação de fronteira coberta só por testes de exemplo; FURANDO = sem cobertura, falhando em alguma etapa ou alterado depois da última rodada do gate."
-    - "O espaço para alucinar é medido em linhas de código do projeto inteiro: provado (corpos atrás de obrigações PROVADAS), só exemplos (código de fronteira e corpos FRÁGEIS) e livre (código fora de bundle aprovado, ou em bundle FURANDO). Documentação e configuração aparecem à parte, como texto não verificado."
-    - "Não existe divisão de tokens entre harness e LLM, porque o harness gasta zero tokens; os tokens do LLM aparecem só como nota de custo no fim da caixa."
-    - "O uso de tokens por turno é lido do JSONL da transcrição da sessão (campos de usage das mensagens do assistente). O formato não é contrato documentado, então o leitor falha de forma suave e mostra 'tokens indisponíveis' em vez de estimar."
-    - "Os elementos de interface do próprio Claude Code (indicador de raciocínio, cronômetro) não podem ser alterados; a caixa de risco é o systemMessage do hook de Stop."
-    - "Specs são escritas no idioma do usuário; as frases de must_include aparecem na caixa exatamente como estão na spec."
-    - "As decisões de confiança cabem em funções puras sobre tipos simples (bool, nat, seq e set de strings), então formam um núcleo Dafny pequeno; leitura de arquivos, caminhos e montagem de texto continuam como cola Python coberta por testes de fronteira."
-    - "Os erros plantados (implementações erradas plausíveis em erros/) são escritos pelo Claude e aprovados pelo usuário junto com o contrato, por isso o lock passa a cobrir também a pasta erros/."
-    - "O próprio ForgeMySpec é medido pela própria caixa: o núcleo é um bundle formal (forgemyspec-bundle/nucleo) e este bundle, com scope.paths, cobre o resto de src/, tests/ e plugins/ como bundle só de spec."
+    - "The threat model is an agent drifting under context pressure, not an adversary: the guards cover every file tool and the common shell write routes, and pre-commit and CI catch whatever a shell command slips past."
+    - "Distribution is a command, not a plugin: `forgemyspec init <repo>` copies the harness into `<repo>/.forgemyspec/harness/`, so hooks, pre-commit and CI run without pip, network or a plugin."
+    - "Approval is a human act: `lock`, `unlock`, `approve` and `init` are refused when Claude runs them, and the user runs them in their own terminal."
+    - "Not all code fits in Dafny. A bundle can be spec-only: it declares the paths it covers in `scope.paths`, is approved with `approve` (a spec lock), and its gate is the spec lint plus `scope.tests` and a declared `scope.verify_command`."
+    - "The box measures risk, not activity. Every color comes from fixed rules over gate evidence, never from the LLM: PROVEN = Dafny obligation verified, its tagged tests passing, no surviving mutant attributed to it and a valid lock; FRAGILE = proven with a surviving mutant attributed to it, or a boundary obligation covered only by example tests; LEAKING = uncovered, failing a stage, or changed since the last gate run."
+    - "Room to hallucinate is measured in lines of code across the whole project: proven (bodies behind PROVEN obligations), examples only (boundary code and FRAGILE bodies) and free (code outside an approved bundle, or in a LEAKING bundle). Docs and config are listed separately as unverified text."
+    - "There is no token split between harness and LLM, because the harness spends zero tokens; LLM tokens appear only as a cost note at the end of the box."
+    - "Per-turn token usage is read from the session transcript JSONL (usage fields of assistant messages). The format is not a documented contract, so the reader fails soft and shows 'tokens unavailable' instead of estimating."
+    - "Claude Code's own UI elements (the thinking indicator, the timer) cannot be changed; the risk box is the Stop hook's systemMessage, which reaches the user and not the model."
+    - "The trust decisions fit in pure functions over simple types (bool, nat, seq and set of strings), so they form a small Dafny kernel; file reading, path categories and text assembly stay as Python glue covered by boundary tests."
+    - "Planted errors (plausible wrong implementations in planted/) are written by Claude and approved by the user together with the contract, so the lock also covers planted/."
+    - "ForgeMySpec is measured by its own box: the kernel is a formal bundle (forgemyspec-bundle/kernel) and this bundle, through scope.paths, covers the rest of src/, tests/ and plugins/ as a spec-only bundle."
+    - "The whole product is in English: code, identifiers, messages, specs and documentation."
 
 constraints:
-  - "Somente hooks `type: command`. Os tipos `prompt` e `agent` chamam um LLM e são proibidos."
-  - "As decisões dos hooks são funções puras do stdin, dos arquivos do repositório e do estado do harness; sem rede e sem chaves de API."
-  - "Toda entrada de hook PreToolUse usa onFailure block, para que uma trava que quebre bloqueie a ação em vez de liberá-la."
-  - "Os hooks PreToolUse e UserPromptSubmit terminam em até 2 segundos num repositório de 10 mil arquivos; o hook de Stop lê o resultado do gate em cache e nunca roda o gate."
-  - "O init mescla com .claude/settings.json, CLAUDE.md, .gitignore e hooks do git existentes sem apagar entradas do usuário, grava um backup com data e hora de cada arquivo que altera e é idempotente: uma segunda execução não muda nada."
-  - "O init nunca altera estado remoto (sem push, sem chamadas à API do GitHub); a proteção de branch é documentada como passo manual."
-  - "Todo texto que o harness mostra ao usuário ou ao Claude (caixa de risco, motivos de bloqueio, relatório do gate, mensagens de lint, saída do init) é em português do Brasil e fica centralizado em um único módulo de mensagens."
-  - "Dependências de execução continuam sendo Python >=3.9 com biblioteca padrão mais PyYAML, e Dafny 4.x como única ferramenta externa."
-  - "Os dados de auditoria (ledger, cache do gate, marcas de turno) ficam em `.forgemyspec/state/`, que o init adiciona ao .gitignore."
-  - "Commits ficam locais; nada vai para o remoto sem ordem explícita do usuário naquele momento."
-  - "Travas, gate e caixa de risco obtêm a cor da obrigação, o status do requisito, a decisão de edição e a cobertura somente pelo núcleo traduzido; o Python não reimplementa essas regras."
-  - "O Python do núcleo em src/forgemyspec/_nucleo/ é gerado por `dafny translate` a partir de forgemyspec-bundle/nucleo e nunca é editado à mão; o CI confere que ele bate com uma tradução nova."
+  - "Only `type: command` hooks. The `prompt` and `agent` hook types call an LLM and are forbidden."
+  - "Hook decisions are pure functions of stdin, the repository files and the harness state; no network and no API keys."
+  - "Every PreToolUse hook entry uses onFailure block, so a guard that crashes blocks the action instead of allowing it."
+  - "The PreToolUse and UserPromptSubmit hooks finish within 2 seconds on a repository of 10 thousand files; the Stop hook reads the cached gate result and never runs the gate."
+  - "init merges with existing .claude/settings.json, CLAUDE.md, .gitignore and git hooks without deleting user entries, writes a timestamped backup of every file it changes, and is idempotent: a second run changes nothing."
+  - "init never changes remote state (no push, no GitHub API calls); branch protection is documented as a manual step."
+  - "Every text the harness shows the user or Claude (risk box, block reasons, gate report, lint messages, init output) is in English and lives in a single messages module."
+  - "Runtime dependencies stay Python >=3.9 with the standard library plus PyYAML, and Dafny 4.x as the only external tool."
+  - "Audit data (ledger, gate cache, turn markers) lives in `.forgemyspec/state/`, which init adds to .gitignore."
+  - "Commits stay local; nothing goes to the remote without an explicit instruction from the user at that moment."
+  - "The guards, the gate and the risk box get the obligation color, the requirement status, the edit decision and coverage only from the translated kernel; Python does not reimplement these rules."
+  - "The kernel's Python in src/forgemyspec/_kernel/ is generated by `dafny translate` from forgemyspec-bundle/kernel and never edited by hand; CI checks that it matches a fresh translation."
 
 success_criteria:
-  - "`forgemyspec init <repo-git-temporário>` cria .forgemyspec/harness, .forgemyspec/config.yaml, .claude/skills, .claude/agents, um .claude/settings.json mesclado com `agent: forgemyspec-default` e os hooks, um bloco marcado no CLAUDE.md, .githooks/pre-commit com core.hooksPath configurado e .github/workflows/forgemyspec.yml; uma segunda execução informa que nada mudou; `init --check` sai com 0 numa instalação nova e com 1 depois que uma entrada de hook é removida."
-  - "Testes de pipe da trava PreToolUse retornam deny, com um motivo que diz o próximo passo, para: edição fora de qualquer bundle aprovado e da lista de permitidos; contract.dfy, tests.dfy ou a seção formal depois do lock; contract.lock; generated/; .forgemyspec/state; .claude/settings*.json; .forgemyspec/config.yaml. Retornam allow para impl.dfy e shell/ num bundle travado e para caminhos permitidos."
-  - "Testes de pipe da trava de Bash negam `forgemyspec lock`, `unlock` e `approve`, `git commit --no-verify` e redirecionamentos, sed -i, tee, cp, mv ou rm que atinjam um caminho protegido, e permitem comandos só de leitura."
-  - "Uma trava que lança exceção resulta em chamada de ferramenta bloqueada (onFailure block conferido na entrada do hook e num teste de pipe que sai com 2)."
-  - "O hook de Stop retorna decision block nomeando o bundle e as etapas que falharam quando um bundle travado não tem gate PASS para o conteúdo atual, permite encerrar quando tem, e depois das continuações com stop_hook_active permite encerrar com um systemMessage dizendo que o trabalho não está verificado."
-  - "O gate registra evidência por obrigação: erros de verificação atribuídos às obrigações pela cláusula do contrato que citam, testes Dafny e Python atribuídos pelas suas tags, e mutantes sobreviventes atribuídos às obrigações do método que os contém."
-  - "Depois de cada turno o hook de Stop mostra uma caixa de risco em várias linhas, nenhuma com mais de 60 caracteres, com: requisitos atendidos sobre o total; uma linha por requisito de must_include com PROVADO, FRÁGIL ou FURANDO e o motivo; a divisão do espaço para alucinar (provado, só exemplos, livre) em linhas e porcentagem com a variação desde o turno anterior; cada furo com arquivo:linha; os itens que só o usuário garante (contrato e premissas, e quando ele os aprovou); e uma nota com os tokens do LLM no turno ou 'tokens indisponíveis'."
-  - "SessionStart e UserPromptSubmit injetam um resumo de estado listando cada bundle com sua fase (spec, aprovado, travado, gate PASS ou FAIL) e o próximo passo obrigatório."
-  - "Todas as mensagens do harness saem em português do Brasil, e o lint detecta negação em hipóteses escritas em português (não, nunca, sem, exceto, evitar e variações) além das palavras em inglês."
-  - "README.md, CLAUDE.md, as skills e as referências em plugins/forgemyspec e o agente padrão estão em português do Brasil."
-  - "O hook de pre-commit roda o gate nos bundles com mudanças em stage e rejeita o commit quando algum falha; o workflow de CI roda a mesma checagem."
-  - "Este repositório é inicializado com o próprio `init` em modo estrito, e todo o trabalho da v0.2 a partir desse ponto passa pelas travas."
-  - "A caixa de risco aparece na sessão do Claude Code no VS Code do usuário depois de um turno real, confirmado pelo usuário."
-  - "`gate forgemyspec-bundle/nucleo` passa em todas as etapas, inclusive mutação e erros plantados, com as propriedades: Provado exige zero falhas, zero mutantes vivos e testes passando; requisito atendido exige bundle aprovado, gate atual e nenhuma obrigação furando; edição em caminho protegido nunca é liberada; implementação só é liberada com contrato travado; cobertura sem faltantes equivale a toda frase e hipótese coberta."
-  - "Uma etapa `erros-plantados` no gate exige, por padrão, pelo menos 3 implementações em erros/ e que todas sejam rejeitadas por dafny verify ou dafny test; examples/budget-core passa com seus erros plantados, e o gate falha nomeando o erro sobrevivente quando uma cláusula que o pegava é removida do contrato."
-  - "A caixa de risco mostra, por bundle formal, a força do contrato: mutantes mortos sobre válidos e erros plantados rejeitados sobre o total."
-  - "O CI falha quando src/forgemyspec/_nucleo/ diverge de uma tradução nova do núcleo."
-  - "O README tem uma seção 'Base de confiança' listando o que é provado, o que é só testado e o que continua sendo confiança (Dafny e Z3, Python, git e a aprovação do usuário)."
+  - "`forgemyspec init <temporary-git-repo>` creates .forgemyspec/harness, .forgemyspec/config.yaml, .claude/skills, .claude/agents, a merged .claude/settings.json with `agent: forgemyspec-default` and the hooks, a marked block in CLAUDE.md, .githooks/pre-commit with core.hooksPath set, and .github/workflows/forgemyspec.yml; a second run reports that nothing changed; `init --check` exits 0 on a fresh install and 1 after a hook entry is removed."
+  - "Pipe tests of the PreToolUse guard return deny, with a reason that names the next step, for: an edit outside every approved bundle and the allow list; contract.dfy, tests.dfy, planted/ or the formal section after the lock; contract.lock; generated/; .forgemyspec/state; .claude/settings*.json; .forgemyspec/config.yaml. They object to nothing for impl.dfy and shell/ in a locked bundle and for allowed paths."
+  - "Pipe tests of the Bash guard deny `forgemyspec lock`, `unlock`, `approve` and `init`, `git commit --no-verify`, and redirections, sed -i, tee, cp, mv or rm that hit a denied path, and allow read-only commands."
+  - "A guard that raises an exception results in a blocked tool call (onFailure block checked in the hook entry and a pipe test that exits 2)."
+  - "The Stop hook returns decision block naming the bundle and the failed stages when a locked bundle has no PASS gate for its current content, allows stopping when it has one, and after the stop_hook_active continuations allows stopping with a systemMessage saying the work is not verified."
+  - "The gate records evidence per obligation: verification errors attributed to obligations through the contract clause they cite, Dafny and Python tests attributed through their tags, and surviving mutants attributed to the obligations of the method that contains them."
+  - "After every turn the Stop hook shows a multi-line risk box, no line longer than 60 characters, with: requirements met out of total; one line per must_include requirement with PROVEN, FRAGILE or LEAKING and the reason; the room-to-hallucinate split (proven, examples only, free) in lines and percent with the change since the previous turn; each leak with file:line; the items only the user guarantees (contract and assumptions, and when they approved them); and a note with the turn's LLM tokens or 'tokens unavailable'."
+  - "SessionStart and UserPromptSubmit inject a state summary listing each bundle with its phase (draft, approved, gate PASS or FAIL) and the next required step."
+  - "Every harness message is in English, and the lint detects negation in hypotheses written in English or Portuguese without flagging the Portuguese contraction 'no'."
+  - "The pre-commit hook runs the gate on bundles with staged changes and rejects the commit when one fails; the CI workflow runs the same check."
+  - "This repository is initialized with its own `init` in strict mode, and all work after that point goes through the guards."
+  - "The risk box appears in the user's Claude Code session in VS Code after a real turn, confirmed by the user."
+  - "`gate forgemyspec-bundle/kernel` passes every stage, including mutation and planted errors, with these properties: Proven requires zero failures, zero surviving mutants and passing tests; a met requirement requires an approved bundle, a current gate and no leaking obligation; an edit to a protected path is never allowed; an implementation is only allowed with a locked contract; coverage with no missing items is equivalent to every phrase and hypothesis being covered."
+  - "A `planted-errors` gate stage requires, by default, at least 3 implementations in planted/ and that all of them are rejected by dafny verify or dafny test; examples/budget-core passes with its planted errors, and the gate fails naming the surviving error when the clauses that caught it are removed from the contract."
+  - "The risk box shows, for each formal bundle, the contract's strength: killed mutants out of valid ones and planted errors rejected out of the total."
+  - "CI fails when src/forgemyspec/_kernel/ diverges from a fresh translation of the kernel."
+  - "The README has a 'Trusted base' section listing what is proven, what is only tested and what remains trust (Dafny and Z3, Python, git and the user's approval)."
 
 hypotheses:
   - id: h1
-    description: "Um init idempotente e que preserva o que já existe instala todos os componentes de enforcement num repositório alvo, e o modo --check detecta divergências."
+    description: "An idempotent init that preserves what already exists installs every enforcement component into a target repository, and the --check mode detects drift."
     confidence: 0.85
   - id: h2
-    description: "Uma trava PreToolUse determinística sobre Edit, Write, MultiEdit e NotebookEdit permite exatamente as edições cobertas por um bundle aprovado ou pela lista de permitidos e nega as demais com motivos acionáveis."
+    description: "A deterministic PreToolUse guard over Edit, Write, MultiEdit and NotebookEdit allows exactly the edits covered by an approved bundle or the allow list and denies the rest with actionable reasons."
     confidence: 0.85
   - id: h3
-    description: "Uma trava de Bash pega os caminhos comuns de shell para arquivos protegidos e para os comandos de aprovação, o que, junto com pre-commit e CI, cobre o modelo de ameaça do agente que deriva."
+    description: "A Bash guard catches the common shell routes to protected paths and to the approval commands, which together with pre-commit and CI covers the drifting-agent threat model."
     confidence: 0.7
   - id: h4
-    description: "Aprovações viram ações exclusivamente humanas quando o harness recusa lock, unlock e approve vindos da ferramenta Bash e o usuário os roda no próprio terminal."
+    description: "Approvals become human-only actions when the harness refuses lock, unlock, approve and init coming from the Bash tool and the user runs them in their own terminal."
     confidence: 0.85
   - id: h5
-    description: "Um hook de Stop que compara o conteúdo atual dos bundles com o resultado do gate em cache impede o Claude de encerrar um turno com trabalho travado e pendente de verificação, e ainda libera o turno de forma honesta quando o limite de repetições é atingido."
+    description: "A Stop hook that compares the bundles' current content with the cached gate result keeps Claude from ending a turn with locked work pending verification, and still releases the turn honestly when the repeat limit is reached."
     confidence: 0.8
   - id: h6
-    description: "Bundles só de spec, com scope.paths, lock de spec via approve e verify_command, estendem a cobertura estrita ao código que fica fora dos contratos Dafny."
+    description: "Spec-only bundles, with scope.paths, a spec lock via approve and scope.tests or verify_command, extend strict coverage to code that lives outside Dafny contracts."
     confidence: 0.75
   - id: h7
-    description: "Evidência do gate por obrigação, somada a regras fixas de classificação, produz a cada prompt uma caixa de risco que mostra quais requisitos estão provados, frágeis ou furando e quanto código deixa espaço para alucinar."
+    description: "Per-obligation gate evidence, plus fixed classification rules, produces after every prompt a risk box that shows which requirements are proven, fragile or leaking and how much code leaves room to hallucinate."
     confidence: 0.7
   - id: h8
-    description: "A injeção de estado no SessionStart e no UserPromptSubmit mantém a fase atual e o próximo passo no contexto do Claude a cada prompt."
+    description: "State injection on SessionStart and UserPromptSubmit keeps the current phase and the next step in Claude's context on every prompt."
+    confidence: 0.9
+  - id: h9
+    description: "A single English messages module and a lint that recognizes negation per language keep the whole product in English while the affirmative-hypothesis check keeps working for specs written in English or Portuguese."
     confidence: 0.9
   - id: h10
-    description: "Um núcleo Dafny com as funções ClassificarObrigacao, StatusRequisito, DecidirEdicao e Cobertura, traduzido para Python e chamado pelas travas e pela caixa, torna essas quatro decisões provadas em vez de apenas testadas."
+    description: "A Dafny kernel with ClassifyObligation, RequirementStatus, DecideEdit and Coverage, translated to Python and called by the guards and the box, makes these four decisions proven instead of merely tested."
     confidence: 0.75
   - id: h11
-    description: "Erros plantados plausíveis, cobertos pelo lock e exigidos pelo gate, medem a força do contrato contra os enganos típicos de um LLM melhor do que a mutação sintática sozinha."
+    description: "Plausible planted errors, covered by the lock and required by the gate, measure a contract's strength against an LLM's typical mistakes better than syntactic mutation alone."
     confidence: 0.75
-  - id: h9
-    description: "Um módulo único de mensagens em português do Brasil, uma lista de negações em português no lint e a tradução do README, das skills e do agente deixam o produto inteiro em português e mantêm a checagem de hipóteses afirmativas funcionando em specs escritas em português."
-    confidence: 0.9
 
 required_evidence:
-  - "Saída dos testes unitários do init (instalação nova, segunda execução idempotente, mescla com settings e CLAUDE.md já existentes, divergência no --check)."
-  - "Saída dos testes de pipe para cada decisão das travas listada nos critérios de sucesso, com o JSON que cada hook imprimiu."
-  - "Saída dos testes de pipe do hook de Stop para os casos PASS, FAIL e stop_hook_active."
-  - "Caixas de risco geradas para o budget-core em três estados: tudo provado, um mutante sobrevivente (FRÁGIL) e um verify falhando (FURANDO)."
-  - "Saída do gate e do lint em português, e o lint acusando uma hipótese com 'não'."
-  - "Uma tentativa de commit rejeitada pelo pre-commit com um bundle falhando, e aceita depois da correção."
-  - "Prova, dentro da sessão, de que um deny do PreToolUse disparou numa edição real neste repositório depois do init."
-  - "Confirmação do usuário de que a caixa de risco aparece na sessão dele no VS Code."
-  - "Relatório completo do gate de forgemyspec-bundle/nucleo, com mutação e erros plantados."
-  - "Saída do gate de examples/budget-core com os erros plantados rejeitados, e a falha nomeando o erro sobrevivente depois de remover uma cláusula."
-  - "Saída do CI (ou do mesmo comando local) rejeitando um _nucleo/ editado à mão."
+  - "Unit test output for init (fresh install, idempotent second run, merge with existing settings and CLAUDE.md, --check drift)."
+  - "Pipe test output for every guard decision listed in the success criteria, with the JSON each hook printed."
+  - "Stop hook pipe test output for the PASS, FAIL and stop_hook_active cases."
+  - "Risk boxes rendered for budget-core in three states: all proven, one surviving mutant (FRAGILE) and a failing verify (LEAKING)."
+  - "Gate and lint output in English, and the lint flagging a hypothesis that contains 'not'."
+  - "A commit attempt rejected by pre-commit with a failing bundle, and accepted after the fix."
+  - "In-session proof that a PreToolUse deny fired on a real edit in this repository after init."
+  - "The user's confirmation that the risk box appears in their VS Code session."
+  - "Full gate report for forgemyspec-bundle/kernel, with mutation and planted errors."
+  - "Gate output for examples/budget-core with the planted errors rejected, and the failure naming the surviving error after clauses are removed."
+  - "CI output (or the same command locally) rejecting a hand-edited _kernel/."
 
 actions:
   - id: a0
     type: design
-    description: "Formalizar o núcleo de confiança em forgemyspec-bundle/nucleo: spec com obrigações dafny, contract.dfy, tests.dfy e erros/; mostrar ao usuário, que aprova rodando `lock` no próprio terminal."
+    description: "Formalize the trust kernel in forgemyspec-bundle/kernel: spec with dafny obligations, contract.dfy, tests.dfy and planted/; show it to the user, who approves by running `lock` in their own terminal."
     requires_confirmation: true
     supports: [h10]
   - id: a0b
     type: implement
-    description: "Implementar impl.dfy do núcleo até o gate passar, traduzir para src/forgemyspec/_nucleo/ com um carregador Python, e adicionar a checagem de divergência ao CI."
+    description: "Implement the kernel's impl.dfy until the gate passes, translate it into src/forgemyspec/_kernel/ with a Python loader, and add the drift check to CI."
     requires_confirmation: false
     supports: [h10]
   - id: a0c
     type: implement
-    description: "Adicionar a etapa erros-plantados ao gate, levar o lock para a versão 2 cobrindo erros/, atualizar /forgemyspec-formalize para escrever os erros e criar pelo menos 3 erros plantados em examples/budget-core, que o usuário trava de novo."
+    description: "Add the planted-errors stage to the gate, move the lock to version 2 covering planted/, update /forgemyspec-formalize to write the planted errors and create at least 3 planted errors in examples/budget-core, which the user locks again."
     requires_confirmation: true
     supports: [h11]
   - id: a1
     type: design
-    description: "Definir .forgemyspec/config.yaml (enforcement estrito, caminhos permitidos, raízes de bundles), scope.paths, verify_command e o lock de spec por approve para bundles só de spec, o formato de registro do ledger e o cache do gate indexado por um hash das entradas do bundle."
+    description: "Define .forgemyspec/config.yaml (strict enforcement, allowed paths, bundle roots), scope.paths, scope.tests, verify_command and the spec lock via approve for spec-only bundles, the ledger record format, and the gate cache keyed by a hash of the bundle's inputs."
     requires_confirmation: false
     supports: [h2, h6, h7]
   - id: a2
     type: implement
-    description: "Implementar `forgemyspec init [--check]`: copiar o harness, as skills e o agente, mesclar o settings.json (chave agent e hooks de comando com onFailure block), o bloco marcado no CLAUDE.md, o .gitignore, o .githooks/pre-commit com core.hooksPath e o workflow de CI, com backups e idempotência."
+    description: "Implement `forgemyspec init [--check]`: copy the harness, the skills and the agent, merge settings.json (agent key and command hooks with onFailure block), the marked block in CLAUDE.md, .gitignore, .githooks/pre-commit with core.hooksPath and the CI workflow, with backups and idempotency."
     requires_confirmation: false
     supports: [h1]
   - id: a3
     type: implement
-    description: "Implementar a trava de arquivos do PreToolUse: resolver o caminho alvo, achar o bundle que o cobre e sua fase, simular o resultado de Edit/MultiEdit para detectar mudança na seção formal travada e retornar allow ou deny com o próximo passo."
+    description: "Implement the PreToolUse file guard: resolve the target path, find the bundle that covers it and its phase, simulate the result of Edit/MultiEdit to detect changes to a locked formal section, and return deny with the next step or no objection."
     requires_confirmation: false
     supports: [h2]
   - id: a4
     type: implement
-    description: "Implementar a trava de Bash para comandos de aprovação, --no-verify e escritas de shell em caminhos protegidos."
+    description: "Implement the Bash guard for approval commands, --no-verify and shell writes to denied paths."
     requires_confirmation: false
     supports: [h3, h4]
   - id: a5
     type: implement
-    description: "Implementar `approve` e `unlock`, ambos recusados pela trava quando rodados pela ferramenta Bash do Claude, e fazer o `gate` gravar a entrada de cache para o hash das suas entradas."
+    description: "Implement `approve` and `unlock`, both refused by the guard when run through Claude's Bash tool, and make `gate` write the cache entry for the hash of its inputs."
     requires_confirmation: false
     supports: [h4, h6]
   - id: a6
     type: implement
-    description: "Implementar o hook de Stop: checagem do cache do gate com bloqueio ou liberação, e a caixa de risco a partir da evidência por obrigação, da classificação de linhas do projeto, do retrato do turno anterior, da força de cada contrato e do uso de tokens da transcrição, com cores e status vindos do núcleo traduzido."
+    description: "Implement the Stop hook: gate-cache check with block or release, and the risk box from per-obligation evidence, the project's line classification, the previous turn's snapshot, each contract's strength and the transcript's token usage, with colors and statuses coming from the translated kernel."
     requires_confirmation: false
     supports: [h5, h7]
   - id: a6b
     type: implement
-    description: "Estender o gate para gravar evidência por obrigação: atribuir erros de verificação, resultados de testes Dafny e Python e mutantes sobreviventes aos ids das obrigações."
+    description: "Extend the gate to record per-obligation evidence: attribute verification errors, Dafny and Python test results and surviving mutants to obligation ids."
     requires_confirmation: false
     supports: [h7]
   - id: a7
     type: implement
-    description: "Implementar os hooks de SessionStart e UserPromptSubmit: marca de turno no ledger e resumo de estado como additionalContext."
+    description: "Implement the SessionStart and UserPromptSubmit hooks: turn marker in the ledger and the state summary as additionalContext."
     requires_confirmation: false
     supports: [h7, h8]
   - id: a7b
     type: implement
-    description: "Mover todas as mensagens do harness para um módulo único em português do Brasil e adicionar as negações em português ao LINT-HY-007."
+    description: "Move every harness message into a single English module and make LINT-HY-007 recognize negation per language."
     requires_confirmation: false
     supports: [h9]
   - id: a7c
     type: implement
-    description: "Traduzir para português do Brasil o README.md, o CLAUDE.md da raiz, as skills e referências em plugins/forgemyspec e o agente padrão, mantendo comandos, códigos e caminhos como estão, e escrever no README a seção 'Base de confiança'."
+    description: "Write the README, the root CLAUDE.md, the skills and references in plugins/forgemyspec and the default agent in English, describing the v0.4 flow, and add the 'Trusted base' section to the README."
     requires_confirmation: false
     supports: [h9]
   - id: a8
     type: implement
-    description: "Corrigir o .claude/settings.json deste repositório para a chave `agent`, dar a este bundle um scope com paths src/**, tests/** e plugins/**, tests: tests e pythonpath: [src], pedir ao usuário que rode o init e o approve deste bundle e o lock do núcleo, e confirmar que a caixa do próprio ForgeMySpec reflete a cobertura."
+    description: "Fix this repository's .claude/settings.json to the `agent` key, give this bundle a scope with paths src/**, tests/** and plugins/**, tests: tests and pythonpath: [src], ask the user to run init, approve this bundle and lock the kernel, and confirm that ForgeMySpec's own box reflects the coverage."
     requires_confirmation: true
     supports: [h1, h6]
   - id: a9
     type: validate
-    description: "Rodar os testes unitários e de pipe, a checagem de rejeição do pre-commit e a prova de deny na sessão, pedir ao usuário que confirme a caixa de risco no VS Code e registrar as evidências."
+    description: "Run the unit and pipe tests, the pre-commit rejection check and the in-session deny proof, ask the user to confirm the risk box in VS Code, and record the evidence."
     requires_confirmation: false
     supports: [h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11]
 
 decision_rules:
-  - "Se uma trava não consegue decidir (entrada ilegível, ferramenta desconhecida), negar em modo estrito e dizer a causa; nunca liberar por padrão."
-  - "Se o uso de tokens da transcrição não puder ser lido, mostrar 'tokens indisponíveis' na caixa; nunca estimar tokens."
-  - "Se o limite de repetições do Stop for atingido com o gate falhando, liberar o turno com um systemMessage dizendo que o trabalho não está verificado; nunca apresentá-lo como pronto."
-  - "Se uma trava bloquear trabalho legítimo, ampliar a regra pelo config.yaml ou pelo scope.paths de um bundle com aprovação do usuário; nunca criar uma flag de desvio que o Claude possa ligar."
-  - "Se um hook passar do tempo limite, guardar a parte cara (descoberta de bundles, hashes) em cache em .forgemyspec/state em vez de remover a checagem."
-  - "Se um texto de mensagem não tiver tradução no módulo de mensagens, o teste falha; nunca deixar texto em inglês escapar para o usuário."
-  - "Se uma propriedade do núcleo não puder ser provada como está escrita, parar e emendar com o usuário; nunca devolver a decisão para Python não provado."
-  - "Se um erro plantado sobreviver, fortalecer o contrato ou os testes com nova aprovação do usuário; nunca apagar o erro plantado para o gate passar."
+  - "If a guard cannot decide (unreadable input, unknown tool), deny in strict mode and state the cause; never allow by default."
+  - "If the transcript's token usage cannot be read, show 'tokens unavailable' in the box; never estimate tokens."
+  - "If the Stop repeat limit is reached with the gate failing, release the turn with a systemMessage saying the work is not verified; never present it as done."
+  - "If a guard blocks legitimate work, widen the rule through config.yaml or a bundle's scope.paths with the user's approval; never add a bypass flag Claude can turn on."
+  - "If a hook would exceed its time budget, cache the expensive part (bundle discovery, hashes) in .forgemyspec/state instead of dropping the check."
+  - "If a message text is not in the messages module, the test fails; never let text outside the catalog reach the user."
+  - "If a kernel property cannot be proven as written, stop and amend with the user; never move the decision back into unproven Python."
+  - "If a planted error survives, strengthen the contract or the tests with the user's new approval; never delete the planted error."
+
+scope:
+  paths: ["src/**", "tests/**", "plugins/**"]
+  tests: tests
+  pythonpath: [src]
 
 formal:
   module: EnforcementPolicy
   obligations:
     - id: guard_decision
       kind: boundary
-      statement: "A trava de arquivos retorna allow só para caminhos cobertos por um bundle aprovado na fase certa ou pela lista de permitidos, e deny com motivo nos demais casos."
+      statement: "The file guard objects to nothing only for paths covered by an approved bundle in the right phase or by the allow list, and denies with a reason otherwise."
       hypotheses: [h2, h6]
-      must_include: ["trava estrita de arquivos no PreToolUse", "bundles só de spec com scope.paths"]
+      must_include: ["strict PreToolUse file guard", "spec-only bundles with scope.paths"]
       test: "test_hooks.FileGuardTests.test_decision_table"
     - id: bash_guard
       kind: boundary
-      statement: "A trava de Bash nega comandos de aprovação, --no-verify e escritas de shell em caminhos protegidos."
+      statement: "The Bash guard denies approval commands, --no-verify and shell writes to denied paths."
       hypotheses: [h3, h4]
-      must_include: ["trava de Bash", "aprovação só humana"]
+      must_include: ["Bash guard", "human-only approval"]
       test: "test_hooks.BashGuardTests.test_decision_table"
     - id: stop_gate
       kind: boundary
-      statement: "O hook de Stop bloqueia quando um bundle travado não tem gate PASS para o conteúdo atual e libera de forma honesta no limite de repetições."
+      statement: "The Stop hook blocks when a locked bundle has no PASS gate for its current content and releases honestly at the repeat limit."
       hypotheses: [h5]
-      must_include: ["checagem do gate no Stop"]
+      must_include: ["Stop hook gate check"]
       test: "test_hooks.StopHookTests.test_gate_states"
     - id: risk_box
       kind: boundary
-      statement: "O hook de Stop mostra a caixa de risco: status de cada requisito com motivo, espaço para alucinar, furos, itens que só o usuário garante e a nota de tokens."
+      statement: "The Stop hook shows the risk box: each requirement's status with its reason, room to hallucinate, leaks, the items only the user guarantees and the token note."
       hypotheses: [h7]
-      must_include: ["caixa de risco por prompt", "espaço para alucinar"]
+      must_include: ["per-prompt risk box", "room to hallucinate"]
       test: "test_hooks.RiskBoxTests.test_box_states"
     - id: obligation_evidence
       kind: boundary
-      statement: "O gate atribui erros de verificação, resultados de testes e mutantes sobreviventes aos ids das obrigações."
+      statement: "The gate attributes verification errors, test results and surviving mutants to obligation ids."
       hypotheses: [h7]
-      must_include: ["evidência por obrigação"]
+      must_include: ["per-obligation evidence"]
       test: "test_gate.EvidenceTests.test_attribution"
     - id: init_install
       kind: boundary
-      statement: "O init instala todos os componentes de forma idempotente, mesclando e fazendo backup dos arquivos existentes, e o --check detecta divergências."
+      statement: "init installs every component idempotently, merging and backing up existing files, and --check detects drift."
       hypotheses: [h1]
-      must_include: ["forgemyspec init", "gate no pre-commit do git"]
+      must_include: ["forgemyspec init", "git pre-commit gate"]
       test: "test_init.InitTests.test_install_merge_idempotent_check"
     - id: state_injection
       kind: boundary
-      statement: "SessionStart e UserPromptSubmit injetam a fase e o próximo passo de cada bundle."
+      statement: "SessionStart and UserPromptSubmit inject each bundle's phase and next step."
       hypotheses: [h8]
-      must_include: ["injeção de estado"]
+      must_include: ["state injection"]
       test: "test_hooks.StateTests.test_summary"
+    - id: english_output
+      kind: boundary
+      statement: "Every harness message comes from the English messages module, and the lint flags negation in hypotheses per language."
+      hypotheses: [h9]
+      must_include: ["English-only output", "English documentation"]
+      test: "test_messages.MessagesTests.test_all_output_in_english"
     - id: kernel_used
       kind: boundary
-      statement: "As travas, o gate e a caixa obtêm cor, status, decisão de edição e cobertura do núcleo traduzido em src/forgemyspec/_nucleo, que bate com uma tradução nova."
+      statement: "The guards, the gate and the box get colors, statuses, edit decisions and coverage from the translated kernel in src/forgemyspec/_kernel, which matches a fresh translation."
       hypotheses: [h10]
-      must_include: ["núcleo de confiança provado em Dafny"]
-      test: "test_nucleo.NucleoTests.test_decisions_come_from_translated_kernel"
+      must_include: ["trust kernel proven in Dafny"]
+      test: "test_kernel.KernelTests.test_decisions_come_from_translated_kernel"
     - id: planted_errors
       kind: boundary
-      statement: "O gate exige pelo menos 3 erros plantados por bundle formal, todos rejeitados, cobertos pelo lock, e mostra a força do contrato na caixa."
+      statement: "The gate requires at least 3 planted errors per formal bundle, all rejected, covered by the lock, and shows the contract's strength in the box."
       hypotheses: [h11]
-      must_include: ["erros plantados"]
+      must_include: ["planted errors"]
       test: "test_gate.PlantedErrorsTests.test_stage"
-    - id: portuguese_output
-      kind: boundary
-      statement: "Toda mensagem do harness sai do módulo de mensagens em português, e o lint acusa negação em hipóteses em português."
-      hypotheses: [h9]
-      must_include: ["saída em português", "README e skills em português"]
-      test: "test_messages.MessagesTests.test_all_output_in_portuguese"
 
 metadata:
   source_prompt: >-
-    Como garantir que o fluxo fique embutido em tudo que o usuário fizer: padrão de hooks estrito, distribuído por
-    um comando `forgemyspec init` em vez de plugin. Auditabilidade total dentro do chat, a nível de prompt, com
-    uma caixa que seja reflexo do risco que o usuário está correndo: o que está atendido, o que está furando e
-    quanto espaço o LLM tem para alucinar, com quebras de linha para não truncar. Tudo em português, incluindo
-    README e skills.
+    How to make the flow part of everything the user does: a strict hook mode, distributed by a `forgemyspec init`
+    command instead of a plugin. Full auditability inside the chat, per prompt, with a box that reflects the risk the
+    user is taking: what is met, what is leaking and how much room the LLM has to hallucinate, with line breaks so it
+    does not get truncated. ForgeMySpec was built with an LLM's help, so the decisions behind trust must be proven,
+    not only tested. Everything in English: code, documentation and screens.
   generator: claude-code-session
   scope_contract:
     must_include:
       - "forgemyspec init"
-      - "trava estrita de arquivos no PreToolUse"
-      - "trava de Bash"
-      - "aprovação só humana"
-      - "checagem do gate no Stop"
-      - "caixa de risco por prompt"
-      - "espaço para alucinar"
-      - "evidência por obrigação"
-      - "injeção de estado"
-      - "gate no pre-commit do git"
-      - "bundles só de spec com scope.paths"
-      - "saída em português"
-      - "README e skills em português"
-      - "núcleo de confiança provado em Dafny"
-      - "erros plantados"
+      - "strict PreToolUse file guard"
+      - "Bash guard"
+      - "human-only approval"
+      - "Stop hook gate check"
+      - "per-prompt risk box"
+      - "room to hallucinate"
+      - "per-obligation evidence"
+      - "state injection"
+      - "git pre-commit gate"
+      - "spec-only bundles with scope.paths"
+      - "English-only output"
+      - "English documentation"
+      - "trust kernel proven in Dafny"
+      - "planted errors"

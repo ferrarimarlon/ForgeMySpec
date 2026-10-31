@@ -8,6 +8,8 @@ import subprocess
 from pathlib import Path
 from typing import List, Optional, Sequence
 
+from . import messages as M
+
 
 # Exit codes observed with Dafny 4.x.
 EXIT_OK = 0
@@ -15,7 +17,7 @@ EXIT_DAFNY_ERROR = 2  # parse, resolution or type errors; also warnings without 
 EXIT_TEST_FAILURE = 3
 EXIT_VERIFICATION_FAILURE = 4
 
-INSTALL_HINT = "Install Dafny 4.x: `brew install dafny` (macOS) or see https://github.com/dafny-lang/dafny/releases"
+INSTALL_HINT = M.DAFNY_INSTALL
 
 
 class ToolchainError(RuntimeError):
@@ -48,7 +50,7 @@ def dafny_version(dafny: str, timeout: int = 60) -> str:
     result = run_command([dafny, "--version"], cwd=None, timeout=timeout)
     match = re.search(r"\d+(?:\.\d+)+", result.output)
     if not result.ok or not match:
-        raise ToolchainError(f"Could not read the Dafny version from `{dafny} --version`: {result.output.strip()[:200]}")
+        raise ToolchainError(M.DAFNY_VERSION_UNREADABLE.format(dafny=dafny, output=result.output.strip()[:200]))
     return match.group(0)
 
 
@@ -64,10 +66,10 @@ def version_at_least(found: str, minimum: str) -> bool:
 def require_dafny(min_version: str) -> tuple[str, str]:
     dafny = find_dafny()
     if not dafny:
-        raise ToolchainError(f"`dafny` was not found on PATH. {INSTALL_HINT}")
+        raise ToolchainError(M.DAFNY_MISSING)
     version = dafny_version(dafny)
     if not version_at_least(version, min_version):
-        raise ToolchainError(f"Dafny {version} is older than the required {min_version}. {INSTALL_HINT}")
+        raise ToolchainError(M.DAFNY_TOO_OLD.format(version=version, minimum=min_version))
     return dafny, version
 
 
@@ -84,7 +86,7 @@ def run_command(args: Sequence[str], cwd: Optional[Path], timeout: int, env: Opt
         )
     except subprocess.TimeoutExpired as exc:
         output = exc.stdout.decode("utf-8", "replace") if isinstance(exc.stdout, bytes) else (exc.stdout or "")
-        return CommandResult(list(args), returncode=-1, output=output + f"\n[timed out after {timeout}s]", timed_out=True)
+        return CommandResult(list(args), returncode=-1, output=output + "\n" + M.TIMED_OUT.format(seconds=timeout), timed_out=True)
     return CommandResult(list(args), completed.returncode, completed.stdout)
 
 

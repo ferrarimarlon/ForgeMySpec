@@ -4,13 +4,13 @@
 
 **Turn a request into a contract that a machine checks — before an AI writes the code that has to meet it.**
 
-ForgeMySpec is a clonable harness for **Claude Code**. Claude writes the spec, a Dafny contract, and the
-implementation inside your session. A deterministic harness, with no LLM and no network, then proves, tests,
-audits, mutation-checks, and locks the result before translating the verified core to Python.
+ForgeMySpec is a harness for **Claude Code**. Claude writes the spec, a Dafny contract and the implementation
+inside your session. A deterministic harness (no LLM, no network) proves, tests, audits, attacks with mutants
+and planted errors, and locks the result, and only then translates the verified core to Python.
 
-The goal is maximum harness and minimum hallucination. Every requirement ends up as either a
-**proof obligation** checked by the Dafny verifier or a **named test**, and the contract you approve
-can't be quietly weakened afterwards.
+The goal is maximum harness and minimum hallucination. Every requirement ends up as either a **proof
+obligation** checked by the Dafny verifier or a **named test**. The contract you approve cannot be quietly
+weakened afterwards, and the guards stop Claude from skipping the flow.
 
 ## Why Use This?
 
@@ -41,100 +41,144 @@ Full data: [`experiments/COMPARATIVE_REPORT.md`](experiments/COMPARATIVE_REPORT.
 ## How it works
 
 ```
-/forgemyspec            Claude writes spec.yaml               harness: lint, obligation coverage
+/forgemyspec            Claude writes spec.yaml                          harness: lint, coverage
         │
-/forgemyspec-formalize  Claude writes contract.dfy + tests.dfy
-        │               ── you approve the contract ──        harness: lock (SHA-256)
+/forgemyspec-formalize  Claude writes contract.dfy, tests.dfy, planted/
+        │               ── YOU approve by running `lock` in your terminal ── harness: lock (SHA-256)
         │
-/forgemyspec-implement  Claude writes impl.dfy + Python shell harness: gate
-                                                              → generated/core-py (verified Python)
+/forgemyspec-implement  Claude writes impl.dfy and the Python shell      harness: gate
+                                                                          → generated/core-py (verified Python)
 ```
 
 | Step | Who | What is checked, deterministically |
 | --- | --- | --- |
-| Spec | Claude | Structure, traceability (actions → hypotheses), evidence quality, and **obligation coverage**: every `must_include` phrase and every hypothesis maps to a Dafny obligation or a named Python test. |
-| Contract | Claude, approved by **you** | An abstract Dafny module whose clauses are tagged per obligation. Vacuous or unsound constructs are rejected. The lock records hashes of the contract, the Dafny tests, and the obligation map. |
-| Implementation | Claude | A module that *refines* the contract. It must verify, pass the tests, pass `dafny audit`, and **kill the mutants**: a wrong implementation has to be rejected by the contract plus tests. |
+| Spec | Claude | Structure, traceability (actions → hypotheses), evidence quality and **coverage**: every `must_include` phrase and every hypothesis maps to a Dafny obligation or a named Python test |
+| Contract | Claude, approved by **you** | An abstract Dafny module with clauses tagged per obligation, tests with concrete examples, and planted errors. Vacuous or unsound constructs are rejected. The lock records hashes of the contract, tests, planted errors and obligation map |
+| Implementation | Claude | A module that *refines* the contract. It must verify, pass the tests and `dafny audit`, **kill the mutants** and **reject every planted error** |
 
-### The gate
+### The guards (strict mode)
 
-```bash
-PYTHONPATH=src python3 -m forgemyspec gate examples/budget-core
+`forgemyspec init` installs Claude Code hooks that run the harness on every action:
+
+| When | What happens |
+|---|---|
+| Before a file edit | An edit outside an approved spec is **denied**, with the next step. Contract, tests, planted errors, the formal section, locks, configuration and `generated/` are off limits to Claude |
+| Before a shell command | `lock`, `approve`, `unlock`, `init`, `git commit --no-verify` and shell writes to denied paths are **denied** |
+| At the end of each turn | An approved bundle without a passing gate for its current content **blocks "done"**; after 3 attempts the turn is released with "WORK NOT VERIFIED" |
+| On every prompt | Each bundle's state and next step enter Claude's context |
+| On commit and in CI | The same gate runs in the pre-commit hook and in the `ForgeMySpec gate` workflow |
+
+### The risk box
+
+At the end of every turn a box appears. The harness builds it, and it spends no model tokens:
+
+```
+ForgeMySpec · project risk
+──────────────────────────────────────────
+
+REQUIREMENTS: 7 of 7 met
+
+▸ examples/budget-core
+  strength: mutants 14/14 · planted errors 4/4
+🟢 deposit adds exactly the amount
+   proven by Dafny
+🟡 malformed line reported with line number
+   tested with examples only
+
+ROOM FOR THE LLM TO HALLUCINATE
+proven        ███████████████░░░░░  74%    41 lines
+examples only ████░░░░░░░░░░░░░░░░  19%    11 lines
+free          █░░░░░░░░░░░░░░░░░░░   7%     4 lines
+
+WHERE IT LEAKS
+· …
+
+WHAT ONLY YOU GUARANTEE
+· does the contract of examples/budget-core say what you meant?
+    approved by you on …
 ```
 
-| Stage | Fails when |
-| --- | --- |
-| `spec-lint` | the spec is malformed, untraceable, or below the policy score |
-| `obligation-coverage` | a requirement or hypothesis has no obligation (phrases must match exactly) |
-| `dafny-lint` | `assume`, `{:axiom}`, `{:verify false}`, `{:extern}`, `{:only}`, `decreases *`, `requires false`, `ensures true`, or `expect` outside tests; a contract method with a body or without `ensures`; a contract function without a body; an obligation without a tagged clause and a tagged test |
-| `contract-lock` | `contract.dfy`, `tests.dfy`, the `formal` section, or the spec version changed since approval |
-| `toolchain` | Dafny is missing or older than the policy minimum |
-| `verify` · `test` · `audit` | Dafny rejects the proof, a `{:test}` fails (run on the Python target), or the auditor reports findings |
-| `translate` | the core cannot be translated to Python |
-| `python-boundary-tests` | a `tests_py/` test fails, or a boundary obligation's test is missing or skipped |
-| `mutation` | fewer than 90% of operator mutants of `impl.dfy` are rejected, which means the contract and tests accept wrong code |
+No color comes from the LLM: **proven**, **fragile** and **leaking** come from fixed rules, proven in Dafny,
+applied to the gate's evidence.
 
-Every stage fails closed: nothing is skipped because a tool is missing, and later stages report
-`BLOCKED`. On the example the whole gate takes about 7 seconds.
+---
 
-### What still depends on the LLM
+## Trusted base
 
-The harness removes the LLM from **checking**, not from **writing**. The residual risk is the
-translation from your words to the contract: Dafny proves the code meets the `ensures` clauses, not that
-those clauses mean what you meant. ForgeMySpec narrows that gap in four ways:
+What you need to know to decide how much to trust it:
 
-1. **You approve the contract**, which is short and written as clauses plus concrete examples, before any implementation exists.
-2. **Coverage is mechanical.** A requirement with no obligation fails the gate, and paraphrased phrases are rejected.
-3. **Mutation testing measures strength.** A contract that lets wrong code through is caught even when every proof passes.
-4. **The lock** stops the implementation phase from weakening the contract to make its own code verify.
+| Layer | How it is guaranteed |
+|---|---|
+| The four trust decisions: each obligation's color, each requirement's status, the guards' edit decision and coverage | **Proven in Dafny** in the kernel [`forgemyspec-bundle/kernel`](forgemyspec-bundle/kernel): 25 proof obligations, 12 Dafny tests and 6 planted errors. Python uses only the translation, and CI checks that it matches a fresh translation |
+| The logic of each of your projects (whatever is `kind: dafny`) | **Proven in Dafny** against the contract you approved, and attacked with mutants and planted errors |
+| The Python glue: reading files, path categories, parsing shell commands, building the box | **Tested**, not proven (`tests/`, more than 60 tests, including the guards' decision tables and fault injection) |
+| Your code that is `kind: boundary` or in a spec-only bundle | **Tested with examples**: it shows as "examples only" in the box |
+| What you still trust | the Dafny verifier and Z3, Python, git, and **your approval of each contract** |
+
+The residual risk no harness removes: **the contract may not say what you meant.** Dafny proves the code meets
+the clauses, not that the clauses are your intent. That is why the contract is short, comes with concrete
+examples and planted errors, only you lock it, and the box reminds you on every prompt.
+
+The guards cover an **agent that drifts**, not an adversary: a shell command built to escape them can get
+through, and pre-commit and CI are the safety net for that.
 
 ---
 
 ## Quick start
 
-Requirements: Python 3.9+, PyYAML, and Dafny 4.x (`brew install dafny`, or the
+Requirements: Python 3.9+, PyYAML and Dafny 4.x (`brew install dafny`, or the
 [Dafny releases](https://github.com/dafny-lang/dafny/releases)).
 
 ```bash
 git clone https://github.com/ferrarimarlon/forgemyspec && cd forgemyspec
 pip install PyYAML
-PYTHONPATH=src python3 -m forgemyspec gate examples/budget-core   # RESULT: PASS
+PYTHONPATH=src python3 -m forgemyspec lock examples/budget-core     # you approve the example's contract
+PYTHONPATH=src python3 -m forgemyspec gate examples/budget-core     # RESULT: PASS
 ```
 
-Then open the folder in Claude Code. `.claude/settings.json` selects the `forgemyspec-default` agent,
-and the skills are available as slash commands:
+To use it in your own project, install it there by running **in your terminal**:
+
+```bash
+PYTHONPATH=/path/to/forgemyspec/src python3 -m forgemyspec init /path/to/your-project
+```
+
+Then open the project in Claude Code. The skills become commands:
 
 | Command | Does |
 | --- | --- |
-| `/forgemyspec` | Grounds the request (code, MCP sources) and writes `spec.yaml` with its `formal` section, then lints and packages it |
-| `/forgemyspec-formalize` | Writes `contract.dfy` and `tests.dfy`, asks for your approval, then locks |
+| `/forgemyspec` | Grounds the request (code, MCP sources) and writes `spec.yaml` with its `formal` section; lint and package |
+| `/forgemyspec-formalize` | Writes `contract.dfy`, `tests.dfy` and `planted/`, and asks for your approval |
 | `/forgemyspec-implement` | Writes `impl.dfy`, the Python shell and boundary tests, and runs the gate until it passes |
-| `/forgemyspec-amend` | Changes the minimal delta when the spec or contract turns out wrong; re-approval and relock when the contract changes |
+| `/forgemyspec-amend` | Changes the minimal delta when the spec or contract is wrong, with new approval |
 
-Harness commands (all deterministic, run from the repository root):
+Harness commands (deterministic, from the repository root):
 
 ```bash
-PYTHONPATH=src python3 -m forgemyspec lint <spec.yaml> [--formal]
-PYTHONPATH=src python3 -m forgemyspec package <spec.yaml>
-PYTHONPATH=src python3 -m forgemyspec lock <bundle> [--check]
-PYTHONPATH=src python3 -m forgemyspec gate <bundle>
+python3 -m forgemyspec lint <spec.yaml> [--formal]
+python3 -m forgemyspec package <spec.yaml>
+python3 -m forgemyspec gate <bundle> | --all
+python3 -m forgemyspec risk
+python3 -m forgemyspec lock <bundle> [--check]       # user only (except --check)
+python3 -m forgemyspec approve <bundle> [--check]    # user only: spec-only bundles
+python3 -m forgemyspec unlock <bundle>               # user only
+python3 -m forgemyspec init [target] [--check]       # user only
+python3 -m forgemyspec kernel [--check]              # regenerate or check src/forgemyspec/_kernel
 ```
 
 ---
 
 ## Example: `examples/budget-core`
 
-A ledger of deposits and withdrawals. The rules are proven in Dafny, and users reach them through a
-small Python CLI.
+A ledger of deposits and withdrawals. The rules are proven in Dafny and reach users through a small Python CLI.
 
 | File | Role |
 | --- | --- |
-| [`spec.yaml`](examples/budget-core/spec.yaml) | Hypotheses, scope phrases, and 8 obligations (6 Dafny, 2 boundary) |
-| [`contract.dfy`](examples/budget-core/contract.dfy) | `abstract module BudgetCore`: exact outcomes for deposit/withdraw, overdraft rejection, non-negative balances, and replay defined by a spec function |
-| [`tests.dfy`](examples/budget-core/tests.dfy) | Concrete examples per obligation, including the boundary `withdraw(10, 10)` |
-| [`contract.lock`](examples/budget-core/contract.lock) | What was approved |
-| [`impl.dfy`](examples/budget-core/impl.dfy) | `module BudgetImpl refines BudgetCore`, with the replay loop proven by invariants |
-| [`shell/budget_cli.py`](examples/budget-core/shell/budget_cli.py) | Parsing, printing, and the `start >= 0` precondition (translated code does not check `requires`) |
+| [`spec.yaml`](examples/budget-core/spec.yaml) | Hypotheses, scope phrases and 8 obligations (6 Dafny, 2 boundary) |
+| [`contract.dfy`](examples/budget-core/contract.dfy) | `abstract module BudgetCore`: exact outcomes for deposit and withdraw, overdraft rejection, non-negative balances and replay defined by a spec function |
+| [`tests.dfy`](examples/budget-core/tests.dfy) | Concrete examples per obligation, including the edge `withdraw(10, 10)` |
+| [`planted/`](examples/budget-core/planted) | 4 planted errors: exact-balance withdrawal, zero deposit accepted, withdrawal without a balance check, rejection not counted |
+| [`impl.dfy`](examples/budget-core/impl.dfy) | `module BudgetImpl refines BudgetCore`, with replay proven by loop invariants |
+| [`shell/budget_cli.py`](examples/budget-core/shell/budget_cli.py) | Parsing, printing and the `start >= 0` precondition (translated code does not check `requires`) |
 | [`tests_py/test_cli.py`](examples/budget-core/tests_py/test_cli.py) | Boundary tests against the translated core |
 
 ```
@@ -144,14 +188,14 @@ $ PYTHONPATH=examples/budget-core/generated/core-py:examples/budget-core \
 balance=8 rejected=2
 ```
 
-(`generated/` is written by the gate, so run the gate once first.)
+(`generated/` is written by the gate; run the gate once first.)
 
 ---
 
 ## Spec structure
 
-`spec.yaml` is the source of truth; every other file is a view of it or a check against it. The full
-schema is in [`spec-schema.md`](plugins/forgemyspec/skills/forgemyspec/references/spec-schema.md).
+`spec.yaml` is the source of truth; every other file is a view of it or a check against it. The full schema
+is in [`spec-schema.md`](plugins/forgemyspec/skills/forgemyspec/references/spec-schema.md).
 
 | Area | Fields | Role |
 |---|---|---|
@@ -162,9 +206,10 @@ schema is in [`spec-schema.md`](plugins/forgemyspec/skills/forgemyspec/reference
 | Outcomes | `success_criteria`, `required_evidence` | What "done" means and what observable proof is required |
 | Reasoning | `hypotheses` | Affirmative, testable beliefs with `confidence` (0–1) |
 | Work plan | `actions` | Steps whose `supports` link to the hypotheses they advance |
-| Governance | `decision_rules` | When to stop, escalate, or choose |
+| Governance | `decision_rules` | When to stop, escalate or choose |
 | Provenance | `metadata` | `source_prompt`, `generator`, `scope_contract.must_include` |
 | Formal map | `formal` | Contract module name and the obligations (Dafny or boundary) that cover every requirement |
+| Path coverage | `scope` | Paths, tests and verify command of spec-only bundles |
 
 ---
 
@@ -181,29 +226,35 @@ required_metadata_fields: [source_prompt]
 lint_min_passing_score: 70
 mutation_min_kill_rate: 0.9
 max_mutants: 40
+min_planted_errors: 3
 dafny_min_version: "4.0"
 dafny_timeout_seconds: 300
 ```
+
+The guards' configuration lives in `.forgemyspec/config.yaml` (mode, `allow_paths`, ignored folders). Only you edit it.
 
 ---
 
 ## Repository layout
 
 ```
-src/forgemyspec/          deterministic harness (Python 3.9+, PyYAML only)
-├── __main__.py           lint · package · lock · gate
-├── linting.py            spec lint + obligation coverage (LINT-*, LINT-FORMAL-*)
-├── dafny_lint.py         Dafny-aware scanner and contract rules (LINT-DFY-*)
-├── contract_lock.py      approval lock
-├── dafny_runner.py       verify / test / audit / translate via subprocess
-├── mutation.py           operator mutants of impl.dfy
-├── gate.py               stage orchestration and report
-├── claude_skill.py       bundle files (CLAUDE.md, checklist, command, eval seeds)
-├── spec_io.py · scope_eval.py · nlp_policy.py · bundle.py
-plugins/forgemyspec/      skills and the default agent (symlinked into .claude/)
-examples/budget-core/     end-to-end formal bundle
-experiments/              benchmark data behind the numbers above, and the mini-os case study
-tests/                    harness tests, including fault injection and end-to-end gate runs
+src/forgemyspec/           deterministic harness (Python 3.9+, PyYAML only)
+├── __main__.py            lint · package · lock · approve · unlock · gate · risk · kernel · init · hook
+├── kernel.py + _kernel/   bridge to the trust kernel translated from Dafny (never edited by hand)
+├── hooks.py               guards, Stop, state injection, pre-commit
+├── risk.py                risk box
+├── gate.py                gate stages, per-obligation evidence, planted errors
+├── linting.py             spec lint and coverage (LINT-*, LINT-FORMAL-*)
+├── dafny_lint.py          Dafny scanner and contract rules (LINT-DFY-*)
+├── contract_lock.py       contract (v2) and spec locks
+├── install.py             forgemyspec init
+├── messages.py            every user-facing text
+├── project.py · mutation.py · dafny_runner.py · claude_skill.py · spec_io.py · nlp_policy.py · bundle.py
+plugins/forgemyspec/       skills and the default agent (symlinked into .claude/)
+forgemyspec-bundle/        the specs ForgeMySpec was built from, including the proven kernel
+examples/budget-core/      end-to-end formal bundle
+experiments/               benchmark data behind the numbers above, and the mini-os case study
+tests/                     harness tests: guards, init, gate, kernel, messages, fault injection
 ```
 
 Dafny lessons learned while building the harness are in
@@ -229,13 +280,13 @@ The **effective context window** is shared across all of that. So the explicit t
 
 From there, missing details get silently filled by pattern-matching. “Helpful” additions slip in because no hard execution contract exists. Completion gets reported in broad language even when acceptance criteria remain fuzzy.
 
-ForgeMySpec answers this by materializing the request as files the agent can re-read as the context
-stack grows, and then by moving the definition of "done" out of the conversation and into checks: a
-proof, a test, or a lock that does not depend on what the model remembers.
+ForgeMySpec answers this by materializing the request as files the agent re-reads as the context stack grows,
+and by moving the definition of "done" out of the conversation: it becomes a proof, a test or a lock, none of
+which depend on what the model remembers.
 
 ---
 
-## Case Study: Building a Bare-Metal OS
+## Case study: building a bare-metal OS (earlier, pre-Dafny version)
 
 The `experiments/mini-os/` directory is a complete end-to-end demonstration. ForgeMySpec compiled a full spec from a **short seed phrase**, and `/implement-from-spec` built a bootable x86 disk image.
 
@@ -377,6 +428,5 @@ The spec's explicit exclusion list made the boundary visible **before** implemen
 
 ## What's next
 
-- Formalize parts of the harness itself (lock comparison, coverage rules) in Dafny and run them through the gate.
-- Package the skills as a Claude Code plugin with the harness inside it.
+- A fixed panel next to the chat, updated only by the harness: clickable requirements, usage and adherence counters, zero tokens.
 - Conflict mediation for specs with contradictory requirements.

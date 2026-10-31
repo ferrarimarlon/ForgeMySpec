@@ -10,3 +10,6 @@ build/
 
 # Written by `python -m forgemyspec gate`; regenerated on every run.
 generated/
+
+# Estado local do harness (cache do gate, ledger, retratos de turno).
+.forgemyspec/state/

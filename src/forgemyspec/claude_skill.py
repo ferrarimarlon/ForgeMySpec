@@ -7,6 +7,7 @@ from typing import Any, Dict, List
 
 import yaml
 
+from . import messages as M
 from .spec_io import load_spec
 
 
@@ -56,134 +57,38 @@ def package_claude_skill(spec_path: str, output_dir: str) -> ClaudeSkillPackageR
 
 
 def render_claude_memory(spec_data: Dict[str, Any]) -> str:
-    title = _as_text(spec_data.get("title"), "Untitled spec")
-    objective = _as_text(spec_data.get("objective"), "")
-    constraints = _as_list(spec_data.get("constraints"))
-    decision_rules = _as_list(spec_data.get("decision_rules"))
-    success_criteria = _as_list(spec_data.get("success_criteria"))
-    assumptions = _as_list((spec_data.get("context") or {}).get("assumptions")) if isinstance(spec_data.get("context"), dict) else []
-
+    T = M.TEMPLATE_CLAUDE
+    context = spec_data.get("context") if isinstance(spec_data.get("context"), dict) else {}
     sections = [
-        "# CLAUDE.md",
-        "",
-        "## Role",
-        "You are implementing from spec-first constraints. Prioritize determinism, traceability, and quality.",
-        "",
-        "## Persistent Memory Policy",
-        "- This file is project memory and should persist across sessions.",
-        "- Update only stable project knowledge (decisions, conventions, pitfalls).",
-        "- Do not store ephemeral logs or temporary debugging notes here.",
-        "",
-        "## Current Spec Snapshot",
-        f"- Title: {title}",
-        f"- Objective: {objective}",
-        "",
-        "## Non-Negotiable Guardrails",
+        T["title"], "", T["role_title"], T["role"], "", T["memory_title"],
+        *[f"- {line}" for line in T["memory"]], "", T["snapshot_title"],
+        f"- {T['spec_title'].format(title=_as_text(spec_data.get('title'), '-'))}",
+        f"- {T['objective'].format(objective=_as_text(spec_data.get('objective'), ''))}",
     ]
-    sections.extend(f"- {item}" for item in constraints)
-
-    sections.extend(
-        [
-            "",
-            "## Decision Rules",
-        ]
-    )
-    sections.extend(f"- {item}" for item in decision_rules)
-
-    sections.extend(
-        [
-            "",
-            "## Success Criteria",
-        ]
-    )
-    sections.extend(f"- {item}" for item in success_criteria)
-
-    sections.extend(
-        [
-            "",
-            "## Assumptions",
-        ]
-    )
-    sections.extend(f"- {item}" for item in assumptions)
-
-    sections.extend(
-        [
-            "",
-            "## Implementation Protocol",
-            "1. Read `spec.yaml` first and implement only traceable scope.",
-            "2. If details are missing, document explicit assumptions before coding.",
-            "3. Do not add features, frameworks, or layers outside the spec objective.",
-            "4. Verify all success criteria with concrete evidence (tests, commands, outputs).",
-            "5. Report residual risks and unresolved assumptions in the final summary.",
-            "",
-            "## Decision Log",
-            "- (record stable architecture or policy decisions here)",
-            "",
-            "## Known Pitfalls",
-            "- (record recurring implementation failure modes here)",
-        ]
-    )
-
+    for title, key in (("guardrails_title", "constraints"), ("rules_title", "decision_rules"),
+                       ("success_title", "success_criteria")):
+        sections += ["", T[title]] + [f"- {item}" for item in _as_list(spec_data.get(key))]
+    sections += ["", T["assumptions_title"]] + [f"- {item}" for item in _as_list(context.get("assumptions"))]
+    sections += ["", T["protocol_title"], *T["protocol"], "", T["decisions_title"], T["decisions"],
+                 "", T["pitfalls_title"], T["pitfalls"]]
     return "\n".join(sections).strip() + "\n"
 
 
 def render_implement_command(spec_data: Dict[str, Any] | None = None) -> str:
     if isinstance(spec_data, dict) and isinstance(spec_data.get("formal"), dict):
-        return (
-            "Implement strictly from `./spec.yaml`, `./CLAUDE.md` and the locked `./contract.dfy` + `./tests.dfy`.\n\n"
-            "Execution steps:\n"
-            "1. Confirm `contract.lock` exists. If it does not, run /forgemyspec-formalize and get the user's approval first.\n"
-            "2. Never edit `contract.dfy`, `tests.dfy` or the spec's `formal` section; changes go through /forgemyspec-amend.\n"
-            "3. Write `impl.dfy` as a module refining the contract, then `shell/` and `tests_py/` for boundary obligations.\n"
-            "4. From the repository root, run `PYTHONPATH=src python3 -m forgemyspec gate <path-to-this-bundle>` "
-            "until every stage is PASS.\n"
-            "5. Return a final report with: changed files, the full gate report, assumptions made, and residual risks.\n"
-        )
-    return (
-        "Implement strictly from `./spec.yaml` and `./CLAUDE.md`.\n\n"
-        "Execution steps:\n"
-        "1. Parse objective, constraints, success criteria, decision rules, and actions from spec.\n"
-        "2. Produce a short implementation plan mapped to action IDs.\n"
-        "3. Implement only in-scope changes. Do not add unrequested features.\n"
-        "4. Run validations/tests to satisfy success criteria.\n"
-        "5. Return a final report with: changed files, evidence, assumptions made, and residual risks.\n"
-    )
+        return M.TEMPLATE_COMMAND_FORMAL
+    return M.TEMPLATE_COMMAND
 
 
 def render_acceptance_checklist(spec_data: Dict[str, Any]) -> str:
-    objective = _as_text(spec_data.get("objective"), "")
-    success_criteria = _as_list(spec_data.get("success_criteria"))
-    required_evidence = _as_list(spec_data.get("required_evidence"))
-    decision_rules = _as_list(spec_data.get("decision_rules"))
-
+    T = M.TEMPLATE_CHECKLIST
     lines = [
-        "# Acceptance Checklist",
-        "",
-        "## Scope",
-        f"- [ ] Objective implemented exactly: {objective}",
-        "- [ ] No unrequested features were introduced",
-        "- [ ] All assumptions are explicit and justified",
-        "",
-        "## Success Criteria",
+        T["title"], "", T["scope_title"], T["objective"].format(objective=_as_text(spec_data.get("objective"), "")),
+        T["no_extras"], T["assumptions"], "", T["success_title"],
     ]
-    lines.extend(f"- [ ] {item}" for item in success_criteria)
-
-    lines.extend(
-        [
-            "",
-            "## Required Evidence",
-        ]
-    )
-    lines.extend(f"- [ ] {item}" for item in required_evidence)
-
-    lines.extend(
-        [
-            "",
-            "## Decision Rules Compliance",
-        ]
-    )
-    lines.extend(f"- [ ] {item}" for item in decision_rules)
-
+    lines += [f"- [ ] {item}" for item in _as_list(spec_data.get("success_criteria"))]
+    lines += ["", T["evidence_title"]] + [f"- [ ] {item}" for item in _as_list(spec_data.get("required_evidence"))]
+    lines += ["", T["rules_title"]] + [f"- [ ] {item}" for item in _as_list(spec_data.get("decision_rules"))]
     return "\n".join(lines).strip() + "\n"
 
 
@@ -195,14 +100,14 @@ def render_scope_eval_template(spec_data: Dict[str, Any]) -> str:
 
     template = {
         "version": "0.1",
-        "purpose": "Manual eval seeds to detect scope drift in Claude implementations",
+        "purpose": M.TEMPLATE_EVAL_PURPOSE,
         "source_prompt": prompt,
         "checks": {
             "must_include": scope_contract["must_include"],
         },
         "cases": [],
     }
-    return yaml.safe_dump(template, sort_keys=False, allow_unicode=False)
+    return yaml.safe_dump(template, sort_keys=False, allow_unicode=True)
 
 
 def _as_text(value: Any, fallback: str = "") -> str:

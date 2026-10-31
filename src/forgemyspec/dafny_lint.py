@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 import re
 from typing import Any, Dict, List, Optional, Tuple
 
+from . import messages as M
 from .bundle import BundleLayout
 from .linting import LintIssue
 
@@ -257,21 +258,22 @@ def _ends_expression(token: str) -> bool:
 # ---------------------------------------------------------------------------
 
 _BANNED_EVERYWHERE = [
-    (re.compile(r"\bassume\b"), "`assume` statement"),
-    (re.compile(r"\{\s*:\s*axiom\b"), "`{:axiom}` attribute"),
-    (re.compile(r"\{\s*:\s*verify\s+false\s*\}"), "`{:verify false}` attribute"),
-    (re.compile(r"\{\s*:\s*extern\b"), "`{:extern}` attribute"),
-    (re.compile(r"\{\s*:\s*only\b"), "`{:only}` attribute"),
-    (re.compile(r"\bdecreases\s+\*"), "`decreases *` (permits non-termination)"),
-    (re.compile(r"\brequires\s+false\b"), "`requires false` (vacuous precondition)"),
-    (re.compile(r"\bensures\s+true\b"), "`ensures true` (vacuous postcondition)"),
+    (re.compile(r"\bassume\b"), M.BANNED_CONSTRUCTS["assume"]),
+    (re.compile(r"\{\s*:\s*axiom\b"), M.BANNED_CONSTRUCTS["axiom"]),
+    (re.compile(r"\{\s*:\s*verify\s+false\s*\}"), M.BANNED_CONSTRUCTS["verify_false"]),
+    (re.compile(r"\{\s*:\s*extern\b"), M.BANNED_CONSTRUCTS["extern"]),
+    (re.compile(r"\{\s*:\s*only\b"), M.BANNED_CONSTRUCTS["only"]),
+    (re.compile(r"\bdecreases\s+\*"), M.BANNED_CONSTRUCTS["decreases_star"]),
+    (re.compile(r"\brequires\s+false\b"), M.BANNED_CONSTRUCTS["requires_false"]),
+    (re.compile(r"\bensures\s+true\b"), M.BANNED_CONSTRUCTS["ensures_true"]),
 ]
 # `expect` is a runtime check the verifier treats as an assumption, so it is only legal in tests.
 _BANNED_OUTSIDE_TESTS = [
-    (re.compile(r"\bexpect\b"), "`expect` statement (verifier assumes it; use only in tests.dfy)"),
+    (re.compile(r"\bexpect\b"), M.BANNED_CONSTRUCTS["expect"]),
 ]
 
 _TAG = re.compile(r"//\s*@obligation\s+([a-z0-9_,\s]+?)\s*$")
+TARGET = re.compile(r"//\s*@target\s+([a-z][a-z0-9_]*)", re.MULTILINE)
 _CLAUSE_STARTS = {
     "requires", "ensures", "invariant", "method", "function", "predicate", "lemma",
     "ghost", "opaque", "twostate", "least", "greatest", "constructor",
@@ -297,9 +299,18 @@ def lint_bundle_dafny(layout: BundleLayout, spec_data: Dict[str, Any], require_i
         if path.exists():
             sources[path.name] = path.read_text(encoding="utf-8")
         elif path in required:
-            add("LINT-DFY-000", f"Missing required file: {path.name}", path.name)
+            add("LINT-DFY-000", M.DFY["LINT-DFY-000"].format(file=path.name), path.name)
     if issues:
         return issues
+
+    for path in layout.planted_files:
+        text = path.read_text(encoding="utf-8")
+        sources[f"planted/{path.name}"] = text
+        target = TARGET.search(text)
+        if not target:
+            add("LINT-DFY-012", M.DFY["LINT-DFY-012"].format(file=path.name), f"planted/{path.name}")
+        elif target.group(1) not in obligation_ids:
+            add("LINT-DFY-013", M.DFY["LINT-DFY-013"].format(file=path.name, id=target.group(1)), f"planted/{path.name}")
 
     for name, text in sources.items():
         code = strip_comments_and_strings(text)
@@ -309,29 +320,29 @@ def lint_bundle_dafny(layout: BundleLayout, spec_data: Dict[str, Any], require_i
         for pattern, label in rules:
             for match in pattern.finditer(code):
                 line = code.count("\n", 0, match.start()) + 1
-                add("LINT-DFY-001", f"Banned construct: {label}", f"{name}:{line}")
+                add("LINT-DFY-001", M.DFY["LINT-DFY-001"].format(construct=label), f"{name}:{line}")
 
     contract = outline(sources[layout.contract.name])
     tests = outline(sources[layout.tests.name])
 
     contract_modules = [m for m in contract.modules if m.name == module_name]
     if not contract_modules or not contract_modules[0].abstract:
-        add("LINT-DFY-003", f"contract.dfy must declare `abstract module {module_name}`", layout.contract.name)
+        add("LINT-DFY-003", M.DFY["LINT-DFY-003"].format(module=module_name), layout.contract.name)
     if layout.impl.name in sources:
         impl = outline(sources[layout.impl.name])
         if not any(m.refines == module_name and not m.abstract for m in impl.modules):
-            add("LINT-DFY-004", f"impl.dfy must declare a non-abstract `module ... refines {module_name}`", layout.impl.name)
+            add("LINT-DFY-004", M.DFY["LINT-DFY-004"].format(module=module_name), layout.impl.name)
 
     for member in contract.members:
         location = f"{layout.contract.name}:{member.line}"
         if member.kind == "method" and member.has_body:
-            add("LINT-DFY-009", f"Contract method '{member.name}' has a body; implementations belong in impl.dfy", location)
+            add("LINT-DFY-009", M.DFY["LINT-DFY-009"].format(name=member.name), location)
         if member.kind == "method" and member.ensures_count == 0:
-            add("LINT-DFY-011", f"Contract method '{member.name}' has no ensures clause, so it constrains nothing", location)
+            add("LINT-DFY-011", M.DFY["LINT-DFY-011"].format(name=member.name), location)
         if member.kind in {"function", "predicate"} and not member.has_body:
             add(
                 "LINT-DFY-010",
-                f"Contract {member.kind} '{member.name}' has no body; impl.dfy would get to define the specification",
+                M.DFY["LINT-DFY-010"].format(kind=member.kind, name=member.name),
                 location,
             )
 
@@ -343,7 +354,7 @@ def lint_bundle_dafny(layout: BundleLayout, spec_data: Dict[str, Any], require_i
         for tag_line, ids, _next_line, _first in tags:
             for obligation_id in ids:
                 if obligation_id not in obligation_ids:
-                    add("LINT-DFY-007", f"Tag references unknown obligation id: {obligation_id}", f"{name}:{tag_line}")
+                    add("LINT-DFY-007", M.DFY["LINT-DFY-007"].format(id=obligation_id), f"{name}:{tag_line}")
 
     for obligation_id in dafny_obligations:
         in_contract = [
@@ -352,14 +363,14 @@ def lint_bundle_dafny(layout: BundleLayout, spec_data: Dict[str, Any], require_i
         if not in_contract:
             add(
                 "LINT-DFY-005",
-                f"Obligation '{obligation_id}' has no `// @obligation` tag directly above a contract clause or member",
+                M.DFY["LINT-DFY-005"].format(id=obligation_id),
                 layout.contract.name,
             )
         in_tests = [tag for tag in tests_tags if obligation_id in tag[1] and tag[2] in test_methods]
         if not in_tests:
             add(
                 "LINT-DFY-006",
-                f"Obligation '{obligation_id}' has no `// @obligation` tag directly above a {{:test}} method",
+                M.DFY["LINT-DFY-006"].format(id=obligation_id),
                 layout.tests.name,
             )
 

@@ -1,17 +1,20 @@
-"""Deterministic harness entrypoint: `python -m forgemyspec <command>`. No LLM, no network."""
+"""Deterministic harness entry point: `python -m forgemyspec <command>`. No LLM, no network."""
 
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
+import shutil
 import sys
 from pathlib import Path
 from typing import List, Optional
 
 import yaml
 
+from . import messages as M
 from .bundle import BundleLayout
 from .claude_skill import package_claude_skill
-from .contract_lock import write_lock
+from .contract_lock import write_lock, write_spec_lock
 from .gate import FAIL, format_gate_report, run_gate, static_checks
 from .linting import format_lint_report, lint_spec
 from .nlp_policy import PolicyConfigError, load_compiler_policy
@@ -19,42 +22,98 @@ from .spec_io import load_spec
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        prog="forgemyspec",
-        description="ForgeMySpec harness: lint specs, lock approved Dafny contracts, and run the formal gate.",
-    )
+    parser = argparse.ArgumentParser(prog="forgemyspec", description=M.CLI_DESCRIPTION)
     sub = parser.add_subparsers(dest="command", required=True)
 
-    lint = sub.add_parser("lint", help="Lint a spec.yaml.")
+    lint = sub.add_parser("lint", help=M.CLI_HELP["lint"])
     lint.add_argument("spec")
-    lint.add_argument("--formal", action="store_true", help="Require the formal section (as the gate does).")
+    lint.add_argument("--formal", action="store_true", help=M.CLI_HELP["formal"])
 
-    package = sub.add_parser("package", help="Lint a spec.yaml and write the Claude bundle files next to it.")
+    package = sub.add_parser("package", help=M.CLI_HELP["package"])
     package.add_argument("spec")
-    package.add_argument("--output-dir", help="Defaults to the spec's directory.")
+    package.add_argument("--output-dir", help=M.CLI_HELP["output-dir"])
 
-    lock = sub.add_parser("lock", help="Record the user-approved contract.dfy, tests.dfy and formal section.")
+    lock = sub.add_parser("lock", help=M.CLI_HELP["lock"])
     lock.add_argument("bundle")
-    lock.add_argument("--check", action="store_true", help="Run the pre-lock checks without writing contract.lock.")
+    lock.add_argument("--check", action="store_true", help=M.CLI_HELP["check-lock"])
 
-    gate = sub.add_parser("gate", help="Run every stage of the formal gate on a bundle.")
-    gate.add_argument("bundle")
+    approve = sub.add_parser("approve", help=M.CLI_HELP["approve"])
+    approve.add_argument("bundle")
+    approve.add_argument("--check", action="store_true", help=M.CLI_HELP["check-lock"])
+
+    unlock = sub.add_parser("unlock", help=M.CLI_HELP["unlock"])
+    unlock.add_argument("bundle")
+
+    gate = sub.add_parser("gate", help=M.CLI_HELP["gate"])
+    gate.add_argument("bundle", nargs="?")
+    gate.add_argument("--all", action="store_true", help=M.CLI_HELP["all"])
+
+    hook = sub.add_parser("hook", help=M.CLI_HELP["hook"])
+    hook.add_argument("event")
+
+    sub.add_parser("risk", help=M.CLI_HELP["risk"])
+
+    kernel = sub.add_parser("kernel", help=M.CLI_HELP["kernel"])
+    kernel.add_argument("--check", action="store_true")
+    kernel.add_argument("--bundle", default="forgemyspec-bundle/kernel")
+
+    init = sub.add_parser("init", help=M.CLI_HELP["init"])
+    init.add_argument("target", nargs="?", default=".")
+    init.add_argument("--check", action="store_true", help=M.CLI_HELP["check-init"])
+    init.add_argument("--python", default="python3", help=M.CLI_HELP["python"])
     return parser
+
+
+def _print_stages(stages) -> None:
+    for stage in stages:
+        print(f"  [{M.STATUS[stage.status]:<7}] {M.STAGES.get(stage.name, stage.name)}")
+        for detail in stage.details:
+            print(f"              {detail}")
 
 
 def main(argv: Optional[List[str]] = None) -> int:
     args = build_parser().parse_args(argv)
+
+    if args.command == "hook":
+        from .hooks import main as hook_main
+
+        return hook_main(args.event)
+
+    if args.command == "risk":
+        from . import project, risk
+
+        print(risk.render(risk.build(project.find_root())))
+        return 0
+
+    if args.command == "kernel":
+        from . import kernel
+
+        if args.check:
+            differing = kernel.check(Path(args.bundle))
+            for item in differing:
+                print(M.KERNEL_DIFFERS.format(item=item))
+            print(M.KERNEL_MATCHES if not differing else M.KERNEL_DIVERGED)
+            return 1 if differing else 0
+        kernel.generate(Path(args.bundle))
+        print(M.KERNEL_GENERATED.format(path=kernel.KERNEL_DIR))
+        return 0
+
+    if args.command == "init":
+        from .install import install
+
+        return install(Path(args.target), check=args.check, python=args.python)
+
     try:
         policy = load_compiler_policy()
     except PolicyConfigError as exc:
-        print(f"Policy configuration error: {exc}", file=sys.stderr)
+        print(M.POLICY_ERROR.format(error=exc), file=sys.stderr)
         return 2
 
     if args.command in {"lint", "package"}:
         try:
             spec_data = load_spec(args.spec)
         except (OSError, yaml.YAMLError) as exc:
-            print(f"Cannot read {args.spec}: {str(exc).splitlines()[0]}", file=sys.stderr)
+            print(M.CLI_FILE_UNREADABLE.format(file=args.spec, error=str(exc).splitlines()[0]), file=sys.stderr)
             return 1
         report = lint_spec(spec_data, policy=policy, require_formal=getattr(args, "formal", False))
         print(format_lint_report(report))
@@ -63,27 +122,67 @@ def main(argv: Optional[List[str]] = None) -> int:
             return 1 if failed else 0
         output_dir = args.output_dir or str(Path(args.spec).resolve().parent)
         result = package_claude_skill(args.spec, output_dir)
-        print(f"Bundle written to {result.root}")
+        print(M.CLI_BUNDLE_WRITTEN.format(path=result.root))
         return 0
 
-    if args.command == "lock":
+    if args.command in {"lock", "approve"}:
         layout = BundleLayout.at(args.bundle)
+        if not layout.spec.exists():
+            print(M.CLI_NOT_A_BUNDLE.format(path=args.bundle), file=sys.stderr)
+            return 1
+        if args.command == "approve" and layout.contract.exists():
+            print(M.CLI_APPROVE_FORMAL.format(bundle=args.bundle), file=sys.stderr)
+            return 1
         spec_data, stages = static_checks(layout, policy, require_impl=False)
-        for stage in stages:
-            print(f"  [{stage.status:<7}] {stage.name}")
-            for detail in stage.details:
-                print(f"              {detail}")
+        _print_stages(stages)
         if spec_data is None or any(stage.status == FAIL for stage in stages):
-            print("Refusing to lock: fix the static checks first.", file=sys.stderr)
+            print(M.CLI_LOCK_REFUSED, file=sys.stderr)
             return 1
         if args.check:
-            print("Pre-lock checks passed; nothing was written.")
+            print(M.CLI_LOCK_CHECKED)
             return 0
-        lock = write_lock(layout, spec_data)
-        print(f"Locked {layout.lock} (spec version {lock['spec_version']})")
+        if args.command == "lock":
+            lock = write_lock(layout, spec_data)
+            print(M.CLI_LOCK_WRITTEN.format(path=layout.lock, version=lock["spec_version"]))
+        else:
+            lock = write_spec_lock(layout.root, spec_data)
+            print(M.CLI_APPROVE_WRITTEN.format(path=layout.root / "spec.lock", version=lock["spec_version"]))
         return 0
 
-    report = run_gate(args.bundle, policy=policy, progress=lambda name: print(f"  ... {name}", file=sys.stderr))
+    if args.command == "unlock":
+        from . import project
+
+        layout = BundleLayout.at(args.bundle)
+        targets = [p for p in (layout.lock, layout.root / "spec.lock") if p.exists()]
+        if not targets:
+            print(M.CLI_UNLOCK_NO_LOCK.format(bundle=args.bundle), file=sys.stderr)
+            return 1
+        keep = project.state_dir(project.find_root(str(layout.root))) / "removed-locks"
+        keep.mkdir(exist_ok=True)
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        for target in targets:
+            shutil.copyfile(target, keep / f"{layout.root.name}-{target.name}-{stamp}")
+            target.unlink()
+            print(M.CLI_UNLOCK_DONE.format(path=target))
+        return 0
+
+    # gate
+    if args.all or not args.bundle:
+        from . import project
+
+        root = project.find_root()
+        targets = [b for b in project.discover_bundles(root) if b.locked]
+        if not targets:
+            print(M.CLI_NO_BUNDLES)
+            return 0
+        failed = False
+        for bundle in targets:
+            report = run_gate(str(bundle.dir), policy=policy, progress=lambda name: print(f"  … {name}", file=sys.stderr))
+            print(format_gate_report(report))
+            print()
+            failed = failed or not report.passed
+        return 1 if failed else 0
+    report = run_gate(args.bundle, policy=policy, progress=lambda name: print(f"  … {name}", file=sys.stderr))
     print(format_gate_report(report))
     return 0 if report.passed else 1
 

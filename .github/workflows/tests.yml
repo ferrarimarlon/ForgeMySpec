@@ -35,11 +35,14 @@ jobs:
       - name: Run harness tests (includes end-to-end gate runs)
         run: PYTHONPATH=src python -m unittest discover -s tests -v
 
-      - name: Run the gate on the example bundle
-        run: PYTHONPATH=src python -m forgemyspec gate examples/budget-core
+      - name: Check that src/forgemyspec/_kernel matches a fresh translation of the Dafny kernel
+        run: PYTHONPATH=src python -m forgemyspec kernel --check
+
+      - name: Run the gate on every bundle the user locked (CI never locks; it uses the committed locks)
+        run: PYTHONPATH=src python -m forgemyspec gate --all
 
       - name: Check that no external LLM API is referenced
         run: |
-          if grep -rnE 'api\.openai\.com|api\.anthropic\.com|OPENAI_API_KEY|ANTHROPIC_API_KEY|load_dotenv' src plugins .github --exclude=tests.yml; then
+          if grep -rnE 'api\.openai\.com|api\.anthropic\.com|OPENAI_API_KEY|ANTHROPIC_API_KEY|load_dotenv' src plugins .github --exclude=tests.yml --exclude-dir=_kernel; then
             echo "External LLM API reference found" && exit 1
           fi
