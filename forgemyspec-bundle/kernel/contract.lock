@@ -1,9 +1,0 @@
-lock_version: 2
-spec_version: '0.2'
-contract_sha256: f3e9a9d93adc1418d4f510b843928b9f4461029fa08d78f8dff4388c9c6d30f9
-tests_sha256: 9954f7fd417509a8050c045298659a67b562069ff5939a0e1bae560ac7302fc4
-planted_sha256: 02e1d69cf3570544ed05636824edfab36304f5396f5bd83443faadbcc4fc53f4
-formal_sha256: 238eaf968149994cfd0a1907cca671c2de56cb73ffe9e1befb0096746002f711
-locked_at: '2026-10-31T08:07:19Z'
-approved_via: chat
-approval_code: HOGAJP

@@ -5,13 +5,13 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "forgemyspec"
 version = "0.1.0"
-description = "Deterministic harness for Claude Code: lints specs, checks obligation coverage, and gates Dafny contracts (verify, test, audit, mutation, lock) before translating to Python."
+description = "Turn prompts into concrete specs and Claude-ready bundles; includes Claude Code skills under plugins/forgemyspec/ (symlinked into .claude/skills/)."
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = ["PyYAML>=6.0"]
+dependencies = ["PyYAML>=6.0", "pydantic>=2.8"]
 
 [project.scripts]
-forgemyspec = "forgemyspec.__main__:main"
+forgemyspec = "forgemyspec.cli:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

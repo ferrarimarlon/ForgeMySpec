@@ -1,0 +1,24 @@
+- id: R1
+  status: done
+  title: Revamp on the pre-Dafny version, with the conversation board
+  quote: a gente vai pegar esse modelo e encaixar num commit da versão antes da gente fazer essa grande reestruturação… manter o que esse projeto trouxe de bom, que são as clarezas dos requerimentos e a quantidade de harness e model usadas. E o modelo do anterior que já estava funcionando.
+  steps:
+  - do: main holds the f95101a version (last commit before the Dafny restructure); v0.6 stays in history (323bd0d)
+    check: 'cmd: git merge-base --is-ancestor 323bd0d HEAD && git diff --quiet f95101a HEAD -- src/forgemyspec/linting.py src/forgemyspec/generator.py'
+  - do: experiments kept, including the v0.6 report
+    check: 'cmd: test -f experiments/v06/REPORT.md && test -f experiments/COMPARATIVE_REPORT.md'
+  - do: board ported as a standalone module (requirements, verified vs claimed, harness vs model, tokens)
+    check: 'test: test_board'
+  - do: Stop hook, board skill, agent preload and CLAUDE.md rule
+    check: 'cmd: grep -q hook-stop .claude/settings.json && test -f .claude/skills/forgemyspec-board/SKILL.md && grep -q forgemyspec-board plugins/forgemyspec/agents/forgemyspec-default.md && grep -q "Conversation Board" CLAUDE.md'
+  - do: old version's tests still pass
+    check: 'cmd: PYTHONPATH=src python3 -m unittest discover -s tests'
+- id: R2
+  status: done
+  title: The revamp is main, with no separate folder
+  quote: Então eu quero o revamp na main… sem criar uma pasta chamada revamping
+  steps:
+  - do: main's files are the revamp (board module present, Dafny kernel gone)
+    check: 'cmd: test -f src/forgemyspec/board.py && test ! -e src/forgemyspec/_kernel && test -f forgemyspec-board.yaml'
+  - do: no extra worktree or branch
+    check: 'cmd: test $(git worktree list | wc -l) -eq 1 && test "$(git branch --format=%(refname:short))" = main'

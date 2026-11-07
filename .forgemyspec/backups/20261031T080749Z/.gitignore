@@ -1,0 +1,15 @@
+.env
+.env.*
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+*.egg-info/
+build/
+*.db
+
+# Written by `python -m forgemyspec gate`; regenerated on every run.
+generated/
+
+# Estado local do harness (cache do gate, ledger, retratos de turno).
+.forgemyspec/state/

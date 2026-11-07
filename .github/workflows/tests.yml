@@ -1,13 +1,8 @@
-name: CI
+name: Tests
 
 on:
   push:
   pull_request:
-
-# One job for the whole repository; a newer push cancels the run still in progress.
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   test:
@@ -22,32 +17,11 @@ jobs:
         with:
           python-version: "3.9"
 
-      - name: Set up Dafny
-        uses: dafny-lang/setup-dafny-action@v1
-        with:
-          dafny-version: "4.11.0"
-
-      - name: Install harness dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -e .
 
-      - name: Show toolchain
+      - name: Run test suite
         run: |
-          dafny --version
-          python --version
-
-      - name: Run harness tests (includes end-to-end gate runs)
-        run: PYTHONPATH=src python -m unittest discover -s tests -v
-
-      - name: Check that src/forgemyspec/_kernel matches a fresh translation of the Dafny kernel
-        run: PYTHONPATH=src python -m forgemyspec kernel --check
-
-      - name: Run the gate on every bundle the user locked (CI never locks; it uses the committed locks)
-        run: PYTHONPATH=src python -m forgemyspec gate --all
-
-      - name: Check that no external LLM API is referenced
-        run: |
-          if grep -rnE 'api\.openai\.com|api\.anthropic\.com|OPENAI_API_KEY|ANTHROPIC_API_KEY|load_dotenv' src plugins .github --exclude=tests.yml --exclude-dir=_kernel; then
-            echo "External LLM API reference found" && exit 1
-          fi
+          PYTHONPATH=src python -m unittest discover -s tests -v

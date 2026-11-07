@@ -5,7 +5,6 @@ import re
 import unicodedata
 from typing import Any, Dict, List
 
-from . import messages as M
 from .nlp_policy import CompilerPolicy, load_compiler_policy
 
 
@@ -29,26 +28,17 @@ class LintReport:
         return self.error_count > 0
 
 
-def lint_spec(
-    spec_data: Any,
-    policy: CompilerPolicy | None = None,
-    require_formal: bool = False,
-) -> LintReport:
+def lint_spec(spec_data: Dict[str, Any], policy: CompilerPolicy | None = None) -> LintReport:
     compiler_policy = policy or load_compiler_policy()
     issues: List[LintIssue] = []
 
     def add(severity: str, code: str, message: str, location: str = "spec") -> None:
         issues.append(LintIssue(severity=severity, code=code, message=message, location=location))
 
-    if not isinstance(spec_data, dict):
-        found = M.EMPTY_FILE if spec_data is None else type(spec_data).__name__
-        add("error", "LINT-STRUCT-000", M.LINT["LINT-STRUCT-000"].format(found=found))
-        return _build_report(issues, compiler_policy)
-
     _validate_required_structure(spec_data, add)
 
     context = spec_data.get("context") if isinstance(spec_data.get("context"), dict) else {}
-    assumptions = context.get("assumptions") if isinstance(context.get("assumptions"), list) else []
+    assumptions = context.get("assumptions") if isinstance(context, dict) else []
     actions = spec_data.get("actions") if isinstance(spec_data.get("actions"), list) else []
     hypotheses = spec_data.get("hypotheses") if isinstance(spec_data.get("hypotheses"), list) else []
     constraints = spec_data.get("constraints") if isinstance(spec_data.get("constraints"), list) else []
@@ -78,12 +68,6 @@ def lint_spec(
     _warn_duplicates(required_evidence, add, "required_evidence")
     _warn_duplicates(decision_rules, add, "decision_rules")
 
-    _validate_formal(spec_data, hypotheses, add, compiler_policy, require_formal)
-
-    return _build_report(issues, compiler_policy)
-
-
-def _build_report(issues: List[LintIssue], compiler_policy: CompilerPolicy) -> LintReport:
     error_count = sum(1 for issue in issues if issue.severity == "error")
     warning_count = sum(1 for issue in issues if issue.severity == "warning")
     score = max(
@@ -103,18 +87,18 @@ def _build_report(issues: List[LintIssue], compiler_policy: CompilerPolicy) -> L
 
 def format_lint_report(report: LintReport) -> str:
     lines = [
-        M.LINT_REPORT_SCORE.format(score=report.score),
-        M.LINT_REPORT_ERRORS.format(n=report.error_count),
-        M.LINT_REPORT_WARNINGS.format(n=report.warning_count),
+        f"Lint score: {report.score}/100",
+        f"Errors: {report.error_count}",
+        f"Warnings: {report.warning_count}",
     ]
     if not report.issues:
-        lines.append(M.LINT_REPORT_CLEAN)
+        lines.append("No issues found.")
         return "\n".join(lines)
 
-    lines.append(M.LINT_REPORT_ISSUES)
+    lines.append("Issues:")
     for issue in report.issues:
         lines.append(
-            f"- [{M.SEVERITY.get(issue.severity, issue.severity.upper())}] {issue.code} ({issue.location}) {issue.message}"
+            f"- [{issue.severity.upper()}] {issue.code} ({issue.location}) {issue.message}"
         )
     return "\n".join(lines)
 
@@ -136,22 +120,22 @@ def _validate_required_structure(spec_data: Dict[str, Any], add) -> None:
     }
     for field, expected_type in required.items():
         if field not in spec_data:
-            add("error", "LINT-STRUCT-001", M.LINT["LINT-STRUCT-001"].format(field=field), field)
+            add("error", "LINT-STRUCT-001", f"Missing required field: {field}", field)
             continue
         if not isinstance(spec_data[field], expected_type):
             add(
                 "error",
                 "LINT-STRUCT-002",
-                M.LINT["LINT-STRUCT-002"].format(field=field, type=expected_type.__name__),
+                f"Invalid type for {field}: expected {expected_type.__name__}",
                 field,
             )
 
     context = spec_data.get("context")
     if isinstance(context, dict):
         if not isinstance(context.get("system"), str) or not context.get("system", "").strip():
-            add("error", "LINT-CTX-002", M.LINT["LINT-CTX-002"], "context.system")
+            add("error", "LINT-CTX-002", "context.system must be a non-empty string", "context.system")
         if not isinstance(context.get("assumptions"), list):
-            add("error", "LINT-CTX-003", M.LINT["LINT-CTX-003"], "context.assumptions")
+            add("error", "LINT-CTX-003", "context.assumptions must be a list", "context.assumptions")
 
 
 def _validate_min_items(field: str, values: List[Any], add, policy: CompilerPolicy) -> None:
@@ -160,7 +144,7 @@ def _validate_min_items(field: str, values: List[Any], add, policy: CompilerPoli
         add(
             "error",
             "LINT-MIN-001",
-            M.LINT["LINT-MIN-001"].format(field=field, minimum=minimum, received=len(values)),
+            f"Field '{field}' must have at least {minimum} item(s); received {len(values)}",
             field,
         )
 
@@ -170,26 +154,26 @@ def _validate_hypotheses(hypotheses: List[Any], add) -> None:
     for index, item in enumerate(hypotheses, start=1):
         location = f"hypotheses[{index}]"
         if not isinstance(item, dict):
-            add("error", "LINT-HY-001", M.LINT["LINT-HY-001"], location)
+            add("error", "LINT-HY-001", "Hypothesis entry must be an object", location)
             continue
 
         hypothesis_id = item.get("id")
         if not isinstance(hypothesis_id, str) or not hypothesis_id.strip():
-            add("error", "LINT-HY-002", M.LINT["LINT-HY-002"], f"{location}.id")
+            add("error", "LINT-HY-002", "Hypothesis id must be a non-empty string", f"{location}.id")
         elif hypothesis_id in ids:
-            add("error", "LINT-HY-003", M.LINT["LINT-HY-003"], f"{location}.id")
+            add("error", "LINT-HY-003", "Hypothesis ids must be unique", f"{location}.id")
         else:
             ids.add(hypothesis_id)
 
         description = item.get("description")
         if not isinstance(description, str) or not description.strip():
-            add("error", "LINT-HY-004", M.LINT["LINT-HY-004"], f"{location}.description")
+            add("error", "LINT-HY-004", "Hypothesis description must be non-empty", f"{location}.description")
 
         confidence = item.get("confidence")
         if not isinstance(confidence, (float, int)):
-            add("error", "LINT-HY-005", M.LINT["LINT-HY-005"], f"{location}.confidence")
+            add("error", "LINT-HY-005", "Hypothesis confidence must be numeric", f"{location}.confidence")
         elif confidence < 0 or confidence > 1:
-            add("error", "LINT-HY-006", M.LINT["LINT-HY-006"], f"{location}.confidence")
+            add("error", "LINT-HY-006", "Hypothesis confidence must be between 0 and 1", f"{location}.confidence")
 
 
 def _validate_actions(actions: List[Any], add, policy: CompilerPolicy) -> None:
@@ -198,38 +182,38 @@ def _validate_actions(actions: List[Any], add, policy: CompilerPolicy) -> None:
     for index, item in enumerate(actions, start=1):
         location = f"actions[{index}]"
         if not isinstance(item, dict):
-            add("error", "LINT-ACT-001", M.LINT["LINT-ACT-001"], location)
+            add("error", "LINT-ACT-001", "Action entry must be an object", location)
             continue
 
         action_id = item.get("id")
         if not isinstance(action_id, str) or not action_id.strip():
-            add("error", "LINT-ACT-002", M.LINT["LINT-ACT-002"], f"{location}.id")
+            add("error", "LINT-ACT-002", "Action id must be a non-empty string", f"{location}.id")
         elif action_id in ids:
-            add("error", "LINT-ACT-003", M.LINT["LINT-ACT-003"], f"{location}.id")
+            add("error", "LINT-ACT-003", "Action ids must be unique", f"{location}.id")
         else:
             ids.add(action_id)
 
         action_type = item.get("type")
         if not isinstance(action_type, str) or not action_type.strip():
-            add("error", "LINT-ACT-004", M.LINT["LINT-ACT-004"], f"{location}.type")
+            add("error", "LINT-ACT-004", "Action type must be a non-empty string", f"{location}.type")
         elif policy.allowed_action_types and action_type.lower() not in policy.allowed_action_types:
             add(
                 "warning",
                 "LINT-ACT-005",
-                M.LINT["LINT-ACT-005"].format(type=action_type),
+                f"Action type '{action_type}' is outside policy allowed_action_types",
                 f"{location}.type",
             )
 
         description = item.get("description")
         if not isinstance(description, str) or not description.strip():
-            add("error", "LINT-ACT-006", M.LINT["LINT-ACT-006"], f"{location}.description")
+            add("error", "LINT-ACT-006", "Action description must be non-empty", f"{location}.description")
 
         requires_confirmation = item.get("requires_confirmation")
         if not isinstance(requires_confirmation, bool):
             add(
                 "error",
                 "LINT-ACT-007",
-                M.LINT["LINT-ACT-007"],
+                "Action requires_confirmation must be a boolean",
                 f"{location}.requires_confirmation",
             )
 
@@ -239,14 +223,14 @@ def _validate_actions(actions: List[Any], add, policy: CompilerPolicy) -> None:
                 add(
                     "error",
                     "LINT-ACT-008",
-                    M.LINT["LINT-ACT-008"],
+                    "Action supports must be a non-empty list of hypothesis ids",
                     f"{location}.supports",
                 )
             elif not all(isinstance(entry, str) and entry.strip() for entry in supports):
                 add(
                     "error",
                     "LINT-ACT-009",
-                    M.LINT["LINT-ACT-009"],
+                    "Action supports entries must be non-empty strings",
                     f"{location}.supports",
                 )
 
@@ -272,7 +256,7 @@ def _validate_traceability_links(actions: List[Any], hypotheses: List[Any], add,
                 add(
                     "error",
                     "LINT-TR-001",
-                    M.LINT["LINT-TR-001"].format(id=entry),
+                    f"Action references unknown hypothesis id: {entry}",
                     f"actions[{index}].supports",
                 )
             else:
@@ -284,7 +268,7 @@ def _validate_traceability_links(actions: List[Any], hypotheses: List[Any], add,
             add(
                 "warning",
                 "LINT-TR-002",
-                M.LINT["LINT-TR-002"].format(id=hypothesis_id),
+                f"Hypothesis is not linked by any action: {hypothesis_id}",
                 "hypotheses",
             )
 
@@ -297,16 +281,12 @@ def _validate_metadata(spec_data: Dict[str, Any], add, policy: CompilerPolicy) -
             add(
                 "error",
                 "LINT-META-001",
-                M.LINT["LINT-META-001"].format(field=key),
+                f"metadata.{key} must be a non-empty string",
                 f"metadata.{key}",
             )
 
 
 _NEGATION_WORDS = {"not", "no", "never", "without", "excluding", "avoid", "avoids", "excluded", "omit", "omits"}
-# In Portuguese "no" is the contraction of "em + o"; negation uses these words.
-_NEGATION_WORDS_PT = {"nao", "nunca", "sem", "exceto", "evitar", "evita", "evitam", "jamais", "nenhum", "nenhuma", "omitir", "omite", "excluir", "exclui"}
-_FUNCTION_WORDS_PT = {"de", "que", "um", "uma", "e", "os", "as", "do", "da", "dos", "das", "para", "com", "em", "pelo", "pela", "ao", "se", "ou", "quando"}
-_FUNCTION_WORDS_EN = {"the", "of", "and", "to", "is", "are", "a", "an", "for", "with", "that", "when", "by", "be"}
 _EVIDENCE_NOISE_PREFIXES = ("source code", "the source code", "codebase", "the codebase", "implementation", "the implementation")
 
 
@@ -316,7 +296,7 @@ def _validate_execution_mode(spec_data: Dict[str, Any], add) -> None:
         add(
             "warning",
             "LINT-STRUCT-003",
-            M.LINT["LINT-STRUCT-003"].format(mode=mode.strip()),
+            f"execution_mode is '{mode.strip()}'; expected 'critical' for high-stakes specs",
             "execution_mode",
         )
 
@@ -329,12 +309,11 @@ def _validate_hypotheses_quality(hypotheses: List[Any], add) -> None:
         if not isinstance(description, str):
             continue
         words = set(re.sub(r"[^a-z\s]", "", _normalize_text(description)).split())
-        portuguese = len(words & _FUNCTION_WORDS_PT) > len(words & _FUNCTION_WORDS_EN)
-        if words & (_NEGATION_WORDS_PT if portuguese else _NEGATION_WORDS):
+        if words & _NEGATION_WORDS:
             add(
                 "warning",
                 "LINT-HY-007",
-                M.LINT["LINT-HY-007"],
+                "Hypothesis appears to describe what will NOT be built; hypotheses must be affirmative and testable",
                 f"hypotheses[{index}].description",
             )
 
@@ -365,7 +344,8 @@ def _validate_traceability_breadth(actions: List[Any], hypotheses: List[Any], ad
         add(
             "warning",
             "LINT-TR-003",
-            M.LINT["LINT-TR-003"].format(type=action_type, total=len(hypothesis_ids), ids=ids_str),
+            f"'{action_type}' action supports all {len(hypothesis_ids)} hypotheses ({ids_str}) — "
+            f"each non-validation action should target only the hypotheses it directly advances",
             f"actions[{index}].supports",
         )
 
@@ -379,125 +359,9 @@ def _validate_evidence_quality(required_evidence: List[Any], add) -> None:
             add(
                 "warning",
                 "LINT-EV-001",
-                M.LINT["LINT-EV-001"],
+                "Evidence item describes an artifact, not an observable output; prefer runnable examples, test results, or concrete outputs",
                 f"required_evidence[{index}]",
             )
-
-
-_OBLIGATION_ID = re.compile(r"^[a-z][a-z0-9_]*$")
-_DAFNY_IDENTIFIER = re.compile(r"^[A-Za-z][A-Za-z0-9_]*$")
-OBLIGATION_KINDS = ("dafny", "boundary")
-
-
-def _validate_formal(
-    spec_data: Dict[str, Any],
-    hypotheses: List[Any],
-    add,
-    policy: CompilerPolicy,
-    require_formal: bool,
-) -> None:
-    formal = spec_data.get("formal")
-    if formal is None:
-        if require_formal:
-            add("error", "LINT-FORMAL-000", M.LINT["LINT-FORMAL-000"], "formal")
-        return
-    if not isinstance(formal, dict):
-        add("error", "LINT-FORMAL-001", M.LINT["LINT-FORMAL-001/mapping"], "formal")
-        return
-
-    module = formal.get("module")
-    if not isinstance(module, str) or not _DAFNY_IDENTIFIER.match(module.strip()):
-        add("error", "LINT-FORMAL-001", M.LINT["LINT-FORMAL-001/module"], "formal.module")
-
-    obligations = formal.get("obligations")
-    if not isinstance(obligations, list) or not obligations:
-        add("error", "LINT-FORMAL-001", M.LINT["LINT-FORMAL-001/list"], "formal.obligations")
-        return
-
-    hypothesis_ids = {
-        item.get("id")
-        for item in hypotheses
-        if isinstance(item, dict) and isinstance(item.get("id"), str) and item.get("id").strip()
-    }
-    metadata = spec_data.get("metadata") if isinstance(spec_data.get("metadata"), dict) else {}
-    contract = metadata.get(policy.scope_contract_field)
-    must_include = _coerce_strings(contract.get("must_include")) if isinstance(contract, dict) else []
-
-    seen_ids: set[str] = set()
-    covered_hypotheses: set[str] = set()
-    covered_phrases: set[str] = set()
-
-    for index, item in enumerate(obligations, start=1):
-        location = f"formal.obligations[{index}]"
-        if not isinstance(item, dict):
-            add("error", "LINT-FORMAL-002", M.LINT["LINT-FORMAL-002/object"], location)
-            continue
-
-        obligation_id = item.get("id")
-        if not isinstance(obligation_id, str) or not _OBLIGATION_ID.match(obligation_id):
-            add("error", "LINT-FORMAL-002", M.LINT["LINT-FORMAL-002/format"], f"{location}.id")
-        elif obligation_id in seen_ids:
-            add("error", "LINT-FORMAL-002", M.LINT["LINT-FORMAL-002/duplicate"].format(id=obligation_id), f"{location}.id")
-        else:
-            seen_ids.add(obligation_id)
-
-        statement = item.get("statement")
-        if not isinstance(statement, str) or not statement.strip():
-            add("error", "LINT-FORMAL-009", M.LINT["LINT-FORMAL-009"], f"{location}.statement")
-
-        kind = item.get("kind")
-        if kind not in OBLIGATION_KINDS:
-            add("error", "LINT-FORMAL-003", M.LINT["LINT-FORMAL-003"].format(kinds=list(OBLIGATION_KINDS)), f"{location}.kind")
-        elif kind == "boundary":
-            test = item.get("test")
-            if not isinstance(test, str) or not test.strip():
-                add("error", "LINT-FORMAL-006", M.LINT["LINT-FORMAL-006"], f"{location}.test")
-
-        refs = item.get("hypotheses")
-        if not isinstance(refs, list) or not refs:
-            add("error", "LINT-FORMAL-004", M.LINT["LINT-FORMAL-004/empty"], f"{location}.hypotheses")
-        else:
-            for ref in refs:
-                if ref not in hypothesis_ids:
-                    add("error", "LINT-FORMAL-004", M.LINT["LINT-FORMAL-004/unknown"].format(id=ref), f"{location}.hypotheses")
-                else:
-                    covered_hypotheses.add(ref)
-
-        phrases = item.get("must_include", [])
-        if not isinstance(phrases, list):
-            add("error", "LINT-FORMAL-005", M.LINT["LINT-FORMAL-005/list"], f"{location}.must_include")
-            continue
-        for phrase in phrases:
-            if phrase not in must_include:
-                add(
-                    "error",
-                    "LINT-FORMAL-005",
-                    M.LINT["LINT-FORMAL-005/phrase"].format(phrase=phrase),
-                    f"{location}.must_include",
-                )
-            else:
-                covered_phrases.add(phrase)
-
-    # Coverage comes from the proven kernel (TrustKernel.Coverage).
-    from . import kernel
-
-    valid = [o for o in obligations if isinstance(o, dict)]
-    missing_h, missing_p = kernel.coverage(
-        sorted(hypothesis_ids),
-        must_include,
-        [[r for r in o.get("hypotheses") or [] if isinstance(r, str)] for o in valid],
-        [[p for p in o.get("must_include") or [] if isinstance(p, str)] if isinstance(o.get("must_include"), list) else [] for o in valid],
-    )
-    for hypothesis_id in missing_h:
-        add("error", "LINT-FORMAL-007", M.LINT["LINT-FORMAL-007"].format(id=hypothesis_id), "formal.obligations")
-    for phrase in missing_p:
-        add("error", "LINT-FORMAL-008", M.LINT["LINT-FORMAL-008"].format(phrase=phrase), "formal.obligations")
-
-
-def _coerce_strings(value: Any) -> List[str]:
-    if not isinstance(value, list):
-        return []
-    return [item.strip() for item in value if isinstance(item, str) and item.strip()]
 
 
 def _warn_duplicates(values: List[Any], add, field: str) -> None:
@@ -517,7 +381,7 @@ def _warn_duplicates(values: List[Any], add, field: str) -> None:
         add(
             "warning",
             "LINT-DUP-001",
-            M.LINT["LINT-DUP-001"].format(field=field),
+            f"Field '{field}' contains duplicate or near-duplicate entries",
             field,
         )
 

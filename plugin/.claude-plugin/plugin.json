@@ -1,8 +1,0 @@
-{
-  "name": "forgemyspec",
-  "version": "0.6.0",
-  "description": "Spec-first development with chat approvals, deterministic gates and a requirements board.",
-  "author": {
-    "name": "Marlon Ferrari"
-  }
-}

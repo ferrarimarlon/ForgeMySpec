@@ -1,9 +1,0 @@
-# ForgeMySpec configuration. Only the user edits this file (the guards protect it).
-enforcement: strict
-# Free text that is not code: allowed for editing and listed in the box as unverified text.
-allow_paths:
-  - "**/*.md"
-  - "docs/**"
-  - "LICENSE*"
-# Folders left out of the analysis (besides .git, node_modules, .venv and similar).
-ignore_dirs: [".git", "node_modules", ".venv", "venv", "__pycache__", ".forgemyspec", "generated", "_kernel", "build", "dist"]

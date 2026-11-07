@@ -1,7 +1,0 @@
-#!/bin/sh
-# Installed by `forgemyspec init`: runs the gate on bundles with staged changes.
-# A previous project pre-commit was kept as pre-commit.local and runs first.
-if [ -x "$(dirname "$0")/pre-commit.local" ]; then
-  "$(dirname "$0")/pre-commit.local" "$@" || exit $?
-fi
-PYTHONPATH=.forgemyspec/harness python3 -m forgemyspec hook pre-commit
