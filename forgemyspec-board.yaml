@@ -22,3 +22,24 @@
     check: 'cmd: test -f src/forgemyspec/board.py && test ! -e src/forgemyspec/_kernel && test -f forgemyspec-board.yaml'
   - do: no extra worktree or branch
     check: 'cmd: test $(git worktree list | wc -l) -eq 1 && test "$(git branch | wc -l)" -eq 1 && git branch | grep -q "^\* main$"'
+- id: R3
+  status: done
+  title: Push the revamp to GitHub
+  quote: Faz o push.
+  steps:
+  - do: HEAD 98287c0 is on origin/main
+    check: 'cmd: git fetch -q origin && git merge-base --is-ancestor 98287c0 origin/main'
+- id: R4
+  status: done
+  title: Could Dafny strengthen the board's harness? (answer)
+  quote: Esse harness poderia ser melhor absorvido usando o Daphne?
+  steps:
+  - do: answer grounded in the v0.6 report (Dafny never chosen, 5x cost, only pure logic)
+    check: 'cmd: grep -q "54 of 54 with-arm builds were spec-only" experiments/v06/REPORT.md'
+- id: R5
+  status: done
+  title: Push the board updates
+  quote: faz o push.
+  steps:
+  - do: local main has no commits missing from origin/main
+    check: 'cmd: git fetch -q origin && test -z "$(git log origin/main..HEAD --oneline)"'
