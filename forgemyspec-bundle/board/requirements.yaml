@@ -439,3 +439,10 @@
   - do: show it in the spec/board and in the risk box
     check: 'test: test_board.BoardTests.test_cost_per_requirement'
   next: backlog; design after the v0.6 experiment results (R37)
+- id: R39
+  status: done
+  title: Is the framework useless? (reading of the v0.6 results)
+  quote: Então, inútil, né?
+  steps:
+  - do: answer from experiments/v06/REPORT.md, including what the experiment did not test
+    check: 'cmd: test -f experiments/v06/REPORT.md'
