@@ -21,4 +21,4 @@
   - do: main's files are the revamp (board module present, Dafny kernel gone)
     check: 'cmd: test -f src/forgemyspec/board.py && test ! -e src/forgemyspec/_kernel && test -f forgemyspec-board.yaml'
   - do: no extra worktree or branch
-    check: 'cmd: test $(git worktree list | wc -l) -eq 1 && test "$(git branch --format=%(refname:short))" = main'
+    check: 'cmd: test $(git worktree list | wc -l) -eq 1 && test "$(git branch | wc -l)" -eq 1 && git branch | grep -q "^\* main$"'
