@@ -43,3 +43,26 @@
   steps:
   - do: local main has no commits missing from origin/main
     check: 'cmd: git fetch -q origin && test -z "$(git log origin/main..HEAD --oneline)"'
+- id: R6
+  status: open
+  title: Board must reflect independent verification, not the model testing itself
+  quote: O que você está chamando de harness é você escrevendo e testando. Mas isso você já faria sem precisar disso, certo?
+  steps:
+  - do: label what is measured honestly (checks written and run by the model)
+  - do: checks owned by the user and locked before the code, which the model cannot edit
+  - do: checks run by a hook (Stop, pre-commit), not when the model chooses
+  - do: check strength measured (mutation), so a trivial check does not earn a tick
+  - do: independent blind verifier for done requirements
+  next: user picks which of these to build
+- id: R7
+  status: doing
+  title: CI failing after push (Python 3.9 missing on ubuntu-latest)
+  quote: Verifica por que está dando erro no push.
+  steps:
+  - do: cause found — ubuntu-latest is 26.04, setup-python has no 3.9 there; push itself succeeded
+    ok: true
+  - do: workflows pinned to ubuntu-24.04
+    check: 'cmd: grep -q "runs-on: ubuntu-24.04" .github/workflows/tests.yml && grep -q "runs-on: ubuntu-24.04" .github/workflows/spec-lint.yml'
+  - do: Tests workflow green on GitHub after the next push
+    check: 'cmd: gh run list --workflow Tests --branch main --limit 1 --json conclusion -q ".[0].conclusion" | grep -qx success'
+  next: push when the user says so, then check the run
